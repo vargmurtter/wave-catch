@@ -1,0 +1,116 @@
+# =============================================================================
+# Music Player — Flutter desktop application
+# =============================================================================
+
+# --- OS / filesystem ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# --- IDE / editors ---
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code: launch configs and tasks are often shared; uncomment to ignore entirely.
+# .vscode/
+
+# --- Secrets & local environment (never commit) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+**/key.properties
+**/secrets/
+
+# --- Flutter / Dart / Pub ---
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+**/doc/api/
+pubspec_overrides.yaml
+
+# --- Test & coverage ---
+/coverage/
+test/.test_coverage.dart
+
+# --- Symbolication / obfuscation ---
+app.*.symbols
+app.*.map.json
+
+# --- FVM (Flutter Version Management) ---
+.fvm/flutter_sdk
+
+# --- Local runtime data (cache, dev DB, downloaded assets) ---
+.local/
+
+# --- Miscellaneous build artifacts ---
+*.class
+*.log
+*.pyc
+*.swp
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# --- Android (when platform is added) ---
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+/android/.gradle/
+/android/local.properties
+/android/**/captures/
+/android/**/GeneratedPluginRegistrant.java
+
+# --- iOS (when platform is added) ---
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/**/xcuserdata/
+
+# --- macOS / Xcode (complements macos/.gitignore) ---
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+**/macos/**/xcuserdata/
+**/macos/**/DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+
+# --- Linux (complements linux/.gitignore) ---
+**/linux/flutter/ephemeral/
+
+# --- Windows (complements windows/.gitignore) ---
+**/windows/flutter/ephemeral/
+**/windows/x64/
+**/windows/x86/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# --- Distribution packages ---
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.app.zip
