@@ -9,10 +9,12 @@ class AlbumCard extends StatefulWidget {
     super.key,
     required this.album,
     this.enableHoverScale = true,
+    this.onTap,
   });
 
   final Album album;
   final bool enableHoverScale;
+  final VoidCallback? onTap;
 
   @override
   State<AlbumCard> createState() => _AlbumCardState();
@@ -76,14 +78,19 @@ class _AlbumCardState extends State<AlbumCard> {
         return MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),
-          cursor: SystemMouseCursors.click,
-          child: widget.enableHoverScale
-              ? AnimatedScale(
-                  scale: _isHovered ? 1.03 : 1.0,
-                  duration: const Duration(milliseconds: 150),
-                  child: content,
-                )
-              : content,
+          cursor: widget.onTap != null
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: widget.enableHoverScale
+                ? AnimatedScale(
+                    scale: _isHovered ? 1.03 : 1.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: content,
+                  )
+                : content,
+          ),
         );
       },
     );

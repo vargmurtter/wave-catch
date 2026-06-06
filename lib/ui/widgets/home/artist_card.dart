@@ -9,10 +9,12 @@ class ArtistCard extends StatefulWidget {
     super.key,
     required this.artist,
     this.enableHoverScale = true,
+    this.onTap,
   });
 
   final Artist artist;
   final bool enableHoverScale;
+  final VoidCallback? onTap;
 
   @override
   State<ArtistCard> createState() => _ArtistCardState();
@@ -70,14 +72,19 @@ class _ArtistCardState extends State<ArtistCard> {
         return MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),
-          cursor: SystemMouseCursors.click,
-          child: widget.enableHoverScale
-              ? AnimatedScale(
-                  scale: _isHovered ? 1.03 : 1.0,
-                  duration: const Duration(milliseconds: 150),
-                  child: content,
-                )
-              : content,
+          cursor: widget.onTap != null
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: widget.enableHoverScale
+                ? AnimatedScale(
+                    scale: _isHovered ? 1.03 : 1.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: content,
+                  )
+                : content,
+          ),
         );
       },
     );

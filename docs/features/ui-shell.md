@@ -10,19 +10,23 @@
 
 ```
 ┌──────────┬─────────────────────────────────────┬──────────┐
-│          │                                     │  Queue   │
-│ Sidebar  │         Content Area                │  Panel   │
-│  240px   │         (активный экран)            │ (опц.)   │
-│          │                                     │  350px   │
-├──────────┴─────────────────────────────────────┴──────────┤
+│          │                              ┌──────┤ Track  │
+│ Sidebar  │         Content Area         │Queue │ Info   │
+│  240px   │  (раздел или детальный       │Panel │(overlay│
+│          │   экран)                     │(опц.)│ опц.)  │
+│          │                              │350px │ 350px  │
+├──────────┴──────────────────────────────┴──────┴────────┤
 │                      PlayerBar  96px                     │
 └──────────────────────────────────────────────────────────┘
 ```
 
 - **Сайдбар** — навигация: Главное, Исполнители, Альбомы, Плейлисты
-- **Контент** — экран выбранного раздела
+- **Контент** — экран выбранного раздела или детальный экран (исполнитель, альбом)
 - **Плеер** — закреплён снизу на всю ширину
 - **Панель очереди** — выезжает справа при нажатии кнопки плейлиста в плеере
+- **Панель трека** — плавающий overlay справа при клике по треку (не по play)
+
+Детальные экраны: [library-detail-screens.md](library-detail-screens.md).
 
 ## Цветовая схема
 
@@ -47,16 +51,20 @@ lib/ui/
   shell/
     app_shell.dart          # корневой layout
   screens/
-    home_screen.dart        # 4 секции главного экрана
-    artists_screen.dart     # заглушка
-    albums_screen.dart      # заглушка
-    playlists_screen.dart   # заглушка
+    home_screen.dart            # 4 секции главного экрана
+    artists_screen.dart         # сетка исполнителей
+    albums_screen.dart          # сетка альбомов
+    playlists_screen.dart       # список плейлистов
+    artist_detail_screen.dart   # детальный экран исполнителя
+    artist_tracks_screen.dart   # все треки исполнителя
+    album_detail_screen.dart    # детальный экран альбома
   widgets/
     sidebar/                # AppSidebar, SidebarNavItem
     player/                 # PlayerBar, VolumeControl, QueuePanel
     home/                   # карточки и секции
-    common/                 # CoverArt
-  models/                   # Track, Album, Artist, PlayerUiState, …
+    track/                  # TrackListTile, TrackInfoPanel
+    common/                 # CoverArt, DetailBackButton, FrostedPanel
+  models/                   # Track, Album, Artist, LibraryRoute, …
   mock/
     mock_data.dart          # тестовые данные
 ```
@@ -68,6 +76,8 @@ lib/ui/
 | `selectedNavItemProvider` | `lib/di/providers.dart` | Активный пункт сайдбара |
 | `playerUiStateProvider` | `lib/di/providers.dart` | Состояние плеера (mock) |
 | `homeSectionsProvider` | `lib/di/providers.dart` | Данные секций главного экрана |
+| `libraryRouteProvider` | `lib/di/providers.dart` | Стек детальных маршрутов |
+| `trackInfoPanelProvider` | `lib/di/providers.dart` | Плавающая панель информации о треке |
 
 Кнопки плеера и навигация меняют только UI-состояние. Сервисы и репозитории не задействованы.
 

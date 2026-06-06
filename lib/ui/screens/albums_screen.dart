@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/mock/mock_data.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
 
-class AlbumsScreen extends StatelessWidget {
+class AlbumsScreen extends ConsumerWidget {
   const AlbumsScreen({super.key});
 
   static const _gridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
@@ -15,8 +17,9 @@ class AlbumsScreen extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final albums = MockData.albums;
+    final routeNotifier = ref.read(libraryRouteProvider.notifier);
 
     return ScreenScrollView(
       child: Column(
@@ -34,9 +37,11 @@ class AlbumsScreen extends StatelessWidget {
               gridDelegate: _gridDelegate,
               itemCount: albums.length,
               itemBuilder: (context, index) {
+                final album = albums[index];
                 return AlbumCard(
-                  album: albums[index],
+                  album: album,
                   enableHoverScale: false,
+                  onTap: () => routeNotifier.openAlbum(album.id),
                 );
               },
             ),

@@ -14,6 +14,8 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sections = ref.watch(homeSectionsProvider);
+    final routeNotifier = ref.read(libraryRouteProvider.notifier);
+    final trackInfoNotifier = ref.read(trackInfoPanelProvider.notifier);
 
     return ScreenScrollView(
       child: Column(
@@ -29,8 +31,10 @@ class HomeScreen extends ConsumerWidget {
             child: HorizontalCardList(
               itemCount: sections.recentlyPlayed.length,
               itemBuilder: (context, index) {
+                final track = sections.recentlyPlayed[index];
                 return RecentTrackTile(
-                  track: sections.recentlyPlayed[index],
+                  track: track,
+                  onTap: () => trackInfoNotifier.open(track),
                 );
               },
             ),
@@ -42,7 +46,11 @@ class HomeScreen extends ConsumerWidget {
             child: HorizontalCardList(
               itemCount: sections.recentlyAdded.length,
               itemBuilder: (context, index) {
-                return AlbumCard(album: sections.recentlyAdded[index]);
+                final album = sections.recentlyAdded[index];
+                return AlbumCard(
+                  album: album,
+                  onTap: () => routeNotifier.openAlbum(album.id),
+                );
               },
             ),
           ),
@@ -53,7 +61,11 @@ class HomeScreen extends ConsumerWidget {
             child: HorizontalCardList(
               itemCount: sections.favoriteAlbums.length,
               itemBuilder: (context, index) {
-                return AlbumCard(album: sections.favoriteAlbums[index]);
+                final album = sections.favoriteAlbums[index];
+                return AlbumCard(
+                  album: album,
+                  onTap: () => routeNotifier.openAlbum(album.id),
+                );
               },
             ),
           ),
@@ -64,7 +76,11 @@ class HomeScreen extends ConsumerWidget {
             child: HorizontalCardList(
               itemCount: sections.favoriteArtists.length,
               itemBuilder: (context, index) {
-                return ArtistCard(artist: sections.favoriteArtists[index]);
+                final artist = sections.favoriteArtists[index];
+                return ArtistCard(
+                  artist: artist,
+                  onTap: () => routeNotifier.openArtist(artist.id),
+                );
               },
             ),
           ),
