@@ -125,7 +125,7 @@ class MetadataEditService {
       throw MetadataEditException('Не удалось прочитать файл обложки');
     }
 
-    final coversDir = p.join(musicRoot, kEmbeddedCoversDir);
+    final coversDir = p.join(musicRoot, kAppDataDirName, kEmbeddedCoversDirName);
     return _coverArtResolver.saveEmbeddedCover(
       coversDir: coversDir,
       trackId: '${trackId}_custom',

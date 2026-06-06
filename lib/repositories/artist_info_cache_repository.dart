@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:music_player/app_paths.dart';
 import 'package:music_player/repositories/entities/artist_info_record.dart';
 
 class ArtistInfoCacheRepository {
@@ -13,7 +14,7 @@ class ArtistInfoCacheRepository {
 
   Future<Directory> _appDir() async {
     final supportDir = await getApplicationSupportDirectory();
-    final appDir = Directory(p.join(supportDir.path, 'music_player'));
+    final appDir = Directory(p.join(supportDir.path, kAppDataDirName));
     if (!appDir.existsSync()) {
       appDir.createSync(recursive: true);
     }

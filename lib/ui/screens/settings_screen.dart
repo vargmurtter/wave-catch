@@ -41,7 +41,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: const Text('Изменить папку с музыкой?'),
         content: const Text(
           'Текущий индекс останется в прежней папке. '
-          'Для новой папки будет создан новый library.db и выполнено сканирование.',
+          'Для новой папки будет создан .wave_catcher/library.db и выполнено сканирование.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [

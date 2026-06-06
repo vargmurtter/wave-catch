@@ -1,6 +1,6 @@
 # Архитектура
 
-Десктопное приложение Music Player строится на простой и предсказуемой архитектуре.
+Десктопное приложение waveCatcher строится на простой и предсказуемой архитектуре.
 
 ## Принципы
 
@@ -99,12 +99,12 @@ docs/             # документация (этот файл и др.)
 | Модуль | Слой | Назначение |
 |--------|------|------------|
 | `AppSettingsRepository` | Repository | путь к папке с музыкой (Application Support) |
-| `LibraryRepository` | Repository | CRUD индекса в `library.db` |
+| `LibraryRepository` | Repository | CRUD индекса в `.wave_catcher/library.db` |
 | `SettingsService` | Service | выбор папки, проверка конфигурации |
 | `LibraryScannerService` | Service | оркестрация сканирования |
 | `LibraryService` | Service | чтение библиотеки для UI, глобальный поиск |
 | `PlayerService` | Service | воспроизведение, очередь, repeat/shuffle |
-| `MetadataOverrideRepository` | Repository | override-конфиг метаданных в `.music_player/` |
+| `MetadataOverrideRepository` | Repository | override-конфиг метаданных в `.wave_catcher/` |
 | `MetadataFileWriter` | Repository | запись тегов в аудиофайлы через `metadata_god` |
 | `MetadataEditService` | Service | редактирование метаданных треков |
 | `LastFmApiRepository` | Repository | HTTP-запросы к Last.fm API |

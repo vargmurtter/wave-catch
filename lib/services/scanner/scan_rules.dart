@@ -1,3 +1,5 @@
+export 'package:music_player/app_paths.dart';
+
 const kUnknownArtist = 'Неизвестный исполнитель';
 const kUnknownAlbum = 'Неизвестный альбом';
 const kVariousArtists = 'Разные исполнители';
@@ -15,9 +17,5 @@ const kAudioExtensions = {
   'wma',
 };
 
-const kLibraryDbFileName = 'library.db';
-const kEmbeddedCoversDir = '.covers';
-const kMetadataOverridesDir = '.music_player';
-const kMetadataOverridesFileName = 'metadata_overrides.json';
 
 const kLibrarySchemaVersion = 2;

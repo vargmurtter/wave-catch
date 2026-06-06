@@ -104,7 +104,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 const SizedBox(height: 12),
                 const Text(
                   'Выберите папку с музыкой. Приложение просканирует её '
-                  'и создаст индекс в файле library.db в корне папки.',
+                  'и создаст индекс в .wave_catcher/library.db.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,

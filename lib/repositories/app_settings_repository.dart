@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import 'package:music_player/services/scanner/album_grouping_strategy.dart';
+import 'package:music_player/app_paths.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
+import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 
 class AppSettingsRepository {
   static const _configFileName = 'app_config.json';
@@ -16,7 +17,7 @@ class AppSettingsRepository {
 
   Future<File> _configFile() async {
     final supportDir = await getApplicationSupportDirectory();
-    final appDir = Directory(p.join(supportDir.path, 'music_player'));
+    final appDir = Directory(p.join(supportDir.path, kAppDataDirName));
     if (!appDir.existsSync()) {
       appDir.createSync(recursive: true);
     }

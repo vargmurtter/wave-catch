@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:music_player/app_info.dart';
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
@@ -40,7 +41,7 @@ class AppSidebar extends ConsumerWidget {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    'Music Player',
+                    kAppDisplayName,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,

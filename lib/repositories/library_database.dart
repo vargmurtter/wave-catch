@@ -14,7 +14,11 @@ class LibraryDatabase {
   Database get db => _db;
 
   static LibraryDatabase open(String musicRoot) {
-    final dbPath = p.join(musicRoot, kLibraryDbFileName);
+    final dbPath = p.join(musicRoot, kAppDataDirName, kLibraryDbFileName);
+    final dbDir = Directory(p.dirname(dbPath));
+    if (!dbDir.existsSync()) {
+      dbDir.createSync(recursive: true);
+    }
     final db = sqlite3.open(dbPath);
     final instance = LibraryDatabase(db, musicRoot);
     instance._migrate();
@@ -123,7 +127,7 @@ class LibraryDatabase {
   }
 
   String embeddedCoversDir() {
-    return p.join(musicRoot, kEmbeddedCoversDir);
+    return p.join(musicRoot, kAppDataDirName, kEmbeddedCoversDirName);
   }
 
   void ensureEmbeddedCoversDir() {

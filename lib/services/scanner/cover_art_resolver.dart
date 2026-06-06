@@ -99,7 +99,7 @@ class CoverArtResolver {
     required String musicRoot,
     required List<ResolvedTrack> tracks,
   }) {
-    final coversDir = p.join(musicRoot, kEmbeddedCoversDir);
+    final coversDir = p.join(musicRoot, kAppDataDirName, kEmbeddedCoversDirName);
     Directory(coversDir).createSync(recursive: true);
 
     final tracksWithCover = <ResolvedTrackWithCover>[];

@@ -6,10 +6,11 @@
 
 | Данные | Расположение |
 |--------|--------------|
-| Путь к папке с музыкой | `{ApplicationSupport}/music_player/app_config.json` |
-| Стратегия группировки альбомов | `{ApplicationSupport}/music_player/app_config.json` |
-| Индекс библиотеки | `{musicRoot}/library.db` |
-| Embedded-обложки | `{musicRoot}/.covers/` |
+| Путь к папке с музыкой | `{ApplicationSupport}/.wave_catcher/app_config.json` |
+| Стратегия группировки альбомов | `{ApplicationSupport}/.wave_catcher/app_config.json` |
+| Индекс библиотеки | `{musicRoot}/.wave_catcher/library.db` |
+| Override-конфиг | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
+| Embedded-обложки | `{musicRoot}/.wave_catcher/covers/` |
 
 ## Первый запуск и настройки
 
@@ -41,7 +42,7 @@
 
 - Рекурсивный обход всех подпапок выбранной директории.
 - Аудио: `mp3`, `flac`, `m4a`, `aac`, `ogg`, `opus`, `wav`, `wma`.
-- Пропускаются `library.db` и каталог `.covers`.
+- Пропускаются каталог `.wave_catcher` и устаревшие `.covers`, `.music_player`, а также файл `library.db` в корне библиотеки.
 
 ### Метаданные
 
@@ -57,7 +58,7 @@
 Расширения изображений в файловой системе: `jpg`, `jpeg`, `png`, `webp`.
 
 **Трек:**
-1. Embedded cover из метаданных → кэш в `.covers/{trackId}.ext`
+1. Embedded cover из метаданных → кэш в `.wave_catcher/covers/{trackId}.ext`
 2. Первое изображение в папке трека
 
 **Альбом:**
@@ -86,7 +87,7 @@
 
 ```
 ScanJob → FileDiscovery → MetadataExtractor → TagTextFixer → EntityResolver
-        → CoverArtResolver → LibraryPersister → library.db
+        → CoverArtResolver → LibraryPersister → .wave_catcher/library.db
 ```
 
 Каталог: `lib/services/scanner/`
@@ -136,7 +137,7 @@ flutter run -d macos
 
 ### App Sandbox
 
-Приложение **не использует App Sandbox** — это desktop-плеер, которому нужен рекурсивный доступ к выбранной папке с музыкой и запись `library.db` в неё. Sandbox без security-scoped bookmarks блокирует диалог выбора папки и доступ к файлам после перезапуска.
+Приложение **не использует App Sandbox** — это desktop-плеер, которому нужен рекурсивный доступ к выбранной папке с музыкой и запись `.wave_catcher/library.db` в неё. Sandbox без security-scoped bookmarks блокирует диалог выбора папки и доступ к файлам после перезапуска.
 
 ## Вне scope
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:music_player/app_info.dart';
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/screens/onboarding_screen.dart';
 import 'package:music_player/ui/shell/app_shell.dart';
@@ -14,7 +15,7 @@ class MainApp extends ConsumerWidget {
     final settings = ref.watch(appSettingsStateProvider);
 
     return MaterialApp(
-      title: 'Music Player',
+      title: kAppDisplayName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       home: settings.isConfigured ? const AppShell() : const OnboardingScreen(),

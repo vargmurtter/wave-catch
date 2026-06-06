@@ -9,7 +9,7 @@
 | Режим | Куда пишутся изменения |
 |-------|------------------------|
 | **Запись в файлы треков** | Теги аудиофайла через `metadata_god` |
-| **Override-конфиг** | `{musicRoot}/.music_player/metadata_overrides.json` |
+| **Override-конфиг** | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
 
 ### Override-конфиг
 
@@ -29,7 +29,7 @@
       "genre": "Rock",
       "trackNumber": 3,
       "discNumber": 1,
-      "coverPath": ".covers/<trackId>_custom.jpg",
+      "coverPath": ".wave_catcher/covers/<trackId>_custom.jpg",
       "updatedAtMs": 1710000000000
     }
   }

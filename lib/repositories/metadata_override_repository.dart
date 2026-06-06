@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import 'package:music_player/app_paths.dart';
 import 'package:music_player/services/metadata/track_metadata_override.dart';
-import 'package:music_player/services/scanner/scan_rules.dart';
 
 class MetadataOverrideRepository {
   File _overrideFile(String musicRoot) {
-    final dir = Directory(p.join(musicRoot, kMetadataOverridesDir));
+    final dir = Directory(p.join(musicRoot, kAppDataDirName));
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }

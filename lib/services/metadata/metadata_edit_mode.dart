@@ -1,3 +1,5 @@
+import 'package:music_player/app_paths.dart';
+
 enum MetadataEditMode {
   inFile,
   override,
@@ -15,7 +17,7 @@ extension MetadataEditModeLabels on MetadataEditMode {
           'Приглашённые исполнители сохраняются в override-конфиг, '
           'так как стандартные теги их не поддерживают.',
         MetadataEditMode.override =>
-          'Изменения сохраняются в .music_player/metadata_overrides.json '
+          'Изменения сохраняются в $kAppDataDirName/metadata_overrides.json '
           'в папке библиотеки. Исходные файлы не изменяются.',
       };
 

@@ -38,7 +38,11 @@ class FileDiscovery {
     for (final entity in entities) {
       if (entity is Directory) {
         final name = p.basename(entity.path);
-        if (name == kEmbeddedCoversDir) continue;
+        if (name == kAppDataDirName ||
+            name == '.covers' ||
+            name == '.music_player') {
+          continue;
+        }
         _walk(entity, musicRoot, results);
         continue;
       }

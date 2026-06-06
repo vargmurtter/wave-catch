@@ -48,7 +48,7 @@ ArtistDetailScreen
 
 ## Кэш
 
-Файлы в `{ApplicationSupport}/music_player/`:
+Файлы в `{ApplicationSupport}/.wave_catcher/`:
 
 | Файл | Содержимое |
 |------|------------|
