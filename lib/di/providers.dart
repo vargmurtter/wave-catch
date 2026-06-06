@@ -7,6 +7,7 @@ import 'package:music_player/repositories/library_repository.dart';
 import 'package:music_player/services/library_scanner_service.dart';
 import 'package:music_player/services/library_service.dart';
 import 'package:music_player/services/player_service.dart';
+import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
 import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/album.dart';
@@ -59,10 +60,12 @@ class AppSettingsState {
   const AppSettingsState({
     this.musicLibraryPath,
     this.isConfigured = false,
+    this.albumGroupingStrategy = AlbumGroupingStrategy.byAlbumArtist,
   });
 
   final String? musicLibraryPath;
   final bool isConfigured;
+  final AlbumGroupingStrategy albumGroupingStrategy;
 }
 
 final appSettingsStateProvider =
@@ -77,6 +80,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     return AppSettingsState(
       musicLibraryPath: service.musicLibraryPath,
       isConfigured: service.isLibraryConfigured,
+      albumGroupingStrategy: service.albumGroupingStrategy,
     );
   }
 
@@ -94,11 +98,17 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     _syncFromService();
   }
 
+  Future<void> setAlbumGroupingStrategy(AlbumGroupingStrategy strategy) async {
+    await ref.read(settingsServiceProvider).setAlbumGroupingStrategy(strategy);
+    _syncFromService();
+  }
+
   void _syncFromService() {
     final service = ref.read(settingsServiceProvider);
     state = AppSettingsState(
       musicLibraryPath: service.musicLibraryPath,
       isConfigured: service.isLibraryConfigured,
+      albumGroupingStrategy: service.albumGroupingStrategy,
     );
   }
 }
@@ -137,8 +147,13 @@ class LibraryScanNotifier extends Notifier<LibraryScanState> {
     state = const LibraryScanState(status: LibraryScanStatus.scanning);
 
     try {
+      final strategy = ref.read(settingsServiceProvider).albumGroupingStrategy;
       final result = await ref.read(libraryScannerServiceProvider).scan(
-            ScanJob(musicRoot: musicRoot, mode: mode),
+            ScanJob(
+              musicRoot: musicRoot,
+              mode: mode,
+              albumGroupingStrategy: strategy,
+            ),
             onProgress: (progress) {
               state = LibraryScanState(
                 status: LibraryScanStatus.scanning,

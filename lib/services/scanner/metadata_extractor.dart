@@ -19,6 +19,7 @@ class MetadataExtractor {
       artist: _fixText(
         _nonEmpty(metadata.artist) ?? _nonEmpty(metadata.albumArtist),
       ),
+      albumArtist: _fixText(_nonEmpty(metadata.albumArtist)),
       album: _fixText(_nonEmpty(metadata.album)),
       durationMs: metadata.durationMs?.floor() ?? 0,
       trackNumber: metadata.trackNumber,

@@ -4,8 +4,12 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:music_player/services/scanner/album_grouping_strategy.dart';
+
 class AppSettingsRepository {
   static const _configFileName = 'app_config.json';
+  static const _musicLibraryPathKey = 'musicLibraryPath';
+  static const _albumGroupingStrategyKey = 'albumGroupingStrategy';
 
   Future<File> _configFile() async {
     final supportDir = await getApplicationSupportDirectory();
@@ -16,22 +20,45 @@ class AppSettingsRepository {
     return File(p.join(appDir.path, _configFileName));
   }
 
-  Future<String?> getMusicLibraryPath() async {
+  Future<Map<String, dynamic>> _readConfig() async {
     final file = await _configFile();
-    if (!file.existsSync()) return null;
+    if (!file.existsSync()) return {};
 
     try {
-      final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-      return json['musicLibraryPath'] as String?;
+      final json = jsonDecode(await file.readAsString());
+      if (json is Map<String, dynamic>) return json;
+      return {};
     } catch (_) {
-      return null;
+      return {};
     }
   }
 
-  Future<void> setMusicLibraryPath(String path) async {
+  Future<void> _writeConfig(Map<String, dynamic> config) async {
     final file = await _configFile();
-    await file.writeAsString(
-      jsonEncode({'musicLibraryPath': path}),
+    await file.writeAsString(jsonEncode(config));
+  }
+
+  Future<String?> getMusicLibraryPath() async {
+    final config = await _readConfig();
+    return config[_musicLibraryPathKey] as String?;
+  }
+
+  Future<AlbumGroupingStrategy> getAlbumGroupingStrategy() async {
+    final config = await _readConfig();
+    return AlbumGroupingStrategyLabels.fromJson(
+      config[_albumGroupingStrategyKey] as String?,
     );
+  }
+
+  Future<void> setMusicLibraryPath(String path) async {
+    final config = await _readConfig();
+    config[_musicLibraryPathKey] = path;
+    await _writeConfig(config);
+  }
+
+  Future<void> setAlbumGroupingStrategy(AlbumGroupingStrategy strategy) async {
+    final config = await _readConfig();
+    config[_albumGroupingStrategyKey] = strategy.toJson();
+    await _writeConfig(config);
   }
 }

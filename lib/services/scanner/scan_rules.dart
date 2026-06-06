@@ -1,5 +1,6 @@
 const kUnknownArtist = 'Неизвестный исполнитель';
 const kUnknownAlbum = 'Неизвестный альбом';
+const kVariousArtists = 'Разные исполнители';
 
 const kCoverExtensions = {'jpg', 'jpeg', 'png', 'webp'};
 

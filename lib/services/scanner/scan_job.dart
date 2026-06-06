@@ -1,3 +1,5 @@
+import 'package:music_player/services/scanner/album_grouping_strategy.dart';
+
 enum ScanMode {
   initial,
   rescan,
@@ -37,8 +39,10 @@ class ScanJob {
   const ScanJob({
     required this.musicRoot,
     required this.mode,
+    this.albumGroupingStrategy = AlbumGroupingStrategy.byAlbumArtist,
   });
 
   final String musicRoot;
   final ScanMode mode;
+  final AlbumGroupingStrategy albumGroupingStrategy;
 }

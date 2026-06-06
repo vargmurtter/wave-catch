@@ -67,6 +67,7 @@ class LibraryScannerService {
         final resolved = _entityResolver.resolve(
           file: file,
           metadata: metadata,
+          strategy: job.albumGroupingStrategy,
         );
         resolvedTracks.add(
           ResolvedTrack(

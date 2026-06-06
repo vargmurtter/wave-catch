@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import 'package:music_player/services/scanner/album_grouping.dart';
 import 'package:music_player/services/scanner/entity_resolver.dart';
 import 'package:music_player/services/scanner/scan_rules.dart';
 
@@ -148,11 +149,22 @@ class CoverArtResolver {
       }
 
       albumCoverById[albumId] = albumCover;
+      final albumArtist = resolveAlbumArtist(
+        tracks: albumTrackList
+            .map(
+              (item) => ResolvedTrackArtistInfo(
+                artistId: item.track.artistId,
+                artistName: item.track.artistName,
+                albumArtistName: item.track.albumArtistName,
+              ),
+            )
+            .toList(),
+      );
       albums.add(
         ResolvedAlbum(
           id: albumId,
           title: firstTrack.albumTitle,
-          artistId: firstTrack.artistId,
+          artistId: albumArtist.id,
           year: firstTrack.year,
           coverPath: albumCover,
         ),
@@ -167,6 +179,27 @@ class CoverArtResolver {
         () => ResolvedArtist(
           id: artistId,
           name: track.track.artistName,
+        ),
+      );
+    }
+
+    for (final album in albums) {
+      final albumArtist = resolveAlbumArtist(
+        tracks: albumTracks[album.id]!
+            .map(
+              (item) => ResolvedTrackArtistInfo(
+                artistId: item.track.artistId,
+                artistName: item.track.artistName,
+                albumArtistName: item.track.albumArtistName,
+              ),
+            )
+            .toList(),
+      );
+      artistsMap.putIfAbsent(
+        album.artistId,
+        () => ResolvedArtist(
+          id: albumArtist.id,
+          name: albumArtist.name,
         ),
       );
     }

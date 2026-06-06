@@ -4,6 +4,7 @@ class RawTrackMetadata {
   const RawTrackMetadata({
     this.title,
     this.artist,
+    this.albumArtist,
     this.album,
     this.durationMs = 0,
     this.trackNumber,
@@ -15,6 +16,7 @@ class RawTrackMetadata {
 
   final String? title;
   final String? artist;
+  final String? albumArtist;
   final String? album;
   final int durationMs;
   final int? trackNumber;
