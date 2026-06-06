@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:music_player/ui/mock/mock_data.dart';
+import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
 import 'package:music_player/ui/widgets/track/track_list_tile.dart';
 
-class ArtistTracksScreen extends StatelessWidget {
+class ArtistTracksScreen extends ConsumerWidget {
   const ArtistTracksScreen({super.key, required this.artistId});
 
   final String artistId;
 
   @override
-  Widget build(BuildContext context) {
-    final artist = MockData.artistById(artistId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final artist = ref.watch(artistByIdProvider(artistId));
     if (artist == null) {
       return const Center(
         child: Text(
@@ -23,7 +24,7 @@ class ArtistTracksScreen extends StatelessWidget {
       );
     }
 
-    final tracks = MockData.tracksForArtist(artistId);
+    final tracks = ref.watch(tracksForArtistProvider(artistId));
 
     return ScreenScrollView(
       child: Column(

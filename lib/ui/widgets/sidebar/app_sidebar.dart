@@ -26,61 +26,72 @@ class AppSidebar extends ConsumerWidget {
       child: SizedBox(
         width: _width,
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-            child: Row(
-              children: [
-                Icon(
-                  LucideIcons.music2,
-                  color: AppColors.accent,
-                  size: 28,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'Music Player',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+              child: Row(
+                children: [
+                  Icon(
+                    LucideIcons.music2,
+                    color: AppColors.accent,
+                    size: 28,
                   ),
-                ),
-              ],
+                  SizedBox(width: 10),
+                  Text(
+                    'Music Player',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SidebarNavItem(
-            label: 'Главное',
-            icon: LucideIcons.house,
-            isSelected: selected == NavItem.main,
-            onTap: () =>
-                ref.read(selectedNavItemProvider.notifier).select(NavItem.main),
-          ),
-          SidebarNavItem(
-            label: 'Исполнители',
-            icon: LucideIcons.users,
-            isSelected: selected == NavItem.artists,
-            onTap: () => ref
-                .read(selectedNavItemProvider.notifier)
-                .select(NavItem.artists),
-          ),
-          SidebarNavItem(
-            label: 'Альбомы',
-            icon: LucideIcons.disc3,
-            isSelected: selected == NavItem.albums,
-            onTap: () => ref
-                .read(selectedNavItemProvider.notifier)
-                .select(NavItem.albums),
-          ),
-          SidebarNavItem(
-            label: 'Плейлисты',
-            icon: LucideIcons.listMusic,
-            isSelected: selected == NavItem.playlists,
-            onTap: () => ref
-                .read(selectedNavItemProvider.notifier)
-                .select(NavItem.playlists),
-          ),
-        ],
+            SidebarNavItem(
+              label: 'Главное',
+              icon: LucideIcons.house,
+              isSelected: selected == NavItem.main,
+              onTap: () => ref
+                  .read(selectedNavItemProvider.notifier)
+                  .select(NavItem.main),
+            ),
+            SidebarNavItem(
+              label: 'Исполнители',
+              icon: LucideIcons.users,
+              isSelected: selected == NavItem.artists,
+              onTap: () => ref
+                  .read(selectedNavItemProvider.notifier)
+                  .select(NavItem.artists),
+            ),
+            SidebarNavItem(
+              label: 'Альбомы',
+              icon: LucideIcons.disc3,
+              isSelected: selected == NavItem.albums,
+              onTap: () => ref
+                  .read(selectedNavItemProvider.notifier)
+                  .select(NavItem.albums),
+            ),
+            SidebarNavItem(
+              label: 'Плейлисты',
+              icon: LucideIcons.listMusic,
+              isSelected: selected == NavItem.playlists,
+              onTap: () => ref
+                  .read(selectedNavItemProvider.notifier)
+                  .select(NavItem.playlists),
+            ),
+            const Spacer(),
+            SidebarNavItem(
+              label: 'Настройки',
+              icon: LucideIcons.settings,
+              isSelected: selected == NavItem.settings,
+              onTap: () => ref
+                  .read(selectedNavItemProvider.notifier)
+                  .select(NavItem.settings),
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );

@@ -71,12 +71,32 @@ lib/
   di/
     providers.dart  # Riverpod-провайдеры
   repositories/   # MusicRepository, PlaylistRepository, …
+    app_settings_repository.dart
+    library_repository.dart
+    library_database.dart
+    entities/
   services/       # PlayerService, LibraryService, …
+    settings_service.dart
+    library_service.dart
+    library_scanner_service.dart
+    scanner/        # фазы pipeline сканера
   ui/
     screens/      # экраны
     widgets/      # переиспользуемые виджеты
 docs/             # документация (этот файл и др.)
 ```
+
+## Модули данных (реализовано)
+
+| Модуль | Слой | Назначение |
+|--------|------|------------|
+| `AppSettingsRepository` | Repository | путь к папке с музыкой (Application Support) |
+| `LibraryRepository` | Repository | CRUD индекса в `library.db` |
+| `SettingsService` | Service | выбор папки, проверка конфигурации |
+| `LibraryScannerService` | Service | оркестрация сканирования |
+| `LibraryService` | Service | чтение библиотеки для UI |
+
+Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).
 
 ## Документация
 

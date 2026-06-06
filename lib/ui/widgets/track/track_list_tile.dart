@@ -75,7 +75,11 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
                 ),
                 const SizedBox(width: 8),
               ],
-              CoverArt(size: 40, seed: widget.track.id),
+              CoverArt(
+                size: 40,
+                seed: widget.track.id,
+                imagePath: widget.track.albumArtUrl,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

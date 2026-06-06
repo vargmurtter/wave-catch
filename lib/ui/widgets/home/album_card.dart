@@ -49,7 +49,11 @@ class _AlbumCardState extends State<AlbumCard> {
                       ]
                     : null,
               ),
-              child: CoverArt(size: coverSize, seed: widget.album.id),
+              child: CoverArt(
+                size: coverSize,
+                seed: widget.album.id,
+                imagePath: widget.album.coverUrl,
+              ),
             ),
             const SizedBox(height: 12),
             Text(

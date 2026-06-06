@@ -53,6 +53,7 @@ class _ArtistCardState extends State<ArtistCard> {
                 size: coverSize,
                 circular: true,
                 seed: widget.artist.id,
+                imagePath: widget.artist.imageUrl,
               ),
             ),
             const SizedBox(height: 12),

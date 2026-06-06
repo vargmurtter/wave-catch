@@ -43,7 +43,11 @@ class _RecentTrackTileState extends State<RecentTrackTile> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CoverArt(size: 136, seed: widget.track.id),
+              CoverArt(
+                size: 136,
+                seed: widget.track.id,
+                imagePath: widget.track.albumArtUrl,
+              ),
               const SizedBox(height: 12),
               Text(
                 widget.track.title,

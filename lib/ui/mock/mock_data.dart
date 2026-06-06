@@ -103,6 +103,7 @@ abstract final class MockData {
   static const _tracks = [
     Track(
       id: '1',
+      filePath: '/mock/1.mp3',
       title: 'Bohemian Rhapsody',
       artist: 'Queen',
       artistId: 'ar3',
@@ -117,6 +118,7 @@ abstract final class MockData {
     ),
     Track(
       id: '2',
+      filePath: '/mock/2.mp3',
       title: 'Stairway to Heaven',
       artist: 'Led Zeppelin',
       artistId: 'ar4',
@@ -131,6 +133,7 @@ abstract final class MockData {
     ),
     Track(
       id: '3',
+      filePath: '/mock/3.mp3',
       title: 'Hotel California',
       artist: 'Eagles',
       artistId: 'ar7',
@@ -145,6 +148,7 @@ abstract final class MockData {
     ),
     Track(
       id: '4',
+      filePath: '/mock/4.mp3',
       title: 'Imagine',
       artist: 'John Lennon',
       artistId: 'ar8',
@@ -159,6 +163,7 @@ abstract final class MockData {
     ),
     Track(
       id: '5',
+      filePath: '/mock/5.mp3',
       title: 'Smells Like Teen Spirit',
       artist: 'Nirvana',
       artistId: 'ar5',
@@ -173,6 +178,7 @@ abstract final class MockData {
     ),
     Track(
       id: '6',
+      filePath: '/mock/6.mp3',
       title: 'Billie Jean',
       artist: 'Michael Jackson',
       artistId: 'ar9',
@@ -187,6 +193,7 @@ abstract final class MockData {
     ),
     Track(
       id: '7',
+      filePath: '/mock/7.mp3',
       title: 'Come Together',
       artist: 'The Beatles',
       artistId: 'ar1',
@@ -201,6 +208,7 @@ abstract final class MockData {
     ),
     Track(
       id: '8',
+      filePath: '/mock/8.mp3',
       title: 'Something',
       artist: 'The Beatles',
       artistId: 'ar1',
@@ -215,6 +223,7 @@ abstract final class MockData {
     ),
     Track(
       id: '9',
+      filePath: '/mock/9.mp3',
       title: 'Here Comes the Sun',
       artist: 'The Beatles',
       artistId: 'ar1',
@@ -229,6 +238,7 @@ abstract final class MockData {
     ),
     Track(
       id: '10',
+      filePath: '/mock/10.mp3',
       title: 'Speak to Me',
       artist: 'Pink Floyd',
       artistId: 'ar2',
@@ -243,6 +253,7 @@ abstract final class MockData {
     ),
     Track(
       id: '11',
+      filePath: '/mock/11.mp3',
       title: 'Time',
       artist: 'Pink Floyd',
       artistId: 'ar2',
@@ -257,6 +268,7 @@ abstract final class MockData {
     ),
     Track(
       id: '12',
+      filePath: '/mock/12.mp3',
       title: 'Money',
       artist: 'Pink Floyd',
       artistId: 'ar2',
@@ -271,6 +283,7 @@ abstract final class MockData {
     ),
     Track(
       id: '13',
+      filePath: '/mock/13.mp3',
       title: 'Hells Bells',
       artist: 'AC/DC',
       artistId: 'ar10',
@@ -285,6 +298,7 @@ abstract final class MockData {
     ),
     Track(
       id: '14',
+      filePath: '/mock/14.mp3',
       title: 'Back in Black',
       artist: 'AC/DC',
       artistId: 'ar10',
@@ -299,6 +313,7 @@ abstract final class MockData {
     ),
     Track(
       id: '15',
+      filePath: '/mock/15.mp3',
       title: 'Go Your Own Way',
       artist: 'Fleetwood Mac',
       artistId: 'ar11',
@@ -313,6 +328,7 @@ abstract final class MockData {
     ),
     Track(
       id: '16',
+      filePath: '/mock/16.mp3',
       title: 'Dreams',
       artist: 'Fleetwood Mac',
       artistId: 'ar11',
@@ -327,6 +343,7 @@ abstract final class MockData {
     ),
     Track(
       id: '17',
+      filePath: '/mock/17.mp3',
       title: 'Another Brick in the Wall, Pt. 2',
       artist: 'Pink Floyd',
       artistId: 'ar2',
@@ -341,6 +358,7 @@ abstract final class MockData {
     ),
     Track(
       id: '18',
+      filePath: '/mock/18.mp3',
       title: 'Comfortably Numb',
       artist: 'Pink Floyd',
       artistId: 'ar2',
@@ -355,6 +373,7 @@ abstract final class MockData {
     ),
     Track(
       id: '19',
+      filePath: '/mock/19.mp3',
       title: 'Beat It',
       artist: 'Michael Jackson',
       artistId: 'ar9',
@@ -369,6 +388,7 @@ abstract final class MockData {
     ),
     Track(
       id: '20',
+      filePath: '/mock/20.mp3',
       title: 'Thriller',
       artist: 'Michael Jackson',
       artistId: 'ar9',
@@ -383,6 +403,7 @@ abstract final class MockData {
     ),
     Track(
       id: '21',
+      filePath: '/mock/21.mp3',
       title: 'Love of My Life',
       artist: 'Queen',
       artistId: 'ar3',
@@ -397,6 +418,7 @@ abstract final class MockData {
     ),
     Track(
       id: '22',
+      filePath: '/mock/22.mp3',
       title: 'Black Dog',
       artist: 'Led Zeppelin',
       artistId: 'ar4',
@@ -411,6 +433,7 @@ abstract final class MockData {
     ),
     Track(
       id: '23',
+      filePath: '/mock/23.mp3',
       title: 'New Kid in Town',
       artist: 'Eagles',
       artistId: 'ar7',
@@ -425,6 +448,7 @@ abstract final class MockData {
     ),
     Track(
       id: '24',
+      filePath: '/mock/24.mp3',
       title: 'Gimme Shelter',
       artist: 'John Lennon',
       artistId: 'ar8',
@@ -439,6 +463,7 @@ abstract final class MockData {
     ),
     Track(
       id: '25',
+      filePath: '/mock/25.mp3',
       title: 'In Bloom',
       artist: 'Nirvana',
       artistId: 'ar5',
@@ -453,6 +478,7 @@ abstract final class MockData {
     ),
     Track(
       id: '26',
+      filePath: '/mock/26.mp3',
       title: 'Come As You Are',
       artist: 'Nirvana',
       artistId: 'ar5',

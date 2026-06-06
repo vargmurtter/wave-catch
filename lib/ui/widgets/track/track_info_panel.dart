@@ -90,7 +90,13 @@ class _TrackInfoContent extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: CoverArt(size: 200, seed: track.id)),
+                Center(
+                  child: CoverArt(
+                    size: 200,
+                    seed: track.id,
+                    imagePath: track.albumArtUrl,
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Text(
                   track.title,

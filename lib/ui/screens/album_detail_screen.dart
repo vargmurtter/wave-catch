@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
-import 'package:music_player/ui/mock/mock_data.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
@@ -18,7 +17,7 @@ class AlbumDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final album = MockData.albumById(albumId);
+    final album = ref.watch(albumByIdProvider(albumId));
     if (album == null) {
       return const Center(
         child: Text(
@@ -28,10 +27,11 @@ class AlbumDetailScreen extends ConsumerWidget {
       );
     }
 
-    final tracks = MockData.tracksForAlbum(albumId);
-    final otherAlbums = MockData.otherAlbumsByArtist(
-      album.artistId,
-      excludeAlbumId: albumId,
+    final tracks = ref.watch(tracksForAlbumProvider(albumId));
+    final otherAlbums = ref.watch(
+      otherAlbumsByArtistProvider(
+        (artistId: album.artistId, excludeAlbumId: albumId),
+      ),
     );
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
 
@@ -49,7 +49,11 @@ class AlbumDetailScreen extends ConsumerWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    CoverArt(size: 200, seed: album.id),
+                    CoverArt(
+                      size: 200,
+                      seed: album.id,
+                      imagePath: album.coverUrl,
+                    ),
                     const SizedBox(width: 24),
                     Expanded(
                       child: Column(
@@ -57,8 +61,7 @@ class AlbumDetailScreen extends ConsumerWidget {
                         children: [
                           Text(
                             album.title,
-                            style:
-                                Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           const SizedBox(height: 8),
                           _ArtistLink(

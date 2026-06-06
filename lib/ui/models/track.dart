@@ -1,6 +1,7 @@
 class Track {
   const Track({
     required this.id,
+    required this.filePath,
     required this.title,
     required this.artist,
     required this.artistId,
@@ -16,6 +17,7 @@ class Track {
   });
 
   final String id;
+  final String filePath;
   final String title;
   final String artist;
   final String artistId;

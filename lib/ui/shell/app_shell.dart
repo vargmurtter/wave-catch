@@ -11,6 +11,7 @@ import 'package:music_player/ui/screens/artist_tracks_screen.dart';
 import 'package:music_player/ui/screens/artists_screen.dart';
 import 'package:music_player/ui/screens/home_screen.dart';
 import 'package:music_player/ui/screens/playlists_screen.dart';
+import 'package:music_player/ui/screens/settings_screen.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/player/player_bar.dart';
 import 'package:music_player/ui/widgets/player/queue_panel.dart';
@@ -79,6 +80,7 @@ class _ContentArea extends ConsumerWidget {
             ArtistsScreen(),
             AlbumsScreen(),
             PlaylistsScreen(),
+            SettingsScreen(),
           ],
         ),
       ArtistDetailRoute(:final artistId) =>

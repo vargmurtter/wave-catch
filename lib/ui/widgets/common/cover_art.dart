@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -9,6 +11,59 @@ class CoverArt extends StatelessWidget {
     required this.size,
     this.borderRadius = 4,
     this.circular = false,
+    this.seed,
+    this.imagePath,
+  });
+
+  final double size;
+  final double borderRadius;
+  final bool circular;
+  final String? seed;
+  final String? imagePath;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageFile = _resolveImageFile(imagePath);
+    if (imageFile != null) {
+      return ClipRRect(
+        borderRadius: circular
+            ? BorderRadius.circular(size / 2)
+            : BorderRadius.circular(borderRadius),
+        child: Image.file(
+          imageFile,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _PlaceholderCover(
+            size: size,
+            borderRadius: borderRadius,
+            circular: circular,
+            seed: seed,
+          ),
+        ),
+      );
+    }
+
+    return _PlaceholderCover(
+      size: size,
+      borderRadius: borderRadius,
+      circular: circular,
+      seed: seed,
+    );
+  }
+
+  File? _resolveImageFile(String? path) {
+    if (path == null || path.isEmpty) return null;
+    final file = File(path);
+    return file.existsSync() ? file : null;
+  }
+}
+
+class _PlaceholderCover extends StatelessWidget {
+  const _PlaceholderCover({
+    required this.size,
+    required this.borderRadius,
+    required this.circular,
     this.seed,
   });
 

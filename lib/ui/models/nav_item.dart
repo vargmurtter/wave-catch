@@ -3,4 +3,5 @@ enum NavItem {
   artists,
   albums,
   playlists,
+  settings,
 }

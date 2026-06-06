@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
-import 'package:music_player/ui/mock/mock_data.dart';
+import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
 
@@ -18,7 +18,7 @@ class AlbumsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final albums = MockData.albums;
+    final albums = ref.watch(albumsProvider);
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
 
     return ScreenScrollView(
@@ -29,23 +29,35 @@ class AlbumsScreen extends ConsumerWidget {
             padding: EdgeInsets.only(top: 24),
             child: ScreenHeader(title: 'Альбомы'),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: _gridDelegate,
-              itemCount: albums.length,
-              itemBuilder: (context, index) {
-                final album = albums[index];
-                return AlbumCard(
-                  album: album,
-                  enableHoverScale: false,
-                  onTap: () => routeNotifier.openAlbum(album.id),
-                );
-              },
+          if (albums.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              child: Text(
+                'Альбомы не найдены. Проверьте папку с музыкой в настройках.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: _gridDelegate,
+                itemCount: albums.length,
+                itemBuilder: (context, index) {
+                  final album = albums[index];
+                  return AlbumCard(
+                    album: album,
+                    enableHoverScale: false,
+                    onTap: () => routeNotifier.openAlbum(album.id),
+                  );
+                },
+              ),
             ),
-          ),
         ],
       ),
     );

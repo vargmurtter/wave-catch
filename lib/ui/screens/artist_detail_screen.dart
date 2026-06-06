@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
-import 'package:music_player/ui/mock/mock_data.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
@@ -20,7 +19,7 @@ class ArtistDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final artist = MockData.artistById(artistId);
+    final artist = ref.watch(artistByIdProvider(artistId));
     if (artist == null) {
       return const Center(
         child: Text(
@@ -30,8 +29,8 @@ class ArtistDetailScreen extends ConsumerWidget {
       );
     }
 
-    final albums = MockData.albumsForArtist(artistId);
-    final tracks = MockData.tracksForArtist(artistId);
+    final albums = ref.watch(albumsForArtistProvider(artistId));
+    final tracks = ref.watch(tracksForArtistProvider(artistId));
     final previewTracks = tracks.take(_previewTrackCount).toList();
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
 
@@ -53,6 +52,7 @@ class ArtistDetailScreen extends ConsumerWidget {
                       size: 200,
                       circular: true,
                       seed: artist.id,
+                      imagePath: artist.imageUrl,
                     ),
                     const SizedBox(width: 24),
                     Expanded(
