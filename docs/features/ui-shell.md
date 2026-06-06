@@ -20,8 +20,8 @@
 └──────────────────────────────────────────────────────────┘
 ```
 
-- **Сайдбар** — навигация: Главное, Исполнители, Альбомы, Плейлисты
-- **Контент** — экран выбранного раздела или детальный экран (исполнитель, альбом)
+- **Сайдбар** — навигация: Главное, Исполнители, Альбомы, Плейлисты; поле глобального поиска
+- **Контент** — экран выбранного раздела, детальный экран (исполнитель, альбом) или результаты поиска
 - **Плеер** — закреплён снизу на всю ширину
 - **Панель очереди** — выезжает справа при нажатии кнопки плейлиста в плеере
 - **Панель трека** — плавающий overlay справа при клике по треку (не по play)
@@ -58,8 +58,10 @@ lib/ui/
     artist_detail_screen.dart   # детальный экран исполнителя
     artist_tracks_screen.dart   # все треки исполнителя
     album_detail_screen.dart    # детальный экран альбома
+    search_screen.dart          # результаты глобального поиска
   widgets/
     sidebar/                # AppSidebar, SidebarNavItem
+    search/                 # GlobalSearchField, SearchResultTile
     player/                 # PlayerBar, VolumeControl, QueuePanel
     home/                   # карточки и секции
     track/                  # TrackListTile, TrackInfoPanel
@@ -78,6 +80,10 @@ lib/ui/
 | `homeSectionsProvider` | `lib/di/providers.dart` | Данные секций главного экрана |
 | `libraryRouteProvider` | `lib/di/providers.dart` | Стек детальных маршрутов |
 | `trackInfoPanelProvider` | `lib/di/providers.dart` | Плавающая панель информации о треке |
+| `searchQueryProvider` | `lib/di/providers.dart` | Текст глобального поиска |
+| `librarySearchResultsProvider` | `lib/di/providers.dart` | Результаты поиска по библиотеке |
+
+Подробности поиска: [library-search.md](library-search.md).
 
 Кнопки плеера и навигация меняют только UI-состояние. Сервисы и репозитории не задействованы.
 

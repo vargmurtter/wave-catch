@@ -6,6 +6,7 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
+import 'package:music_player/ui/widgets/search/global_search_field.dart';
 import 'package:music_player/ui/widgets/sidebar/sidebar_nav_item.dart';
 
 class AppSidebar extends ConsumerWidget {
@@ -49,6 +50,7 @@ class AppSidebar extends ConsumerWidget {
                 ],
               ),
             ),
+            const GlobalSearchField(),
             SidebarNavItem(
               label: 'Главное',
               icon: LucideIcons.house,

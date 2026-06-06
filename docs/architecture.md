@@ -94,9 +94,10 @@ docs/             # документация (этот файл и др.)
 | `LibraryRepository` | Repository | CRUD индекса в `library.db` |
 | `SettingsService` | Service | выбор папки, проверка конфигурации |
 | `LibraryScannerService` | Service | оркестрация сканирования |
-| `LibraryService` | Service | чтение библиотеки для UI |
+| `LibraryService` | Service | чтение библиотеки для UI, глобальный поиск |
 
-Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).
+Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).  
+Подробности поиска: [features/library-search.md](features/library-search.md).
 
 ## Документация
 

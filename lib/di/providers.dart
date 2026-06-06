@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/repositories/app_settings_repository.dart';
@@ -11,6 +13,7 @@ import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/models/home_sections.dart';
 import 'package:music_player/ui/models/library_route.dart';
+import 'package:music_player/ui/models/library_search_results.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/models/player_ui_state.dart';
 import 'package:music_player/ui/models/repeat_mode.dart';
@@ -224,6 +227,54 @@ final otherAlbumsByArtistProvider =
         );
   },
 );
+
+// --- Search ---
+
+final searchQueryProvider =
+    NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
+
+class SearchQueryNotifier extends Notifier<String> {
+  Timer? _debounceTimer;
+
+  @override
+  String build() {
+    ref.onDispose(() => _debounceTimer?.cancel());
+    return '';
+  }
+
+  void set(String query) {
+    state = query;
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+      ref.read(debouncedSearchQueryProvider.notifier).set(query);
+    });
+  }
+
+  void clear() {
+    _debounceTimer?.cancel();
+    state = '';
+    ref.read(debouncedSearchQueryProvider.notifier).set('');
+  }
+}
+
+final debouncedSearchQueryProvider =
+    NotifierProvider<DebouncedSearchQueryNotifier, String>(
+  DebouncedSearchQueryNotifier.new,
+);
+
+class DebouncedSearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String query) => state = query;
+}
+
+final librarySearchResultsProvider = Provider<LibrarySearchResults>((ref) {
+  ref.watch(libraryRefreshProvider);
+  final query = ref.watch(debouncedSearchQueryProvider);
+  if (query.trim().isEmpty) return LibrarySearchResults.empty;
+  return ref.watch(libraryServiceProvider).search(query);
+});
 
 // --- UI state ---
 

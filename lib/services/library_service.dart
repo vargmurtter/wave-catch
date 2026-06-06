@@ -4,6 +4,7 @@ import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/models/home_sections.dart';
+import 'package:music_player/ui/models/library_search_results.dart';
 import 'package:music_player/ui/models/track.dart';
 
 class LibraryService {
@@ -96,6 +97,38 @@ class LibraryService {
         .getOtherAlbumsByArtist(artistId, excludeAlbumId: excludeAlbumId)
         .map((album) => _mapAlbum(album, artistName))
         .toList();
+  }
+
+  LibrarySearchResults search(String query, {int limitPerCategory = 20}) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return LibrarySearchResults.empty;
+
+    ensureOpen();
+    if (!_libraryRepository.isOpen) return LibrarySearchResults.empty;
+
+    final artistRecords =
+        _libraryRepository.searchArtists(trimmed, limit: limitPerCategory);
+    final albumRecords =
+        _libraryRepository.searchAlbums(trimmed, limit: limitPerCategory);
+    final trackRecords =
+        _libraryRepository.searchTracks(trimmed, limit: limitPerCategory);
+
+    final artists = artistRecords.map(_mapArtist).toList();
+
+    final artistNames = {
+      for (final artist in _libraryRepository.getArtists()) artist.id: artist.name,
+    };
+    final albums = albumRecords
+        .map((album) => _mapAlbum(album, artistNames[album.artistId] ?? ''))
+        .toList();
+
+    final tracks = _mapTracks(trackRecords);
+
+    return LibrarySearchResults(
+      artists: artists,
+      albums: albums,
+      tracks: tracks,
+    );
   }
 
   HomeSections getHomeSections() {

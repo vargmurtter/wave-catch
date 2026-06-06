@@ -112,6 +112,76 @@ class LibraryRepository {
     return rows.map(_mapAlbum).toList();
   }
 
+  List<TrackRecord> getAllTracks() {
+    final rows = _db.db.select(
+      '''
+      SELECT id, file_path, title, artist_id, album_id, duration_ms,
+             track_number, genre, format, bitrate, cover_path,
+             file_modified_ms, indexed_at_ms
+      FROM tracks
+      ORDER BY title
+      ''',
+    );
+    return rows.map(_mapTrack).toList();
+  }
+
+  List<ArtistRecord> searchArtists(String query, {int limit = 20}) {
+    final normalizedQuery = _normalizeQueryInput(query);
+    if (normalizedQuery.isEmpty) return [];
+
+    return getArtists()
+        .where((artist) => _containsQuery(artist.name, normalizedQuery))
+        .take(limit)
+        .toList();
+  }
+
+  List<AlbumRecord> searchAlbums(String query, {int limit = 20}) {
+    final normalizedQuery = _normalizeQueryInput(query);
+    if (normalizedQuery.isEmpty) return [];
+
+    final artistNames = {
+      for (final artist in getArtists()) artist.id: artist.name,
+    };
+
+    return getAlbums()
+        .where((album) {
+          return _containsQuery(album.title, normalizedQuery) ||
+              _containsQuery(
+                artistNames[album.artistId] ?? '',
+                normalizedQuery,
+              );
+        })
+        .take(limit)
+        .toList();
+  }
+
+  List<TrackRecord> searchTracks(String query, {int limit = 20}) {
+    final normalizedQuery = _normalizeQueryInput(query);
+    if (normalizedQuery.isEmpty) return [];
+
+    final artistNames = {
+      for (final artist in getArtists()) artist.id: artist.name,
+    };
+    final albumTitles = {
+      for (final album in getAlbums()) album.id: album.title,
+    };
+
+    return getAllTracks()
+        .where((track) {
+          return _containsQuery(track.title, normalizedQuery) ||
+              _containsQuery(
+                artistNames[track.artistId] ?? '',
+                normalizedQuery,
+              ) ||
+              _containsQuery(
+                albumTitles[track.albumId] ?? '',
+                normalizedQuery,
+              );
+        })
+        .take(limit)
+        .toList();
+  }
+
   List<AlbumRecord> getOtherAlbumsByArtist(
     String artistId, {
     required String excludeAlbumId,
@@ -191,6 +261,14 @@ class LibraryRepository {
       db.execute('ROLLBACK');
       rethrow;
     }
+  }
+
+  static String _normalizeQueryInput(String query) {
+    return query.trim().replaceAll('%', '').replaceAll('_', '').toLowerCase();
+  }
+
+  static bool _containsQuery(String value, String normalizedQuery) {
+    return value.toLowerCase().contains(normalizedQuery);
   }
 
   ArtistRecord _mapArtist(Row row) {
