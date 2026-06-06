@@ -43,6 +43,16 @@
 1. Обложка любого трека альбома (embedded или из папки)
 2. Первое изображение в папке любого трека альбома
 
+### Кодировка тегов
+
+Часть MP3-файлов (особенно старых русскоязычных) хранит теги в **Windows-1251**, но ID3 помечает их как **Latin-1**. В результате `metadata_god` отдаёт mojibake вида `Ôèëüòðóþùèé` вместо `Фильтрующий`.
+
+При сканировании `TagTextFixer` пытается исправить такие строки: `latin1.encode` → `windows1251.decode`. Исправление применяется только к индексу в `library.db`; файлы на диске не изменяются.
+
+Эвристика принимает результат, если в нём ≥ 2 кириллических буквы и доля кириллицы среди букв ≥ 30%. ASCII- и уже корректные кириллические строки не трогаются.
+
+Чтобы применить исправление к уже проиндексированной библиотеке, выполните **Настройки → Пересканировать**.
+
 ### Идентификаторы
 
 Детерминированные SHA-256 хеши:
@@ -54,7 +64,7 @@
 ## Pipeline сканера
 
 ```
-ScanJob → FileDiscovery → MetadataExtractor → EntityResolver
+ScanJob → FileDiscovery → MetadataExtractor → TagTextFixer → EntityResolver
         → CoverArtResolver → LibraryPersister → library.db
 ```
 
@@ -64,6 +74,7 @@ ScanJob → FileDiscovery → MetadataExtractor → EntityResolver
 |--------|-----------------|
 | `file_discovery.dart` | рекурсивный обход, фильтр аудио |
 | `metadata_extractor.dart` | чтение тегов через `metadata_god` |
+| `tag_text_fixer.dart` | исправление CP1251-mojibake в текстовых полях |
 | `entity_resolver.dart` | fallback-значения, stable ID |
 | `cover_art_resolver.dart` | обложки треков и альбомов |
 | `library_persister.dart` | запись в SQLite |
@@ -81,6 +92,7 @@ UI → LibraryService / LibraryScannerService / SettingsService
 
 - `file_picker` — выбор папки (macOS / Windows / Linux)
 - `metadata_god` — чтение аудио-тегов
+- `windows1251` — декодирование CP1251 при исправлении mojibake
 - `sqlite3` + `sqlite3_flutter_libs` — SQLite на desktop
 - `path_provider` — Application Support
 
