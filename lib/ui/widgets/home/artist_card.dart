@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 
-class ArtistCard extends StatefulWidget {
+class ArtistCard extends ConsumerStatefulWidget {
   const ArtistCard({
     super.key,
     required this.artist,
@@ -17,14 +19,18 @@ class ArtistCard extends StatefulWidget {
   final VoidCallback? onTap;
 
   @override
-  State<ArtistCard> createState() => _ArtistCardState();
+  ConsumerState<ArtistCard> createState() => _ArtistCardState();
 }
 
-class _ArtistCardState extends State<ArtistCard> {
+class _ArtistCardState extends ConsumerState<ArtistCard> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
+    final imagePathAsync =
+        ref.watch(artistDisplayImagePathProvider(widget.artist.id));
+    final imagePath = imagePathAsync.value ?? widget.artist.imageUrl;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final coverSize = constraints.maxWidth.isFinite
@@ -53,7 +59,7 @@ class _ArtistCardState extends State<ArtistCard> {
                 size: coverSize,
                 circular: true,
                 seed: widget.artist.id,
-                imagePath: widget.artist.imageUrl,
+                imagePath: imagePath,
               ),
             ),
             const SizedBox(height: 12),

@@ -73,6 +73,8 @@ lib/
   repositories/   # MusicRepository, PlaylistRepository, …
     app_settings_repository.dart
     artist_info_cache_repository.dart
+    musicbrainz_api_repository.dart
+    wikipedia_api_repository.dart
     lastfm_api_repository.dart
     library_repository.dart
     library_database.dart
@@ -107,15 +109,17 @@ docs/             # документация (этот файл и др.)
 | `MetadataOverrideRepository` | Repository | override-конфиг метаданных в `.wave_catcher/` |
 | `MetadataFileWriter` | Repository | запись тегов в аудиофайлы через `metadata_god` |
 | `MetadataEditService` | Service | редактирование метаданных треков |
-| `LastFmApiRepository` | Repository | HTTP-запросы к Last.fm API |
-| `ArtistInfoCacheRepository` | Repository | кэш Last.fm-данных исполнителей |
+| `MusicBrainzApiRepository` | Repository | поиск исполнителя, ссылки Wikipedia/Wikidata |
+| `WikipediaApiRepository` | Repository | описание и изображение из Wikipedia/Wikidata |
+| `ArtistInfoCacheRepository` | Repository | кэш данных исполнителей на диске |
 | `ArtistInfoService` | Service | загрузка и кэширование информации об исполнителе |
+| `LastFmApiRepository` | Repository | *(неактивно)* HTTP-запросы к Last.fm API |
 
 Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).  
 Подробности поиска: [features/library-search.md](features/library-search.md).  
 Подробности плеера: [features/player.md](features/player.md).  
 Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).  
-Last.fm на экране исполнителя: [features/lastfm-artist-info.md](features/lastfm-artist-info.md).
+Информация об исполнителе: [features/artist-info.md](features/artist-info.md).
 
 ## Документация
 

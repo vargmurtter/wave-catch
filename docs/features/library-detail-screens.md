@@ -2,7 +2,7 @@
 
 Экраны исполнителя, альбома и плавающая панель информации о треке. Данные из `LibraryService` через Riverpod-провайдеры.
 
-Подробности оболочки: [ui-shell.md](ui-shell.md). Дизайн-требования: [design-requirements.md](../design-requirements.md). Last.fm на экране исполнителя: [lastfm-artist-info.md](lastfm-artist-info.md).
+Подробности оболочки: [ui-shell.md](ui-shell.md). Дизайн-требования: [design-requirements.md](../design-requirements.md). Информация об исполнителе: [artist-info.md](artist-info.md).
 
 ## Экраны
 
@@ -10,9 +10,9 @@
 
 Файл: `lib/ui/screens/artist_detail_screen.dart`
 
-- Hero-баннер на всю ширину (если есть фото Last.fm)
+- Hero-баннер на всю ширину (если есть фото из Wikipedia/Wikidata)
 - Кнопка «Назад» + круглая обложка (200 px) + имя исполнителя
-- Описание исполнителя (Last.fm, до 6 строк)
+- Описание исполнителя (до 6 строк)
 - Секция «Альбомы» — горизонтальный список `AlbumCard`
 - Секция «Популярные треки» — до 5 треков (`TrackListTile`) + ссылка «Показать все»
 
@@ -83,4 +83,6 @@
 |----------|------------|
 | `libraryRouteProvider` | Стек детальных маршрутов |
 | `trackInfoPanelProvider` | Открытый трек в плавающей панели |
-| `artistInfoProvider` | Last.fm-данные исполнителя (lazy, только detail screen) |
+| `artistInfoProvider` | Загрузка данных исполнителя (lazy, только detail screen) |
+| `artistDisplayImagePathProvider` | Путь к обложке: кэш MB/Wiki → локальная обложка альбома |
+| `artistCachedImagePathProvider` | Только кэшированное фото (без fallback) |

@@ -9,8 +9,8 @@ import 'package:music_player/app_paths.dart';
 import 'package:music_player/repositories/entities/artist_info_record.dart';
 
 class ArtistInfoCacheRepository {
-  static const _cacheFileName = 'lastfm_artist_cache.json';
-  static const _imagesDirName = 'lastfm_images';
+  static const _cacheFileName = 'artist_info_cache.json';
+  static const _imagesDirName = 'artist_images';
 
   Future<Directory> _appDir() async {
     final supportDir = await getApplicationSupportDirectory();
@@ -62,6 +62,8 @@ class ArtistInfoCacheRepository {
     };
     await file.writeAsString(jsonEncode(json));
   }
+
+  Future<Map<String, ArtistInfoRecord>> loadAll() => _readAll();
 
   Future<ArtistInfoRecord?> get(String artistId) async {
     final records = await _readAll();

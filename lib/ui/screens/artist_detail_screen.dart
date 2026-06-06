@@ -33,7 +33,11 @@ class ArtistDetailScreen extends ConsumerWidget {
 
     final artistInfoAsync = ref.watch(artistInfoProvider(artistId));
     final artistInfo = artistInfoAsync.asData?.value;
-    final effectiveImagePath = artistInfo?.imagePath ?? artist.imageUrl;
+    final isLoadingArtistInfo = artistInfoAsync.isLoading;
+    final displayImageAsync = ref.watch(artistDisplayImagePathProvider(artistId));
+    final cachedImageAsync = ref.watch(artistCachedImagePathProvider(artistId));
+    final effectiveImagePath = displayImageAsync.value ?? artist.imageUrl;
+    final cachedImagePath = cachedImageAsync.value;
 
     final albums = ref.watch(albumsForArtistProvider(artistId));
     final tracks = ref.watch(tracksForArtistProvider(artistId));
@@ -45,12 +49,12 @@ class ArtistDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (artistInfo?.imagePath != null)
-            ArtistHeroBanner(imagePath: artistInfo!.imagePath!),
+          if (cachedImagePath != null)
+            ArtistHeroBanner(imagePath: cachedImagePath),
           Padding(
             padding: EdgeInsets.fromLTRB(
               32,
-              artistInfo?.imagePath != null ? 0 : 24,
+              cachedImagePath != null ? 0 : 24,
               32,
               0,
             ),
@@ -90,6 +94,10 @@ class ArtistDetailScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                if (isLoadingArtistInfo) ...[
+                  const SizedBox(height: 16),
+                  const _ArtistInfoLoadingIndicator(),
+                ],
                 if (artistInfo?.description != null &&
                     artistInfo!.description!.isNotEmpty) ...[
                   const SizedBox(height: 24),
@@ -156,6 +164,34 @@ class ArtistDetailScreen extends ConsumerWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _ArtistInfoLoadingIndicator extends StatelessWidget {
+  const _ArtistInfoLoadingIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        SizedBox(
+          width: 16,
+          height: 16,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.accent,
+          ),
+        ),
+        SizedBox(width: 10),
+        Text(
+          'Загрузка информации…',
+          style: TextStyle(
+            fontSize: 13,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 }

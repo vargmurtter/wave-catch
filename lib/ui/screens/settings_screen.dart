@@ -18,20 +18,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String? _message;
-  late final TextEditingController _lastFmApiKeyController;
-  bool _lastFmApiKeyObscured = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _lastFmApiKeyController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _lastFmApiKeyController.dispose();
-    super.dispose();
-  }
 
   Future<void> _changeFolder() async {
     final confirmed = await showDialog<bool>(
@@ -149,10 +135,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final scanState = ref.watch(libraryScanStateProvider);
     final isScanning = scanState.status == LibraryScanStatus.scanning;
 
-    if (_lastFmApiKeyController.text != (settings.lastFmApiKey ?? '')) {
-      _lastFmApiKeyController.text = settings.lastFmApiKey ?? '';
-    }
-
     return ScreenScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,70 +251,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         .read(appSettingsStateProvider.notifier)
                         .setMetadataEditMode(value),
                   ),
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Last.fm',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'API key для загрузки описания и фото исполнителей на экране деталей. '
-                  'Получить ключ: last.fm/api/account/create',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _lastFmApiKeyController,
-                  obscureText: _lastFmApiKeyObscured,
-                  enabled: !isScanning,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'API key',
-                    hintStyle: const TextStyle(color: AppColors.textSecondary),
-                    filled: true,
-                    fillColor: AppColors.surface.withValues(alpha: 0.6),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.divider),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.divider),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.accent),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _lastFmApiKeyObscured
-                            ? LucideIcons.eye
-                            : LucideIcons.eyeOff,
-                        size: 18,
-                        color: AppColors.textSecondary,
-                      ),
-                      onPressed: () => setState(
-                        () => _lastFmApiKeyObscured = !_lastFmApiKeyObscured,
-                      ),
-                    ),
-                  ),
-                  onSubmitted: (value) => ref
-                      .read(appSettingsStateProvider.notifier)
-                      .setLastFmApiKey(value),
-                  onEditingComplete: () => ref
-                      .read(appSettingsStateProvider.notifier)
-                      .setLastFmApiKey(_lastFmApiKeyController.text),
                 ),
               ],
             ),

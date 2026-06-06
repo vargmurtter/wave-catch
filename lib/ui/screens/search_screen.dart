@@ -81,11 +81,8 @@ class SearchScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     for (final artist in results.artists)
-                      SearchResultTile(
-                        title: artist.name,
-                        seed: artist.id,
-                        imagePath: artist.imageUrl,
-                        circular: true,
+                      _ArtistSearchResultTile(
+                        artist: artist,
                         onTap: () => openArtist(ref, artist),
                       ),
                   ],
@@ -141,5 +138,30 @@ class SearchScreen extends ConsumerWidget {
       return '${track.artist} · $album';
     }
     return track.artist;
+  }
+}
+
+class _ArtistSearchResultTile extends ConsumerWidget {
+  const _ArtistSearchResultTile({
+    required this.artist,
+    required this.onTap,
+  });
+
+  final Artist artist;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final imagePathAsync =
+        ref.watch(artistDisplayImagePathProvider(artist.id));
+    final imagePath = imagePathAsync.value ?? artist.imageUrl;
+
+    return SearchResultTile(
+      title: artist.name,
+      seed: artist.id,
+      imagePath: imagePath,
+      circular: true,
+      onTap: onTap,
+    );
   }
 }
