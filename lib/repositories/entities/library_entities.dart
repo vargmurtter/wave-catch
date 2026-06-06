@@ -41,6 +41,9 @@ class TrackRecord {
     this.bitrate,
     this.coverPath,
     this.fileModifiedMs,
+    this.featuredArtists = const [],
+    this.albumArtist,
+    this.discNumber,
   });
 
   final String id;
@@ -56,4 +59,7 @@ class TrackRecord {
   final int? bitrate;
   final String? coverPath;
   final int? fileModifiedMs;
+  final List<String> featuredArtists;
+  final String? albumArtist;
+  final int? discNumber;
 }

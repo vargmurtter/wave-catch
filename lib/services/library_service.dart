@@ -1,5 +1,10 @@
+import 'package:path/path.dart' as p;
+
 import 'package:music_player/repositories/entities/library_entities.dart';
 import 'package:music_player/repositories/library_repository.dart';
+import 'package:music_player/repositories/metadata_override_repository.dart';
+import 'package:music_player/services/metadata/metadata_edit_mode.dart';
+import 'package:music_player/services/metadata/track_metadata_override.dart';
 import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
@@ -8,18 +13,42 @@ import 'package:music_player/ui/models/library_search_results.dart';
 import 'package:music_player/ui/models/track.dart';
 
 class LibraryService {
-  LibraryService(this._libraryRepository, this._settingsService);
+  LibraryService(
+    this._libraryRepository,
+    this._settingsService,
+    this._overrideRepository,
+  );
 
   final LibraryRepository _libraryRepository;
   final SettingsService _settingsService;
+  final MetadataOverrideRepository _overrideRepository;
+
+  Map<String, TrackMetadataOverride>? _overrideCache;
+  String? _overrideCacheRoot;
 
   void ensureOpen() {
     final path = _settingsService.musicLibraryPath;
     if (path == null) return;
     if (_libraryRepository.isOpen && _libraryRepository.musicRoot == path) {
+      _ensureOverridesLoaded(path);
       return;
     }
     _libraryRepository.open(path);
+    _invalidateOverrideCache();
+    _ensureOverridesLoaded(path);
+  }
+
+  void _ensureOverridesLoaded(String musicRoot) {
+    if (_settingsService.metadataEditMode != MetadataEditMode.override) return;
+    if (_overrideCache != null && _overrideCacheRoot == musicRoot) return;
+    _overrideCache =
+        _overrideRepository.loadTrackOverridesSync(musicRoot);
+    _overrideCacheRoot = musicRoot;
+  }
+
+  void _invalidateOverrideCache() {
+    _overrideCache = null;
+    _overrideCacheRoot = null;
   }
 
   bool get isReady {
@@ -78,6 +107,15 @@ class LibraryService {
     ensureOpen();
     if (!_libraryRepository.isOpen) return [];
     return _mapTracks(_libraryRepository.getAllTracks());
+  }
+
+  Track? getTrackById(String id) {
+    ensureOpen();
+    if (!_libraryRepository.isOpen) return null;
+    final record = _libraryRepository.getTrackById(id);
+    if (record == null) return null;
+    final mapped = _mapTracks([record]);
+    return mapped.isEmpty ? null : mapped.first;
   }
 
   List<Album> getAlbumsForArtist(String artistId) {
@@ -190,22 +228,71 @@ class LibraryService {
     int? albumYear,
     String? albumCoverPath,
   ) {
+    var title = record.title;
+    var artist = artistName;
+    var album = albumTitle;
+    var year = albumYear;
+    var coverPath = record.coverPath ?? albumCoverPath;
+    var featuredArtists = record.featuredArtists;
+    var albumArtist = record.albumArtist;
+    var trackNumber = record.trackNumber;
+    var genre = record.genre;
+    var discNumber = record.discNumber;
+
+    if (_settingsService.metadataEditMode == MetadataEditMode.override) {
+      final override = _overrideCache?[record.id];
+      if (override != null) {
+        title = override.title ?? title;
+        artist = override.artist ?? artist;
+        album = override.album ?? album;
+        year = override.year ?? year;
+        featuredArtists = override.featuredArtists ?? featuredArtists;
+        albumArtist = override.albumArtist ?? albumArtist;
+        trackNumber = override.trackNumber ?? trackNumber;
+        genre = override.genre ?? genre;
+        discNumber = override.discNumber ?? discNumber;
+        if (override.coverPath != null) {
+          final musicRoot = _settingsService.musicLibraryPath;
+          if (musicRoot != null) {
+            coverPath = p.isAbsolute(override.coverPath!)
+                ? override.coverPath
+                : p.join(musicRoot, override.coverPath!);
+          }
+        }
+      }
+    }
+
     return Track(
       id: record.id,
       filePath: record.filePath,
-      title: record.title,
-      artist: artistName,
+      title: title,
+      artist: artist,
       artistId: record.artistId,
       albumId: record.albumId,
-      album: albumTitle,
-      year: albumYear,
-      albumArtUrl: record.coverPath ?? albumCoverPath,
+      album: album,
+      year: year,
+      albumArtUrl: coverPath,
       duration: Duration(milliseconds: record.durationMs),
-      trackNumber: record.trackNumber,
-      genre: record.genre,
+      trackNumber: trackNumber,
+      genre: genre,
       format: record.format,
       bitrate: record.bitrate,
+      featuredArtists: featuredArtists,
+      albumArtist: albumArtist,
+      discNumber: discNumber,
     );
+  }
+
+  Future<void> preloadOverrides() async {
+    refreshOverrides();
+    final path = _settingsService.musicLibraryPath;
+    if (path != null) {
+      _ensureOverridesLoaded(path);
+    }
+  }
+
+  void refreshOverrides() {
+    _invalidateOverrideCache();
   }
 
   Album _mapAlbum(AlbumRecord record, String artistName) {

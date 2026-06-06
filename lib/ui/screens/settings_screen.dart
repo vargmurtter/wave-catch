@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
@@ -231,6 +232,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     onChanged: _onGroupingStrategyChanged,
                   ),
                 ),
+                const SizedBox(height: 32),
+                const Text(
+                  'Редактирование метаданных',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...MetadataEditMode.values.map(
+                  (mode) => _MetadataEditModeTile(
+                    mode: mode,
+                    groupValue: settings.metadataEditMode,
+                    enabled: !isScanning,
+                    onChanged: (value) => ref
+                        .read(appSettingsStateProvider.notifier)
+                        .setMetadataEditMode(value),
+                  ),
+                ),
               ],
             ),
           ),
@@ -331,6 +352,99 @@ class _GroupingStrategyTileState extends State<_GroupingStrategyTile> {
                       const SizedBox(height: 4),
                       Text(
                         widget.strategy.description,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetadataEditModeTile extends StatefulWidget {
+  const _MetadataEditModeTile({
+    required this.mode,
+    required this.groupValue,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final MetadataEditMode mode;
+  final MetadataEditMode groupValue;
+  final bool enabled;
+  final ValueChanged<MetadataEditMode> onChanged;
+
+  @override
+  State<_MetadataEditModeTile> createState() => _MetadataEditModeTileState();
+}
+
+class _MetadataEditModeTileState extends State<_MetadataEditModeTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.mode == widget.groupValue;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        cursor:
+            widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: GestureDetector(
+          onTap: widget.enabled ? () => widget.onChanged(widget.mode) : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _isHovered && widget.enabled
+                  ? AppColors.surfaceElevated.withValues(alpha: 0.8)
+                  : AppColors.surface.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isSelected ? AppColors.accent : AppColors.divider,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Icon(
+                    isSelected
+                        ? LucideIcons.circleDot
+                        : LucideIcons.circle,
+                    size: 18,
+                    color:
+                        isSelected ? AppColors.accent : AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.mode.label,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.mode.description,
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,

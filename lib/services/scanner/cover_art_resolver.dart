@@ -108,7 +108,13 @@ class CoverArtResolver {
     for (final track in tracks) {
       String? coverPath;
 
-      if (track.embeddedCoverBytes != null &&
+      if (track.overrideCoverPath != null &&
+          File(track.overrideCoverPath!).existsSync()) {
+        coverPath = track.overrideCoverPath;
+      }
+
+      if (coverPath == null &&
+          track.embeddedCoverBytes != null &&
           track.embeddedCoverBytes!.isNotEmpty) {
         coverPath = saveEmbeddedCover(
           coversDir: coversDir,

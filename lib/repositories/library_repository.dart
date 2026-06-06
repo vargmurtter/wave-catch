@@ -2,6 +2,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'package:music_player/repositories/entities/library_entities.dart';
 import 'package:music_player/repositories/library_database.dart';
+import 'package:music_player/services/metadata/track_metadata_override.dart';
 
 class LibraryRepository {
   LibraryDatabase? _database;
@@ -27,6 +28,12 @@ class LibraryRepository {
     }
     return database;
   }
+
+  static const _trackColumns = '''
+    id, file_path, title, artist_id, album_id, duration_ms,
+    track_number, genre, format, bitrate, cover_path,
+    file_modified_ms, indexed_at_ms, featured_artists, album_artist, disc_number
+  ''';
 
   List<ArtistRecord> getArtists() {
     final rows = _db.db.select('SELECT id, name, cover_path FROM artists ORDER BY name');
@@ -60,12 +67,7 @@ class LibraryRepository {
 
   TrackRecord? getTrackById(String id) {
     final rows = _db.db.select(
-      '''
-      SELECT id, file_path, title, artist_id, album_id, duration_ms,
-             track_number, genre, format, bitrate, cover_path,
-             file_modified_ms, indexed_at_ms
-      FROM tracks WHERE id = ?
-      ''',
+      'SELECT $_trackColumns FROM tracks WHERE id = ?',
       [id],
     );
     if (rows.isEmpty) return null;
@@ -75,9 +77,7 @@ class LibraryRepository {
   List<TrackRecord> getTracksForAlbum(String albumId) {
     final rows = _db.db.select(
       '''
-      SELECT id, file_path, title, artist_id, album_id, duration_ms,
-             track_number, genre, format, bitrate, cover_path,
-             file_modified_ms, indexed_at_ms
+      SELECT $_trackColumns
       FROM tracks WHERE album_id = ?
       ORDER BY track_number, title
       ''',
@@ -89,9 +89,7 @@ class LibraryRepository {
   List<TrackRecord> getTracksForArtist(String artistId) {
     final rows = _db.db.select(
       '''
-      SELECT id, file_path, title, artist_id, album_id, duration_ms,
-             track_number, genre, format, bitrate, cover_path,
-             file_modified_ms, indexed_at_ms
+      SELECT $_trackColumns
       FROM tracks WHERE artist_id = ?
       ORDER BY title
       ''',
@@ -115,9 +113,7 @@ class LibraryRepository {
   List<TrackRecord> getAllTracks() {
     final rows = _db.db.select(
       '''
-      SELECT id, file_path, title, artist_id, album_id, duration_ms,
-             track_number, genre, format, bitrate, cover_path,
-             file_modified_ms, indexed_at_ms
+      SELECT $_trackColumns
       FROM tracks
       ORDER BY title
       ''',
@@ -197,6 +193,76 @@ class LibraryRepository {
     return rows.map(_mapAlbum).toList();
   }
 
+  void upsertArtist(ArtistRecord artist) {
+    _db.db.execute(
+      '''
+      INSERT INTO artists (id, name, cover_path)
+      VALUES (?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        cover_path = COALESCE(excluded.cover_path, artists.cover_path)
+      ''',
+      [artist.id, artist.name, artist.coverPath],
+    );
+  }
+
+  void upsertAlbum(AlbumRecord album) {
+    _db.db.execute(
+      '''
+      INSERT INTO albums (id, title, artist_id, year, cover_path)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        title = excluded.title,
+        artist_id = excluded.artist_id,
+        year = COALESCE(excluded.year, albums.year),
+        cover_path = COALESCE(excluded.cover_path, albums.cover_path)
+      ''',
+      [album.id, album.title, album.artistId, album.year, album.coverPath],
+    );
+  }
+
+  void updateTrack(TrackRecord track) {
+    _db.db.execute(
+      '''
+      UPDATE tracks SET
+        title = ?,
+        artist_id = ?,
+        album_id = ?,
+        track_number = ?,
+        genre = ?,
+        cover_path = ?,
+        featured_artists = ?,
+        album_artist = ?,
+        disc_number = ?
+      WHERE id = ?
+      ''',
+      [
+        track.title,
+        track.artistId,
+        track.albumId,
+        track.trackNumber,
+        track.genre,
+        track.coverPath,
+        encodeFeaturedArtists(track.featuredArtists),
+        track.albumArtist,
+        track.discNumber,
+        track.id,
+      ],
+    );
+  }
+
+  void deleteOrphanedArtistsAndAlbums() {
+    _db.db.execute('''
+      DELETE FROM artists
+      WHERE id NOT IN (SELECT DISTINCT artist_id FROM tracks)
+        AND id NOT IN (SELECT DISTINCT artist_id FROM albums)
+    ''');
+    _db.db.execute('''
+      DELETE FROM albums
+      WHERE id NOT IN (SELECT DISTINCT album_id FROM tracks)
+    ''');
+  }
+
   void replaceLibrary({
     required List<ArtistRecord> artists,
     required List<AlbumRecord> albums,
@@ -234,8 +300,9 @@ class LibraryRepository {
           INSERT INTO tracks (
             id, file_path, title, artist_id, album_id, duration_ms,
             track_number, genre, format, bitrate, cover_path,
-            file_modified_ms, indexed_at_ms
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            file_modified_ms, indexed_at_ms, featured_artists, album_artist,
+            disc_number
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ''',
           [
             track.id,
@@ -251,6 +318,9 @@ class LibraryRepository {
             track.coverPath,
             track.fileModifiedMs,
             track.indexedAtMs,
+            encodeFeaturedArtists(track.featuredArtists),
+            track.albumArtist,
+            track.discNumber,
           ],
         );
       }
@@ -304,6 +374,9 @@ class LibraryRepository {
       coverPath: row['cover_path'] as String?,
       fileModifiedMs: row['file_modified_ms'] as int?,
       indexedAtMs: row['indexed_at_ms'] as int,
+      featuredArtists: decodeFeaturedArtists(row['featured_artists'] as String?),
+      albumArtist: row['album_artist'] as String?,
+      discNumber: row['disc_number'] as int?,
     );
   }
 }

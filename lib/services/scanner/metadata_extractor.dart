@@ -25,6 +25,7 @@ class MetadataExtractor {
       trackNumber: metadata.trackNumber,
       genre: _fixText(_nonEmpty(metadata.genre)),
       year: metadata.year,
+      discNumber: metadata.discNumber,
       embeddedCoverBytes: metadata.picture?.data,
       embeddedCoverMimeType: metadata.picture?.mimeType,
     );

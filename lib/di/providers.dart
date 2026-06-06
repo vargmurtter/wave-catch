@@ -4,10 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/repositories/app_settings_repository.dart';
 import 'package:music_player/repositories/library_repository.dart';
+import 'package:music_player/repositories/metadata_file_writer.dart';
+import 'package:music_player/repositories/metadata_override_repository.dart';
 import 'package:music_player/services/library_scanner_service.dart';
 import 'package:music_player/services/library_service.dart';
+import 'package:music_player/services/metadata/metadata_edit_mode.dart';
+import 'package:music_player/services/metadata/metadata_edit_service.dart';
+import 'package:music_player/services/metadata/track_metadata_edit.dart';
 import 'package:music_player/services/player_service.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
+import 'package:music_player/services/scanner/cover_art_resolver.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
 import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/album.dart';
@@ -33,10 +39,35 @@ final libraryRepositoryProvider = Provider<LibraryRepository>(
   (ref) => LibraryRepository(),
 );
 
+final metadataOverrideRepositoryProvider =
+    Provider<MetadataOverrideRepository>(
+  (ref) => MetadataOverrideRepository(),
+);
+
+final metadataFileWriterProvider = Provider<MetadataFileWriter>(
+  (ref) => MetadataFileWriter(),
+);
+
+final coverArtResolverProvider = Provider<CoverArtResolver>(
+  (ref) => CoverArtResolver(),
+);
+
+final metadataEditServiceProvider = Provider<MetadataEditService>((ref) {
+  return MetadataEditService(
+    settingsService: ref.watch(settingsServiceProvider),
+    libraryRepository: ref.watch(libraryRepositoryProvider),
+    overrideRepository: ref.watch(metadataOverrideRepositoryProvider),
+    fileWriter: ref.watch(metadataFileWriterProvider),
+    coverArtResolver: ref.watch(coverArtResolverProvider),
+  );
+});
+
 final libraryScannerServiceProvider = Provider<LibraryScannerService>((ref) {
   return LibraryScannerService(
     settingsService: ref.watch(settingsServiceProvider),
     libraryRepository: ref.watch(libraryRepositoryProvider),
+    overrideRepository: ref.watch(metadataOverrideRepositoryProvider),
+    coverArtResolver: ref.watch(coverArtResolverProvider),
   );
 });
 
@@ -45,6 +76,7 @@ final libraryServiceProvider = Provider<LibraryService>((ref) {
   return LibraryService(
     ref.watch(libraryRepositoryProvider),
     ref.watch(settingsServiceProvider),
+    ref.watch(metadataOverrideRepositoryProvider),
   );
 });
 
@@ -61,11 +93,13 @@ class AppSettingsState {
     this.musicLibraryPath,
     this.isConfigured = false,
     this.albumGroupingStrategy = AlbumGroupingStrategy.byAlbumArtist,
+    this.metadataEditMode = MetadataEditMode.override,
   });
 
   final String? musicLibraryPath;
   final bool isConfigured;
   final AlbumGroupingStrategy albumGroupingStrategy;
+  final MetadataEditMode metadataEditMode;
 }
 
 final appSettingsStateProvider =
@@ -81,6 +115,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
       musicLibraryPath: service.musicLibraryPath,
       isConfigured: service.isLibraryConfigured,
       albumGroupingStrategy: service.albumGroupingStrategy,
+      metadataEditMode: service.metadataEditMode,
     );
   }
 
@@ -103,12 +138,19 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     _syncFromService();
   }
 
+  Future<void> setMetadataEditMode(MetadataEditMode mode) async {
+    await ref.read(settingsServiceProvider).setMetadataEditMode(mode);
+    ref.read(libraryServiceProvider).refreshOverrides();
+    _syncFromService();
+  }
+
   void _syncFromService() {
     final service = ref.read(settingsServiceProvider);
     state = AppSettingsState(
       musicLibraryPath: service.musicLibraryPath,
       isConfigured: service.isLibraryConfigured,
       albumGroupingStrategy: service.albumGroupingStrategy,
+      metadataEditMode: service.metadataEditMode,
     );
   }
 }
@@ -409,5 +451,67 @@ class TrackInfoPanelNotifier extends Notifier<Track?> {
 
   void open(Track track) => state = track;
 
+  void update(Track track) => state = track;
+
   void close() => state = null;
+}
+
+class TrackMetadataEditState {
+  const TrackMetadataEditState({
+    this.isSaving = false,
+    this.errorMessage,
+  });
+
+  final bool isSaving;
+  final String? errorMessage;
+}
+
+final trackMetadataEditProvider =
+    NotifierProvider<TrackMetadataEditNotifier, TrackMetadataEditState>(
+  TrackMetadataEditNotifier.new,
+);
+
+class TrackMetadataEditNotifier extends Notifier<TrackMetadataEditState> {
+  @override
+  TrackMetadataEditState build() => const TrackMetadataEditState();
+
+  Future<Track?> save({
+    required String trackId,
+    required TrackMetadataEdit changes,
+  }) async {
+    state = const TrackMetadataEditState(isSaving: true);
+
+    try {
+      final result = await ref
+          .read(metadataEditServiceProvider)
+          .updateTrackMetadata(trackId: trackId, changes: changes);
+
+      ref.read(libraryServiceProvider).refreshOverrides();
+      ref.read(libraryRefreshProvider.notifier).refresh();
+
+      final updatedTrack = result.track;
+      final panelTrack = ref.read(trackInfoPanelProvider);
+      if (panelTrack?.id == trackId) {
+        ref.read(trackInfoPanelProvider.notifier).update(updatedTrack);
+      }
+
+      final playerState = ref.read(playerUiStateProvider);
+      if (playerState.currentTrack?.id == trackId) {
+        ref.read(playerServiceProvider).updateCurrentTrack(updatedTrack);
+      }
+
+      state = const TrackMetadataEditState();
+      return updatedTrack;
+    } on MetadataEditException catch (error) {
+      state = TrackMetadataEditState(errorMessage: error.message);
+      return null;
+    } catch (error) {
+      state = TrackMetadataEditState(errorMessage: error.toString());
+      return null;
+    }
+  }
+
+  void clearError() {
+    state = const TrackMetadataEditState();
+  }
 }

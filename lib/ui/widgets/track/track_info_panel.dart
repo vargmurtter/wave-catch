@@ -8,6 +8,8 @@ import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
 import 'package:music_player/ui/widgets/common/play_action_button.dart';
+import 'package:music_player/services/metadata/track_metadata_override.dart';
+import 'package:music_player/ui/widgets/track/track_metadata_edit_dialog.dart';
 
 class TrackInfoPanel extends ConsumerWidget {
   const TrackInfoPanel({super.key});
@@ -75,6 +77,12 @@ class _TrackInfoContent extends ConsumerWidget {
                 ),
               ),
               IconButton(
+                onPressed: () => showTrackMetadataEditDialog(context, ref, track),
+                icon: const Icon(LucideIcons.pencil),
+                color: AppColors.textSecondary,
+                tooltip: 'Редактировать',
+              ),
+              IconButton(
                 onPressed: () =>
                     ref.read(trackInfoPanelProvider.notifier).close(),
                 icon: const Icon(LucideIcons.x),
@@ -129,6 +137,18 @@ class _TrackInfoContent extends ConsumerWidget {
                       .read(libraryRouteProvider.notifier)
                       .openArtist(track.artistId),
                 ),
+                if (track.featuredArtists.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _MetaRow(
+                    label: 'Feat.',
+                    value: formatFeaturedArtists(track.featuredArtists),
+                  ),
+                ],
+                if (track.albumArtist != null &&
+                    track.albumArtist!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _MetaRow(label: 'Album Artist', value: track.albumArtist!),
+                ],
                 if (track.year != null) ...[
                   const SizedBox(height: 8),
                   _MetaRow(label: 'Год', value: '${track.year}'),
@@ -149,6 +169,11 @@ class _TrackInfoContent extends ConsumerWidget {
                   _MetaRow(
                     label: 'Номер трека',
                     value: '${track.trackNumber}',
+                  ),
+                if (track.discNumber != null)
+                  _MetaRow(
+                    label: 'Номер диска',
+                    value: '${track.discNumber}',
                   ),
                 if (track.genre != null)
                   _MetaRow(label: 'Жанр', value: track.genre!),

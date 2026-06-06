@@ -5,11 +5,13 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
+import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 
 class AppSettingsRepository {
   static const _configFileName = 'app_config.json';
   static const _musicLibraryPathKey = 'musicLibraryPath';
   static const _albumGroupingStrategyKey = 'albumGroupingStrategy';
+  static const _metadataEditModeKey = 'metadataEditMode';
 
   Future<File> _configFile() async {
     final supportDir = await getApplicationSupportDirectory();
@@ -50,6 +52,13 @@ class AppSettingsRepository {
     );
   }
 
+  Future<MetadataEditMode> getMetadataEditMode() async {
+    final config = await _readConfig();
+    return MetadataEditModeLabels.fromJson(
+      config[_metadataEditModeKey] as String?,
+    );
+  }
+
   Future<void> setMusicLibraryPath(String path) async {
     final config = await _readConfig();
     config[_musicLibraryPathKey] = path;
@@ -59,6 +68,12 @@ class AppSettingsRepository {
   Future<void> setAlbumGroupingStrategy(AlbumGroupingStrategy strategy) async {
     final config = await _readConfig();
     config[_albumGroupingStrategyKey] = strategy.toJson();
+    await _writeConfig(config);
+  }
+
+  Future<void> setMetadataEditMode(MetadataEditMode mode) async {
+    final config = await _readConfig();
+    config[_metadataEditModeKey] = mode.toJson();
     await _writeConfig(config);
   }
 }

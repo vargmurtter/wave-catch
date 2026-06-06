@@ -47,6 +47,9 @@ class LibraryPersister {
             format: item.track.format,
             coverPath: item.coverPath,
             fileModifiedMs: item.track.fileModifiedMs,
+            featuredArtists: item.track.featuredArtists,
+            albumArtist: item.track.albumArtistName,
+            discNumber: item.track.discNumber,
           ),
         )
         .toList();

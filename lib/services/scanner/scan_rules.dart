@@ -17,5 +17,7 @@ const kAudioExtensions = {
 
 const kLibraryDbFileName = 'library.db';
 const kEmbeddedCoversDir = '.covers';
+const kMetadataOverridesDir = '.music_player';
+const kMetadataOverridesFileName = 'metadata_overrides.json';
 
-const kLibrarySchemaVersion = 1;
+const kLibrarySchemaVersion = 2;

@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:music_player/repositories/app_settings_repository.dart';
+import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 
 class SettingsService {
@@ -14,10 +15,13 @@ class SettingsService {
   String? _musicLibraryPath;
   AlbumGroupingStrategy _albumGroupingStrategy =
       AlbumGroupingStrategy.byAlbumArtist;
+  MetadataEditMode _metadataEditMode = MetadataEditMode.override;
 
   String? get musicLibraryPath => _musicLibraryPath;
 
   AlbumGroupingStrategy get albumGroupingStrategy => _albumGroupingStrategy;
+
+  MetadataEditMode get metadataEditMode => _metadataEditMode;
 
   bool get isLibraryConfigured {
     final path = _musicLibraryPath;
@@ -28,6 +32,7 @@ class SettingsService {
     _musicLibraryPath = await _appSettingsRepository.getMusicLibraryPath();
     _albumGroupingStrategy =
         await _appSettingsRepository.getAlbumGroupingStrategy();
+    _metadataEditMode = await _appSettingsRepository.getMetadataEditMode();
   }
 
   Future<String?> pickMusicFolder() async {
@@ -57,5 +62,10 @@ class SettingsService {
   Future<void> setAlbumGroupingStrategy(AlbumGroupingStrategy strategy) async {
     _albumGroupingStrategy = strategy;
     await _appSettingsRepository.setAlbumGroupingStrategy(strategy);
+  }
+
+  Future<void> setMetadataEditMode(MetadataEditMode mode) async {
+    _metadataEditMode = mode;
+    await _appSettingsRepository.setMetadataEditMode(mode);
   }
 }

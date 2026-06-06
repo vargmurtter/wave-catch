@@ -74,12 +74,16 @@ lib/
     app_settings_repository.dart
     library_repository.dart
     library_database.dart
+    metadata_override_repository.dart
+    metadata_file_writer.dart
     entities/
   services/       # PlayerService, LibraryService, …
     settings_service.dart
     library_service.dart
     library_scanner_service.dart
     player_service.dart
+    metadata/
+      metadata_edit_service.dart
     scanner/        # фазы pipeline сканера
   ui/
     screens/      # экраны
@@ -97,10 +101,14 @@ docs/             # документация (этот файл и др.)
 | `LibraryScannerService` | Service | оркестрация сканирования |
 | `LibraryService` | Service | чтение библиотеки для UI, глобальный поиск |
 | `PlayerService` | Service | воспроизведение, очередь, repeat/shuffle |
+| `MetadataOverrideRepository` | Repository | override-конфиг метаданных в `.music_player/` |
+| `MetadataFileWriter` | Repository | запись тегов в аудиофайлы через `metadata_god` |
+| `MetadataEditService` | Service | редактирование метаданных треков |
 
 Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).  
 Подробности поиска: [features/library-search.md](features/library-search.md).  
-Подробности плеера: [features/player.md](features/player.md).
+Подробности плеера: [features/player.md](features/player.md).  
+Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).
 
 ## Документация
 

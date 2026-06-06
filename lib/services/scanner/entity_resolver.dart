@@ -20,12 +20,15 @@ class ResolvedTrack {
     required this.durationMs,
     required this.fileModifiedMs,
     this.albumArtistName,
+    this.featuredArtists = const [],
     this.trackNumber,
     this.genre,
     this.format,
     this.year,
+    this.discNumber,
     this.embeddedCoverBytes,
     this.embeddedCoverMimeType,
+    this.overrideCoverPath,
   });
 
   final String id;
@@ -39,12 +42,15 @@ class ResolvedTrack {
   final int durationMs;
   final int fileModifiedMs;
   final String? albumArtistName;
+  final List<String> featuredArtists;
   final int? trackNumber;
   final String? genre;
   final String? format;
   final int? year;
+  final int? discNumber;
   final List<int>? embeddedCoverBytes;
   final String? embeddedCoverMimeType;
+  final String? overrideCoverPath;
 }
 
 class EntityResolver {
@@ -80,12 +86,15 @@ class EntityResolver {
       durationMs: metadata.durationMs,
       fileModifiedMs: DateTime.now().millisecondsSinceEpoch,
       albumArtistName: metadata.albumArtist,
+      featuredArtists: metadata.featuredArtists,
       trackNumber: metadata.trackNumber,
       genre: metadata.genre,
       format: extension,
       year: metadata.year,
+      discNumber: metadata.discNumber,
       embeddedCoverBytes: metadata.embeddedCoverBytes,
       embeddedCoverMimeType: metadata.embeddedCoverMimeType,
+      overrideCoverPath: metadata.overrideCoverPath,
     );
   }
 }

@@ -300,6 +300,24 @@ class PlayerService {
     await skipNext();
   }
 
+  void updateCurrentTrack(Track track) {
+    final queue = List<Track>.from(_state.queue);
+    final queueIndex = _state.queueIndex;
+    if (queueIndex >= 0 && queueIndex < queue.length && queue[queueIndex].id == track.id) {
+      queue[queueIndex] = track;
+    }
+    for (var i = 0; i < queue.length; i++) {
+      if (queue[i].id == track.id) {
+        queue[i] = track;
+      }
+    }
+
+    _patch(
+      currentTrack: _state.currentTrack?.id == track.id ? track : _state.currentTrack,
+      queue: queue,
+    );
+  }
+
   Future<void> dispose() async {
     for (final sub in _subscriptions) {
       await sub.cancel();

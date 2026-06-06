@@ -79,8 +79,36 @@ class LibraryDatabase {
       'CREATE INDEX IF NOT EXISTS idx_albums_artist ON albums(artist_id)',
     );
 
+    final version = int.tryParse(_getMeta('schema_version') ?? '1') ?? 1;
+    if (version < 2) {
+      _migrateToV2();
+    }
+
     _setMeta('schema_version', kLibrarySchemaVersion.toString());
     _setMeta('root_path', musicRoot);
+  }
+
+  String? _getMeta(String key) {
+    final rows = _db.select(
+      'SELECT value FROM library_meta WHERE key = ?',
+      [key],
+    );
+    if (rows.isEmpty) return null;
+    return rows.first['value'] as String?;
+  }
+
+  void _migrateToV2() {
+    for (final statement in [
+      'ALTER TABLE tracks ADD COLUMN featured_artists TEXT',
+      'ALTER TABLE tracks ADD COLUMN album_artist TEXT',
+      'ALTER TABLE tracks ADD COLUMN disc_number INTEGER',
+    ]) {
+      try {
+        _db.execute(statement);
+      } catch (_) {
+        // Column may already exist.
+      }
+    }
   }
 
   void _setMeta(String key, String value) {
