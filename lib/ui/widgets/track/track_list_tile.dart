@@ -112,7 +112,7 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
                 IconButton(
                   onPressed: () => ref
                       .read(playerUiStateProvider.notifier)
-                      .playTrack(widget.track),
+                      .playTrackInAlbum(widget.track),
                   icon: const Icon(LucideIcons.play, size: 18),
                   color: AppColors.textPrimary,
                   tooltip: 'Воспроизвести',

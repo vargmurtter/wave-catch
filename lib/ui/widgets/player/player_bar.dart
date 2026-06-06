@@ -30,50 +30,150 @@ class PlayerBar extends ConsumerWidget {
       child: SizedBox(
         height: _height,
         child: Column(
-        children: [
-          SizedBox(
-            height: 2,
-            child: LinearProgressIndicator(
-              value: playerState.progress,
-              backgroundColor: Colors.transparent,
-              color: AppColors.accent,
+          children: [
+            _ProgressBar(
+              progress: playerState.progress,
+              duration: playerState.duration,
+              enabled: track != null,
+              onSeek: notifier.seek,
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: _TrackInfo(track: track),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: _PlaybackControls(
-                      isPlaying: playerState.isPlaying,
-                      shuffleEnabled: playerState.shuffleEnabled,
-                      repeatMode: playerState.repeatMode,
-                      onTogglePlayPause: notifier.togglePlayPause,
-                      onToggleShuffle: notifier.toggleShuffle,
-                      onCycleRepeat: notifier.cycleRepeatMode,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: track != null
+                          ? _TrackInfo(track: track)
+                          : const _EmptyTrackInfo(),
                     ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: _RightControls(
-                      volume: playerState.volume,
-                      onVolumeChanged: notifier.setVolume,
-                      onToggleQueue: notifier.toggleQueue,
+                    Expanded(
+                      flex: 4,
+                      child: _PlaybackControls(
+                        isPlaying: playerState.isPlaying,
+                        shuffleEnabled: playerState.shuffleEnabled,
+                        repeatMode: playerState.repeatMode,
+                        enabled: track != null,
+                        onTogglePlayPause: notifier.togglePlayPause,
+                        onToggleShuffle: notifier.toggleShuffle,
+                        onCycleRepeat: notifier.cycleRepeatMode,
+                        onSkipPrevious: notifier.skipPrevious,
+                        onSkipNext: notifier.skipNext,
+                      ),
                     ),
-                  ),
-                ],
+                    Expanded(
+                      flex: 3,
+                      child: _RightControls(
+                        volume: playerState.volume,
+                        onVolumeChanged: notifier.setVolume,
+                        onToggleQueue: notifier.toggleQueue,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _ProgressBar extends StatefulWidget {
+  const _ProgressBar({
+    required this.progress,
+    required this.duration,
+    required this.enabled,
+    required this.onSeek,
+  });
+
+  final double progress;
+  final Duration duration;
+  final bool enabled;
+  final Future<void> Function(Duration position) onSeek;
+
+  @override
+  State<_ProgressBar> createState() => _ProgressBarState();
+}
+
+class _ProgressBarState extends State<_ProgressBar> {
+  double? _dragValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = _dragValue ?? widget.progress;
+
+    return SizedBox(
+      height: 12,
+      child: SliderTheme(
+        data: SliderThemeData(
+          trackHeight: 2,
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
+          overlayShape: SliderComponentShape.noOverlay,
+          activeTrackColor: AppColors.accent,
+          inactiveTrackColor: AppColors.divider,
+          disabledActiveTrackColor: AppColors.divider,
+          disabledInactiveTrackColor: AppColors.divider,
+        ),
+        child: MouseRegion(
+          cursor: widget.enabled
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          child: Slider(
+            value: value.clamp(0.0, 1.0),
+            onChanged: widget.enabled
+                ? (next) => setState(() => _dragValue = next)
+                : null,
+            onChangeEnd: widget.enabled
+                ? (next) {
+                    setState(() => _dragValue = null);
+                    final totalMs = widget.duration.inMilliseconds;
+                    if (totalMs <= 0) return;
+                    widget.onSeek(
+                      Duration(milliseconds: (next * totalMs).round()),
+                    );
+                  }
+                : null,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyTrackInfo extends StatelessWidget {
+  const _EmptyTrackInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Icon(
+            LucideIcons.music,
+            color: AppColors.textSecondary,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Text(
+            'Выберите трек',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -87,7 +187,7 @@ class _TrackInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CoverArt(size: 56, seed: track.id),
+        CoverArt(size: 56, seed: track.id, imagePath: track.albumArtUrl),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -127,17 +227,23 @@ class _PlaybackControls extends StatelessWidget {
     required this.isPlaying,
     required this.shuffleEnabled,
     required this.repeatMode,
+    required this.enabled,
     required this.onTogglePlayPause,
     required this.onToggleShuffle,
     required this.onCycleRepeat,
+    required this.onSkipPrevious,
+    required this.onSkipNext,
   });
 
   final bool isPlaying;
   final bool shuffleEnabled;
   final RepeatMode repeatMode;
+  final bool enabled;
   final VoidCallback onTogglePlayPause;
   final VoidCallback onToggleShuffle;
   final VoidCallback onCycleRepeat;
+  final VoidCallback onSkipPrevious;
+  final VoidCallback onSkipNext;
 
   @override
   Widget build(BuildContext context) {
@@ -153,18 +259,19 @@ class _PlaybackControls extends StatelessWidget {
         const SizedBox(width: 8),
         _ControlButton(
           icon: LucideIcons.skipBack,
-          onPressed: () {},
+          onPressed: enabled ? onSkipPrevious : null,
           tooltip: 'Предыдущий трек',
         ),
         const SizedBox(width: 8),
         _PlayPauseButton(
           isPlaying: isPlaying,
+          enabled: enabled,
           onPressed: onTogglePlayPause,
         ),
         const SizedBox(width: 8),
         _ControlButton(
           icon: LucideIcons.skipForward,
-          onPressed: () {},
+          onPressed: enabled ? onSkipNext : null,
           tooltip: 'Следующий трек',
         ),
         const SizedBox(width: 8),
@@ -214,13 +321,13 @@ class _RightControls extends StatelessWidget {
 class _ControlButton extends StatefulWidget {
   const _ControlButton({
     required this.icon,
-    required this.onPressed,
+    this.onPressed,
     this.isActive = false,
     this.tooltip,
   });
 
   final IconData icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isActive;
   final String? tooltip;
 
@@ -233,16 +340,19 @@ class _ControlButtonState extends State<_ControlButton> {
 
   @override
   Widget build(BuildContext context) {
+    final enabled = widget.onPressed != null;
     final color = widget.isActive
         ? AppColors.accent
-        : _isHovered
-            ? AppColors.textPrimary
-            : AppColors.textSecondary;
+        : !enabled
+            ? AppColors.textSecondary.withValues(alpha: 0.4)
+            : _isHovered
+                ? AppColors.textPrimary
+                : AppColors.textSecondary;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      cursor: SystemMouseCursors.click,
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: IconButton(
         onPressed: widget.onPressed,
         tooltip: widget.tooltip,
@@ -259,10 +369,12 @@ class _ControlButtonState extends State<_ControlButton> {
 class _PlayPauseButton extends StatefulWidget {
   const _PlayPauseButton({
     required this.isPlaying,
+    required this.enabled,
     required this.onPressed,
   });
 
   final bool isPlaying;
+  final bool enabled;
   final VoidCallback onPressed;
 
   @override
@@ -277,19 +389,24 @@ class _PlayPauseButtonState extends State<_PlayPauseButton> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      cursor: SystemMouseCursors.click,
+      cursor:
+          widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: IconButton(
-        onPressed: widget.onPressed,
+        onPressed: widget.enabled ? widget.onPressed : null,
         tooltip: widget.isPlaying ? 'Пауза' : 'Воспроизведение',
         icon: Icon(
           widget.isPlaying ? LucideIcons.pause : LucideIcons.play,
           size: 22,
         ),
         style: IconButton.styleFrom(
-          backgroundColor: _isHovered
-              ? AppColors.accent.withValues(alpha: 0.85)
-              : AppColors.accent,
-          foregroundColor: AppColors.textPrimary,
+          backgroundColor: widget.enabled
+              ? (_isHovered
+                  ? AppColors.accent.withValues(alpha: 0.85)
+                  : AppColors.accent)
+              : AppColors.surfaceElevated,
+          foregroundColor: widget.enabled
+              ? AppColors.textPrimary
+              : AppColors.textSecondary,
           minimumSize: const Size(40, 40),
           padding: EdgeInsets.zero,
         ),

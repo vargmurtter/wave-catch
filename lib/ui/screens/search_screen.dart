@@ -33,8 +33,7 @@ class SearchScreen extends ConsumerWidget {
   static void openTrack(WidgetRef ref, Track track) {
     ref.read(searchQueryProvider.notifier).clear();
     ref.read(libraryRouteProvider.notifier).reset();
-    ref.read(libraryRouteProvider.notifier).openAlbum(track.albumId);
-    ref.read(trackInfoPanelProvider.notifier).open(track);
+    ref.read(playerUiStateProvider.notifier).playTrackInAlbum(track);
   }
 
   @override

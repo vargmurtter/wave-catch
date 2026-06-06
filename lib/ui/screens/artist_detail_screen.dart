@@ -5,6 +5,7 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
+import 'package:music_player/ui/widgets/common/play_action_button.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
 import 'package:music_player/ui/widgets/home/horizontal_card_list.dart';
@@ -33,6 +34,7 @@ class ArtistDetailScreen extends ConsumerWidget {
     final tracks = ref.watch(tracksForArtistProvider(artistId));
     final previewTracks = tracks.take(_previewTrackCount).toList();
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
+    final playerNotifier = ref.read(playerUiStateProvider.notifier);
 
     return ScreenScrollView(
       child: Column(
@@ -56,9 +58,21 @@ class ArtistDetailScreen extends ConsumerWidget {
                     ),
                     const SizedBox(width: 24),
                     Expanded(
-                      child: Text(
-                        artist.name,
-                        style: Theme.of(context).textTheme.headlineMedium,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            artist.name,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                          if (tracks.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            PlayActionButton(
+                              onPressed: () =>
+                                  playerNotifier.playArtist(artistId),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ],

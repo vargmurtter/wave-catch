@@ -74,6 +74,12 @@ class LibraryService {
     return _mapTracks(_libraryRepository.getTracksForArtist(artistId));
   }
 
+  List<Track> getAllTracks() {
+    ensureOpen();
+    if (!_libraryRepository.isOpen) return [];
+    return _mapTracks(_libraryRepository.getAllTracks());
+  }
+
   List<Album> getAlbumsForArtist(String artistId) {
     ensureOpen();
     if (!_libraryRepository.isOpen) return [];

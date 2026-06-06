@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
+import 'package:music_player/ui/widgets/common/play_action_button.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
 import 'package:music_player/ui/widgets/track/track_list_tile.dart';
 
@@ -25,6 +26,7 @@ class ArtistTracksScreen extends ConsumerWidget {
     }
 
     final tracks = ref.watch(tracksForArtistProvider(artistId));
+    final playerNotifier = ref.read(playerUiStateProvider.notifier);
 
     return ScreenScrollView(
       child: Column(
@@ -49,6 +51,12 @@ class ArtistTracksScreen extends ConsumerWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
+                if (tracks.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  PlayActionButton(
+                    onPressed: () => playerNotifier.playArtist(artistId),
+                  ),
+                ],
               ],
             ),
           ),

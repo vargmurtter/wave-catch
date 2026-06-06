@@ -5,6 +5,7 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
+import 'package:music_player/ui/widgets/common/play_action_button.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
 import 'package:music_player/ui/widgets/home/horizontal_card_list.dart';
@@ -34,6 +35,7 @@ class AlbumDetailScreen extends ConsumerWidget {
       ),
     );
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
+    final playerNotifier = ref.read(playerUiStateProvider.notifier);
 
     return ScreenScrollView(
       child: Column(
@@ -77,6 +79,13 @@ class AlbumDetailScreen extends ConsumerWidget {
                                 fontSize: 14,
                                 color: AppColors.textSecondary,
                               ),
+                            ),
+                          ],
+                          if (tracks.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            PlayActionButton(
+                              onPressed: () =>
+                                  playerNotifier.playAlbum(albumId),
                             ),
                           ],
                         ],

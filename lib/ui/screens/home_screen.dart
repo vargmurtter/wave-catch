@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
@@ -17,6 +19,9 @@ class HomeScreen extends ConsumerWidget {
     final sections = ref.watch(homeSectionsProvider);
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
     final trackInfoNotifier = ref.read(trackInfoPanelProvider.notifier);
+    final playerNotifier = ref.read(playerUiStateProvider.notifier);
+    final hasTracks = ref.watch(libraryServiceProvider).isReady &&
+        ref.watch(libraryServiceProvider).getAllTracks().isNotEmpty;
 
     final isEmpty = sections.recentlyAdded.isEmpty &&
         sections.favoriteAlbums.isEmpty &&
@@ -26,9 +31,22 @@ class HomeScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: ScreenHeader(title: 'Главное'),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Главное',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                _PlayAllButton(
+                  enabled: hasTracks,
+                  onPressed: () => playerNotifier.playAllShuffled(),
+                ),
+              ],
+            ),
           ),
           if (isEmpty)
             const Padding(
@@ -109,6 +127,66 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _PlayAllButton extends StatefulWidget {
+  const _PlayAllButton({
+    required this.enabled,
+    required this.onPressed,
+  });
+
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  @override
+  State<_PlayAllButton> createState() => _PlayAllButtonState();
+}
+
+class _PlayAllButtonState extends State<_PlayAllButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = widget.enabled;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: active ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: TextButton.icon(
+        onPressed: active ? widget.onPressed : null,
+        icon: Icon(
+          LucideIcons.shuffle,
+          size: 18,
+          color: active
+              ? AppColors.textPrimary
+              : AppColors.textSecondary.withValues(alpha: 0.4),
+        ),
+        label: Text(
+          'Играть всё',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: active
+                ? AppColors.textPrimary
+                : AppColors.textSecondary.withValues(alpha: 0.4),
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: active
+              ? (_isHovered
+                  ? AppColors.accent.withValues(alpha: 0.85)
+                  : AppColors.accent)
+              : AppColors.surfaceElevated,
+          foregroundColor: AppColors.textPrimary,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(999),
+          ),
+        ),
       ),
     );
   }

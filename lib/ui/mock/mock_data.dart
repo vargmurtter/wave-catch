@@ -1,7 +1,6 @@
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/models/home_sections.dart';
-import 'package:music_player/ui/models/player_ui_state.dart';
 import 'package:music_player/ui/models/playlist.dart';
 import 'package:music_player/ui/models/track.dart';
 
@@ -506,12 +505,6 @@ abstract final class MockData {
         recentlyAdded: _albums,
         favoriteAlbums: _albums,
         favoriteArtists: _artists.take(6).toList(),
-      );
-
-  static PlayerUiState get initialPlayerState => PlayerUiState(
-        currentTrack: _tracks.first,
-        queue: _tracks.take(6).toList(),
-        isPlaying: true,
       );
 
   static List<Artist> get artists => _artists;

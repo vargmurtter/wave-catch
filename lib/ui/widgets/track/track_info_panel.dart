@@ -7,6 +7,7 @@ import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
+import 'package:music_player/ui/widgets/common/play_action_button.dart';
 
 class TrackInfoPanel extends ConsumerWidget {
   const TrackInfoPanel({super.key});
@@ -95,6 +96,15 @@ class _TrackInfoContent extends ConsumerWidget {
                     size: 200,
                     seed: track.id,
                     imagePath: track.albumArtUrl,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: PlayActionButton(
+                    onPressed: () => ref
+                        .read(playerUiStateProvider.notifier)
+                        .playTrackInAlbum(track),
+                    tooltip: 'Воспроизвести',
                   ),
                 ),
                 const SizedBox(height: 20),

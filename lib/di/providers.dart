@@ -6,9 +6,9 @@ import 'package:music_player/repositories/app_settings_repository.dart';
 import 'package:music_player/repositories/library_repository.dart';
 import 'package:music_player/services/library_scanner_service.dart';
 import 'package:music_player/services/library_service.dart';
+import 'package:music_player/services/player_service.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
 import 'package:music_player/services/settings_service.dart';
-import 'package:music_player/ui/mock/mock_data.dart';
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/models/home_sections.dart';
@@ -16,7 +16,6 @@ import 'package:music_player/ui/models/library_route.dart';
 import 'package:music_player/ui/models/library_search_results.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/models/player_ui_state.dart';
-import 'package:music_player/ui/models/repeat_mode.dart';
 import 'package:music_player/ui/models/track.dart';
 
 // --- Repositories & Services ---
@@ -46,6 +45,12 @@ final libraryServiceProvider = Provider<LibraryService>((ref) {
     ref.watch(libraryRepositoryProvider),
     ref.watch(settingsServiceProvider),
   );
+});
+
+final playerServiceProvider = Provider<PlayerService>((ref) {
+  final service = PlayerService(ref.watch(libraryServiceProvider));
+  ref.onDispose(() => service.dispose());
+  return service;
 });
 
 // --- Settings ---
@@ -299,41 +304,50 @@ final playerUiStateProvider =
 );
 
 class PlayerUiStateNotifier extends Notifier<PlayerUiState> {
+  StreamSubscription<PlayerUiState>? _subscription;
+
   @override
-  PlayerUiState build() => MockData.initialPlayerState;
-
-  void togglePlayPause() {
-    state = state.copyWith(isPlaying: !state.isPlaying);
+  PlayerUiState build() {
+    final service = ref.watch(playerServiceProvider);
+    _subscription?.cancel();
+    _subscription = service.stateStream.listen((next) {
+      state = next;
+    });
+    ref.onDispose(() => _subscription?.cancel());
+    return service.state;
   }
 
-  void toggleShuffle() {
-    state = state.copyWith(shuffleEnabled: !state.shuffleEnabled);
-  }
+  PlayerService get _service => ref.read(playerServiceProvider);
 
-  void cycleRepeatMode() {
-    final next = switch (state.repeatMode) {
-      RepeatMode.off => RepeatMode.all,
-      RepeatMode.all => RepeatMode.one,
-      RepeatMode.one => RepeatMode.off,
-    };
-    state = state.copyWith(repeatMode: next);
-  }
+  void togglePlayPause() => _service.togglePlayPause();
 
-  void setVolume(double volume) {
-    state = state.copyWith(volume: volume.clamp(0.0, 1.0));
-  }
+  void toggleShuffle() => _service.toggleShuffle();
 
-  void toggleQueue() {
-    state = state.copyWith(isQueueOpen: !state.isQueueOpen);
-  }
+  void cycleRepeatMode() => _service.cycleRepeatMode();
 
-  void closeQueue() {
-    state = state.copyWith(isQueueOpen: false);
-  }
+  void setVolume(double volume) => _service.setVolume(volume);
 
-  void playTrack(Track track) {
-    state = state.copyWith(currentTrack: track, isPlaying: true);
-  }
+  void toggleQueue() => _service.toggleQueue();
+
+  void closeQueue() => _service.closeQueue();
+
+  Future<void> playAlbum(String albumId) => _service.playAlbum(albumId);
+
+  Future<void> playTrackInAlbum(Track track) =>
+      _service.playTrackInAlbum(track);
+
+  Future<void> playArtist(String artistId, {Track? startTrack}) =>
+      _service.playArtist(artistId, startTrack: startTrack);
+
+  Future<void> playAllShuffled() => _service.playAllShuffled();
+
+  Future<void> skipNext() => _service.skipNext();
+
+  Future<void> skipPrevious() => _service.skipPrevious();
+
+  Future<void> seek(Duration position) => _service.seek(position);
+
+  Future<void> jumpToIndex(int index) => _service.jumpToIndex(index);
 }
 
 final libraryRouteProvider =

@@ -2,7 +2,7 @@
 
 Подробные дизайн-требования: [design-requirements.md](../design-requirements.md)
 
-Десктопная UI-оболочка в стиле Spotify с красным акцентом. На текущем этапе — только вёрстка и mock-состояние, без реального воспроизведения.
+Десктопная UI-оболочка в стиле Spotify с красным акцентом. Библиотека и воспроизведение подключены через `LibraryService` и `PlayerService`.
 
 > Этот документ описывает **текущую реализацию** оболочки. Нормативные требования для любой будущей вёрстки — в [design-requirements.md](../design-requirements.md).
 
@@ -65,7 +65,7 @@ lib/ui/
     player/                 # PlayerBar, VolumeControl, QueuePanel
     home/                   # карточки и секции
     track/                  # TrackListTile, TrackInfoPanel
-    common/                 # CoverArt, DetailBackButton, FrostedPanel
+    common/                 # CoverArt, DetailBackButton, FrostedPanel, PlayActionButton
   models/                   # Track, Album, Artist, LibraryRoute, …
   mock/
     mock_data.dart          # тестовые данные
@@ -76,16 +76,18 @@ lib/ui/
 | Provider | Файл | Назначение |
 |----------|------|------------|
 | `selectedNavItemProvider` | `lib/di/providers.dart` | Активный пункт сайдбара |
-| `playerUiStateProvider` | `lib/di/providers.dart` | Состояние плеера (mock) |
+| `playerUiStateProvider` | `lib/di/providers.dart` | Состояние плеера (прокси `PlayerService`) |
+| `playerServiceProvider` | `lib/di/providers.dart` | Сервис воспроизведения |
 | `homeSectionsProvider` | `lib/di/providers.dart` | Данные секций главного экрана |
 | `libraryRouteProvider` | `lib/di/providers.dart` | Стек детальных маршрутов |
 | `trackInfoPanelProvider` | `lib/di/providers.dart` | Плавающая панель информации о треке |
 | `searchQueryProvider` | `lib/di/providers.dart` | Текст глобального поиска |
 | `librarySearchResultsProvider` | `lib/di/providers.dart` | Результаты поиска по библиотеке |
 
-Подробности поиска: [library-search.md](library-search.md).
+Подробности поиска: [library-search.md](library-search.md).  
+Подробности плеера: [player.md](player.md).
 
-Кнопки плеера и навигация меняют только UI-состояние. Сервисы и репозитории не задействованы.
+Кнопки плеера и точки запуска вызывают `PlayerUiStateNotifier` → `PlayerService`. Данные библиотеки — через `LibraryService`.
 
 ## Минимальный размер окна
 
@@ -101,9 +103,5 @@ lib/ui/
 
 ## Что остаётся mock
 
-- Данные треков, альбомов, исполнителей и плейлистов
-- Воспроизведение аудио (кнопки Prev/Next не меняют трек)
-- Прогресс-бар (статичное значение 35%)
-- Обложки (градиентные placeholder'ы по `CoverArt`)
-
-Следующий этап: подключение `PlayerService`, `LibraryService` и реальных репозиториев.
+- Плейлисты (`playlists_screen.dart`)
+- Обложки без файла (градиентные placeholder'ы по `CoverArt`)
