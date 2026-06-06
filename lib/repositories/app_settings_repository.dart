@@ -12,6 +12,7 @@ class AppSettingsRepository {
   static const _musicLibraryPathKey = 'musicLibraryPath';
   static const _albumGroupingStrategyKey = 'albumGroupingStrategy';
   static const _metadataEditModeKey = 'metadataEditMode';
+  static const _lastFmApiKeyKey = 'lastFmApiKey';
 
   Future<File> _configFile() async {
     final supportDir = await getApplicationSupportDirectory();
@@ -59,6 +60,13 @@ class AppSettingsRepository {
     );
   }
 
+  Future<String?> getLastFmApiKey() async {
+    final config = await _readConfig();
+    final key = config[_lastFmApiKeyKey] as String?;
+    if (key == null || key.trim().isEmpty) return null;
+    return key.trim();
+  }
+
   Future<void> setMusicLibraryPath(String path) async {
     final config = await _readConfig();
     config[_musicLibraryPathKey] = path;
@@ -74,6 +82,17 @@ class AppSettingsRepository {
   Future<void> setMetadataEditMode(MetadataEditMode mode) async {
     final config = await _readConfig();
     config[_metadataEditModeKey] = mode.toJson();
+    await _writeConfig(config);
+  }
+
+  Future<void> setLastFmApiKey(String? key) async {
+    final config = await _readConfig();
+    final trimmed = key?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      config.remove(_lastFmApiKeyKey);
+    } else {
+      config[_lastFmApiKeyKey] = trimmed;
+    }
     await _writeConfig(config);
   }
 }

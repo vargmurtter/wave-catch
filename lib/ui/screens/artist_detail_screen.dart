@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
+import 'package:music_player/ui/widgets/artist/artist_hero_banner.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
 import 'package:music_player/ui/widgets/common/play_action_button.dart';
@@ -30,6 +31,10 @@ class ArtistDetailScreen extends ConsumerWidget {
       );
     }
 
+    final artistInfoAsync = ref.watch(artistInfoProvider(artistId));
+    final artistInfo = artistInfoAsync.asData?.value;
+    final effectiveImagePath = artistInfo?.imagePath ?? artist.imageUrl;
+
     final albums = ref.watch(albumsForArtistProvider(artistId));
     final tracks = ref.watch(tracksForArtistProvider(artistId));
     final previewTracks = tracks.take(_previewTrackCount).toList();
@@ -40,11 +45,19 @@ class ArtistDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (artistInfo?.imagePath != null)
+            ArtistHeroBanner(imagePath: artistInfo!.imagePath!),
           Padding(
-            padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
+            padding: EdgeInsets.fromLTRB(
+              32,
+              artistInfo?.imagePath != null ? 0 : 24,
+              32,
+              0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 24),
                 const DetailBackButton(),
                 const SizedBox(height: 24),
                 Row(
@@ -54,7 +67,7 @@ class ArtistDetailScreen extends ConsumerWidget {
                       size: 200,
                       circular: true,
                       seed: artist.id,
-                      imagePath: artist.imageUrl,
+                      imagePath: effectiveImagePath,
                     ),
                     const SizedBox(width: 24),
                     Expanded(
@@ -77,6 +90,20 @@ class ArtistDetailScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                if (artistInfo?.description != null &&
+                    artistInfo!.description!.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  Text(
+                    artistInfo.description!,
+                    maxLines: 6,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/repositories/app_settings_repository.dart';
+import 'package:music_player/repositories/artist_info_cache_repository.dart';
+import 'package:music_player/repositories/lastfm_api_repository.dart';
 import 'package:music_player/repositories/library_repository.dart';
 import 'package:music_player/repositories/metadata_file_writer.dart';
 import 'package:music_player/repositories/metadata_override_repository.dart';
+import 'package:music_player/services/artist_info_service.dart';
 import 'package:music_player/services/library_scanner_service.dart';
 import 'package:music_player/services/library_service.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
@@ -18,6 +21,7 @@ import 'package:music_player/services/scanner/scan_job.dart';
 import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
+import 'package:music_player/ui/models/artist_info.dart';
 import 'package:music_player/ui/models/home_sections.dart';
 import 'package:music_player/ui/models/library_route.dart';
 import 'package:music_player/ui/models/library_search_results.dart';
@@ -86,6 +90,22 @@ final playerServiceProvider = Provider<PlayerService>((ref) {
   return service;
 });
 
+final lastFmApiRepositoryProvider = Provider<LastFmApiRepository>(
+  (ref) => LastFmApiRepository(),
+);
+
+final artistInfoCacheRepositoryProvider = Provider<ArtistInfoCacheRepository>(
+  (ref) => ArtistInfoCacheRepository(),
+);
+
+final artistInfoServiceProvider = Provider<ArtistInfoService>((ref) {
+  return ArtistInfoService(
+    ref.watch(lastFmApiRepositoryProvider),
+    ref.watch(artistInfoCacheRepositoryProvider),
+    ref.watch(settingsServiceProvider),
+  );
+});
+
 // --- Settings ---
 
 class AppSettingsState {
@@ -94,12 +114,14 @@ class AppSettingsState {
     this.isConfigured = false,
     this.albumGroupingStrategy = AlbumGroupingStrategy.byAlbumArtist,
     this.metadataEditMode = MetadataEditMode.override,
+    this.lastFmApiKey,
   });
 
   final String? musicLibraryPath;
   final bool isConfigured;
   final AlbumGroupingStrategy albumGroupingStrategy;
   final MetadataEditMode metadataEditMode;
+  final String? lastFmApiKey;
 }
 
 final appSettingsStateProvider =
@@ -116,6 +138,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
       isConfigured: service.isLibraryConfigured,
       albumGroupingStrategy: service.albumGroupingStrategy,
       metadataEditMode: service.metadataEditMode,
+      lastFmApiKey: service.lastFmApiKey,
     );
   }
 
@@ -144,6 +167,11 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     _syncFromService();
   }
 
+  Future<void> setLastFmApiKey(String? key) async {
+    await ref.read(settingsServiceProvider).setLastFmApiKey(key);
+    _syncFromService();
+  }
+
   void _syncFromService() {
     final service = ref.read(settingsServiceProvider);
     state = AppSettingsState(
@@ -151,6 +179,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
       isConfigured: service.isLibraryConfigured,
       albumGroupingStrategy: service.albumGroupingStrategy,
       metadataEditMode: service.metadataEditMode,
+      lastFmApiKey: service.lastFmApiKey,
     );
   }
 }
@@ -257,6 +286,17 @@ final artistByIdProvider = Provider.family<Artist?, String>((ref, id) {
   ref.watch(libraryRefreshProvider);
   return ref.watch(libraryServiceProvider).getArtistById(id);
 });
+
+final artistInfoProvider = FutureProvider.family<ArtistInfo?, String>(
+  (ref, artistId) async {
+    final artist = ref.watch(artistByIdProvider(artistId));
+    if (artist == null) return null;
+    return ref.read(artistInfoServiceProvider).loadArtistInfo(
+          artistId: artistId,
+          artistName: artist.name,
+        );
+  },
+);
 
 final albumByIdProvider = Provider.family<Album?, String>((ref, id) {
   ref.watch(libraryRefreshProvider);

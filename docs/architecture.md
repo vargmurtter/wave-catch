@@ -72,12 +72,15 @@ lib/
     providers.dart  # Riverpod-провайдеры
   repositories/   # MusicRepository, PlaylistRepository, …
     app_settings_repository.dart
+    artist_info_cache_repository.dart
+    lastfm_api_repository.dart
     library_repository.dart
     library_database.dart
     metadata_override_repository.dart
     metadata_file_writer.dart
     entities/
   services/       # PlayerService, LibraryService, …
+    artist_info_service.dart
     settings_service.dart
     library_service.dart
     library_scanner_service.dart
@@ -104,11 +107,15 @@ docs/             # документация (этот файл и др.)
 | `MetadataOverrideRepository` | Repository | override-конфиг метаданных в `.music_player/` |
 | `MetadataFileWriter` | Repository | запись тегов в аудиофайлы через `metadata_god` |
 | `MetadataEditService` | Service | редактирование метаданных треков |
+| `LastFmApiRepository` | Repository | HTTP-запросы к Last.fm API |
+| `ArtistInfoCacheRepository` | Repository | кэш Last.fm-данных исполнителей |
+| `ArtistInfoService` | Service | загрузка и кэширование информации об исполнителе |
 
 Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).  
 Подробности поиска: [features/library-search.md](features/library-search.md).  
 Подробности плеера: [features/player.md](features/player.md).  
-Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).
+Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).  
+Last.fm на экране исполнителя: [features/lastfm-artist-info.md](features/lastfm-artist-info.md).
 
 ## Документация
 
