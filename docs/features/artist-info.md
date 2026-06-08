@@ -46,7 +46,7 @@ ArtistDetailScreen
 
 ## MusicBrainz
 
-- User-Agent обязателен: `waveCatcher/0.1.0 (desktop music player)`
+- User-Agent обязателен: `Wave Catch/0.1.0 (desktop music player)`
 - Rate limit: **1 запрос в секунду** — throttle в `MusicBrainzApiRepository`
 
 ## Кэш

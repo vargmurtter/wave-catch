@@ -6,6 +6,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:music_player/app.dart';
+import 'package:music_player/app_info.dart';
 import 'package:music_player/di/providers.dart';
 
 const _minimumWindowSize = Size(900, 640);
@@ -16,6 +17,7 @@ Future<void> main() async {
 
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
+    await windowManager.setTitle(kAppDisplayName);
     await windowManager.setMinimumSize(_minimumWindowSize);
   }
 
