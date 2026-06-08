@@ -17,6 +17,7 @@ Thumbs.db
 *.ipr
 *.iws
 .idea/
+.cursor/
 
 # VS Code: launch configs and tasks are often shared; uncomment to ignore entirely.
 # .vscode/
