@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
@@ -115,7 +116,7 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
                       .playTrackInAlbum(widget.track),
                   icon: const Icon(LucideIcons.play, size: 18),
                   color: AppColors.textPrimary,
-                  tooltip: 'Воспроизвести',
+                  tooltip: AppLocalizations.of(context).play,
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.accent,
                     foregroundColor: AppColors.textPrimary,

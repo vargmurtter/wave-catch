@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/repeat_mode.dart';
 import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
@@ -164,10 +165,10 @@ class _EmptyTrackInfo extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Text(
-            'Выберите трек',
-            style: TextStyle(
+            AppLocalizations.of(context).selectTrack,
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
             ),
@@ -247,6 +248,8 @@ class _PlaybackControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -254,13 +257,13 @@ class _PlaybackControls extends StatelessWidget {
           icon: LucideIcons.shuffle,
           isActive: shuffleEnabled,
           onPressed: onToggleShuffle,
-          tooltip: 'Случайный порядок',
+          tooltip: l10n.shuffle,
         ),
         const SizedBox(width: 8),
         _ControlButton(
           icon: LucideIcons.skipBack,
           onPressed: enabled ? onSkipPrevious : null,
-          tooltip: 'Предыдущий трек',
+          tooltip: l10n.previousTrack,
         ),
         const SizedBox(width: 8),
         _PlayPauseButton(
@@ -272,7 +275,7 @@ class _PlaybackControls extends StatelessWidget {
         _ControlButton(
           icon: LucideIcons.skipForward,
           onPressed: enabled ? onSkipNext : null,
-          tooltip: 'Следующий трек',
+          tooltip: l10n.nextTrack,
         ),
         const SizedBox(width: 8),
         _ControlButton(
@@ -281,7 +284,7 @@ class _PlaybackControls extends StatelessWidget {
               : LucideIcons.repeat,
           isActive: repeatMode != RepeatMode.off,
           onPressed: onCycleRepeat,
-          tooltip: 'Повтор',
+          tooltip: l10n.repeat,
         ),
       ],
     );
@@ -301,13 +304,15 @@ class _RightControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _ControlButton(
           icon: LucideIcons.listMusic,
           onPressed: onToggleQueue,
-          tooltip: 'Текущий плейлист',
+          tooltip: l10n.currentPlaylist,
         ),
         VolumeControl(
           volume: volume,
@@ -393,7 +398,9 @@ class _PlayPauseButtonState extends State<_PlayPauseButton> {
           widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: IconButton(
         onPressed: widget.enabled ? widget.onPressed : null,
-        tooltip: widget.isPlaying ? 'Пауза' : 'Воспроизведение',
+        tooltip: widget.isPlaying
+            ? AppLocalizations.of(context).pause
+            : AppLocalizations.of(context).play,
         icon: Icon(
           widget.isPlaying ? LucideIcons.pause : LucideIcons.play,
           size: 22,

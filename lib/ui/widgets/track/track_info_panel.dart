@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
@@ -59,6 +60,8 @@ class _TrackInfoContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -66,10 +69,10 @@ class _TrackInfoContent extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 20, 8, 12),
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'О треке',
-                  style: TextStyle(
+                  l10n.trackAbout,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -80,14 +83,14 @@ class _TrackInfoContent extends ConsumerWidget {
                 onPressed: () => showTrackMetadataEditDialog(context, ref, track),
                 icon: const Icon(LucideIcons.pencil),
                 color: AppColors.textSecondary,
-                tooltip: 'Редактировать',
+                tooltip: l10n.edit,
               ),
               IconButton(
                 onPressed: () =>
                     ref.read(trackInfoPanelProvider.notifier).close(),
                 icon: const Icon(LucideIcons.x),
                 color: AppColors.textSecondary,
-                tooltip: 'Закрыть',
+                tooltip: l10n.close,
               ),
             ],
           ),
@@ -112,7 +115,7 @@ class _TrackInfoContent extends ConsumerWidget {
                     onPressed: () => ref
                         .read(playerUiStateProvider.notifier)
                         .playTrackInAlbum(track),
-                    tooltip: 'Воспроизвести',
+                    tooltip: l10n.play,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -123,7 +126,7 @@ class _TrackInfoContent extends ConsumerWidget {
                 const SizedBox(height: 12),
                 if (track.album != null)
                   _LinkRow(
-                    label: 'Альбом',
+                    label: l10n.album,
                     value: track.album!,
                     onTap: () => ref
                         .read(libraryRouteProvider.notifier)
@@ -131,7 +134,7 @@ class _TrackInfoContent extends ConsumerWidget {
                   ),
                 const SizedBox(height: 8),
                 _LinkRow(
-                  label: 'Исполнитель',
+                  label: l10n.artist,
                   value: track.artist,
                   onTap: () => ref
                       .read(libraryRouteProvider.notifier)
@@ -151,36 +154,39 @@ class _TrackInfoContent extends ConsumerWidget {
                 ],
                 if (track.year != null) ...[
                   const SizedBox(height: 8),
-                  _MetaRow(label: 'Год', value: '${track.year}'),
+                  _MetaRow(label: l10n.year, value: '${track.year}'),
                 ],
                 const SizedBox(height: 24),
                 Text(
-                  'Метаданные',
+                  l10n.metadata,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: 16,
                       ),
                 ),
                 const SizedBox(height: 12),
                 _MetaRow(
-                  label: 'Длительность',
+                  label: l10n.duration,
                   value: _formatDuration(track.duration),
                 ),
                 if (track.trackNumber != null)
                   _MetaRow(
-                    label: 'Номер трека',
+                    label: l10n.trackNumber,
                     value: '${track.trackNumber}',
                   ),
                 if (track.discNumber != null)
                   _MetaRow(
-                    label: 'Номер диска',
+                    label: l10n.discNumber,
                     value: '${track.discNumber}',
                   ),
                 if (track.genre != null)
-                  _MetaRow(label: 'Жанр', value: track.genre!),
+                  _MetaRow(label: l10n.genre, value: track.genre!),
                 if (track.format != null)
-                  _MetaRow(label: 'Формат', value: track.format!),
+                  _MetaRow(label: l10n.format, value: track.format!),
                 if (track.bitrate != null)
-                  _MetaRow(label: 'Битрейт', value: '${track.bitrate} kbps'),
+                  _MetaRow(
+                    label: l10n.bitrate,
+                    value: l10n.bitrateValue(track.bitrate!),
+                  ),
               ],
             ),
           ),

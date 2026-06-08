@@ -1,6 +1,6 @@
 # Архитектура
 
-Десктопное приложение waveCatcher строится на простой и предсказуемой архитектуре.
+Десктопное приложение Wave Catch строится на простой и предсказуемой архитектуре.
 
 ## Принципы
 
@@ -90,6 +90,7 @@ lib/
     metadata/
       metadata_edit_service.dart
     scanner/        # фазы pipeline сканера
+  l10n/           # локализация (ARB, AppLocalizations)
   ui/
     screens/      # экраны
     widgets/      # переиспользуемые виджеты
@@ -100,7 +101,7 @@ docs/             # документация (этот файл и др.)
 
 | Модуль | Слой | Назначение |
 |--------|------|------------|
-| `AppSettingsRepository` | Repository | путь к папке с музыкой (Application Support) |
+| `AppSettingsRepository` | Repository | путь к папке с музыкой, язык интерфейса (Application Support) |
 | `LibraryRepository` | Repository | CRUD индекса в `.wave_catcher/library.db` |
 | `SettingsService` | Service | выбор папки, проверка конфигурации |
 | `LibraryScannerService` | Service | оркестрация сканирования |
@@ -119,7 +120,8 @@ docs/             # документация (этот файл и др.)
 Подробности поиска: [features/library-search.md](features/library-search.md).  
 Подробности плеера: [features/player.md](features/player.md).  
 Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).  
-Информация об исполнителе: [features/artist-info.md](features/artist-info.md).
+Информация об исполнителе: [features/artist-info.md](features/artist-info.md).  
+Локализация: [features/localization.md](features/localization.md).
 
 ## Документация
 

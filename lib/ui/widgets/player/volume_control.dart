@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
 
@@ -120,7 +121,7 @@ class _VolumeControlState extends State<VolumeControl> {
       key: _overlayKey,
       onPressed: _toggleOverlay,
       icon: Icon(_volumeIcon),
-      tooltip: 'Громкость',
+      tooltip: AppLocalizations.of(context).volume,
       color: AppColors.textSecondary,
       hoverColor: AppColors.surfaceElevated,
     );

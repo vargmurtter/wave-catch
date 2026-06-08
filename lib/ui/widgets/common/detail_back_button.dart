@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 
 class DetailBackButton extends ConsumerStatefulWidget {
@@ -32,18 +33,18 @@ class _DetailBackButtonState extends ConsumerState<DetailBackButton> {
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 LucideIcons.arrowLeft,
                 size: 18,
                 color: AppColors.textPrimary,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                'Назад',
-                style: TextStyle(
+                AppLocalizations.of(context).back,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,

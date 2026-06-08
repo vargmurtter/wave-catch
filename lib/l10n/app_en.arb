@@ -1,0 +1,180 @@
+{
+  "@@locale": "en",
+  "appTitle": "Wave Catch",
+
+  "navHome": "Home",
+  "navArtists": "Artists",
+  "navAlbums": "Albums",
+  "navPlaylists": "Playlists",
+  "navSettings": "Settings",
+
+  "cancel": "Cancel",
+  "save": "Save",
+  "change": "Change",
+  "later": "Later",
+  "back": "Back",
+  "recommended": "Recommended",
+  "close": "Close",
+  "clear": "Clear",
+  "edit": "Edit",
+  "play": "Play",
+  "pause": "Pause",
+  "volume": "Volume",
+
+  "languageTitle": "Choose your language",
+  "languageSubtitle": "You can change this later in Settings.",
+  "languageEnglish": "English",
+  "languageRussian": "Русский",
+  "settingsLanguage": "Language",
+
+  "welcomeTitle": "Welcome",
+  "welcomeDescription": "Choose your music folder. The app will scan it and create an index in .wave_catcher/library.db.",
+  "pickMusicFolder": "Choose music folder",
+  "folderPickerHint": "Open the folder picker dialog…\nIf you don't see it, check for windows behind the app.",
+  "scanning": "Scanning…",
+  "scanFailed": "Failed to scan the library",
+  "folderPickerFailed": "Failed to open the folder picker: {error}",
+  "@folderPickerFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "settingsTitle": "Settings",
+  "musicFolder": "Music folder",
+  "notSelected": "Not selected",
+  "changeFolder": "Change folder",
+  "rescan": "Rescan",
+  "albumGrouping": "Album grouping",
+  "metadataEditing": "Metadata editing",
+  "changeMusicFolderTitle": "Change music folder?",
+  "changeMusicFolderBody": "The current index will remain in the previous folder. A new .wave_catcher/library.db will be created for the new folder and scanned.",
+  "changeGroupingTitle": "Change album grouping?",
+  "changeGroupingBody": "This will change how albums are grouped in your library. Rescan now?",
+  "rescanNow": "Rescan",
+  "scanComplete": "Done: {trackCount} tracks, {albumCount} albums, {artistCount} artists",
+  "@scanComplete": {
+    "placeholders": {
+      "trackCount": {
+        "type": "int"
+      },
+      "albumCount": {
+        "type": "int"
+      },
+      "artistCount": {
+        "type": "int"
+      }
+    }
+  },
+  "scanError": "Scan error",
+
+  "artistNotFound": "Artist not found",
+  "albumNotFound": "Album not found",
+  "albums": "Albums",
+  "artists": "Artists",
+  "tracks": "Tracks",
+  "playlists": "Playlists",
+  "search": "Search",
+  "searchResults": "Search results",
+  "searching": "Searching…",
+  "nothingFound": "Nothing found",
+  "popularTracks": "Popular tracks",
+  "showAll": "Show all",
+  "loadingInfo": "Loading info…",
+  "allTracks": "All tracks",
+  "otherAlbums": "Other albums",
+  "trackAbout": "About track",
+  "metadata": "Metadata",
+  "year": "Year",
+  "genre": "Genre",
+  "format": "Format",
+  "bitrate": "Bitrate",
+  "bitrateValue": "{value} kbps",
+  "@bitrateValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "duration": "Duration",
+  "trackNumber": "Track number",
+  "discNumber": "Disc number",
+  "currentPlaylist": "Current playlist",
+  "selectTrack": "Select a track",
+  "shuffle": "Shuffle",
+  "previousTrack": "Previous track",
+  "nextTrack": "Next track",
+  "repeat": "Repeat",
+  "emptyLibrary": "Library is empty. Add music to the selected folder and tap Rescan in Settings.",
+  "recentlyPlayed": "Recently played",
+  "recentlyAdded": "Recently added",
+  "favoriteAlbums": "Favorite albums",
+  "favoriteArtists": "Favorite artists",
+  "playAll": "Play all",
+  "albumsNotFound": "No albums found. Check the music folder in Settings.",
+  "artistsNotFound": "No artists found. Check the music folder in Settings.",
+  "playlistsTrackCount": "{count, plural, =1{1 track} other{{count} tracks}}",
+  "@playlistsTrackCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "groupingByAlbumArtist": "By tags (Album Artist)",
+  "groupingByAlbumArtistDesc": "Albums are defined by the album artist tag and album title. Tracks with featured artists (feat.) stay in one album when Album Artist is set in the files.",
+  "groupingByFolder": "By folder on disk",
+  "groupingByFolderDesc": "Tracks in the same folder with the same album title are grouped together. Best when your music is neatly organized in folders.",
+  "groupingByAlbumTitle": "By album title",
+  "groupingByAlbumTitleDesc": "All tracks with the same album title are merged into one album. Useful for compilations and libraries with inconsistent tags. Warning: may merge different releases with the same title.",
+
+  "metadataInFile": "Write to track files",
+  "metadataInFileDesc": "Changes are written directly to audio file tags. Featured artists are saved in the override config because standard tags don't support them.",
+  "metadataOverride": "Override config",
+  "metadataOverrideDesc": "Changes are saved in {appDataDir}/metadata_overrides.json in the library folder. Original files are not modified.",
+  "@metadataOverrideDesc": {
+    "placeholders": {
+      "appDataDir": {
+        "type": "String"
+      }
+    }
+  },
+
+  "editMetadata": "Edit metadata",
+  "metadataSaved": "Metadata saved",
+  "changesSavedInFile": "Changes are saved to the track file",
+  "changesSavedInOverride": "Changes are saved to the override config",
+  "featuredArtistsOverrideHint": "Featured artists are saved in the override config.",
+  "pickCover": "Choose cover",
+  "featuredArtists": "Featured artists",
+  "commaSeparated": "Comma-separated",
+  "title": "Title",
+  "artist": "Artist",
+  "album": "Album",
+
+  "pickMusicFolderDialog": "Choose music folder",
+  "pickCoverDialog": "Choose cover image",
+
+  "errorMusicLibraryNotSelected": "Music folder is not selected",
+  "errorTrackNotFound": "Track not found",
+  "errorTitleRequired": "Enter a track title",
+  "errorArtistRequired": "Enter an artist",
+  "errorAlbumRequired": "Enter an album",
+  "errorCoverReadFailed": "Failed to read cover image file",
+  "errorFileWriteFailed": "Failed to write tags to file: {error}",
+  "@errorFileWriteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "unknownArtist": "Unknown artist",
+  "unknownAlbum": "Unknown album",
+  "variousArtists": "Various artists"
+}

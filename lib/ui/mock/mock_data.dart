@@ -493,11 +493,11 @@ abstract final class MockData {
   ];
 
   static const _playlists = [
-    Playlist(id: 'p1', name: 'Избранное', trackCount: 42),
-    Playlist(id: 'p2', name: 'Для работы', trackCount: 28),
-    Playlist(id: 'p3', name: 'Вечерний джаз', trackCount: 15),
-    Playlist(id: 'p4', name: 'Дорога', trackCount: 33),
-    Playlist(id: 'p5', name: 'Классика рока', trackCount: 50),
+    Playlist(id: 'p1', name: 'Favorites', trackCount: 42),
+    Playlist(id: 'p2', name: 'Work', trackCount: 28),
+    Playlist(id: 'p3', name: 'Evening jazz', trackCount: 15),
+    Playlist(id: 'p4', name: 'On the road', trackCount: 33),
+    Playlist(id: 'p5', name: 'Rock classics', trackCount: 50),
   ];
 
   static HomeSections get homeSections => HomeSections(

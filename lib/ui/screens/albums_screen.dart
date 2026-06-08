@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
@@ -18,6 +19,7 @@ class AlbumsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final albums = ref.watch(albumsProvider);
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
 
@@ -25,16 +27,16 @@ class AlbumsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: ScreenHeader(title: 'Альбомы'),
+          Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: ScreenHeader(title: l10n.albums),
           ),
           if (albums.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
               child: Text(
-                'Альбомы не найдены. Проверьте папку с музыкой в настройках.',
-                style: TextStyle(
+                l10n.albumsNotFound,
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/home/album_card.dart';
 import 'package:music_player/ui/widgets/home/artist_card.dart';
@@ -20,6 +21,7 @@ class HomeScreen extends ConsumerWidget {
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
     final trackInfoNotifier = ref.read(trackInfoPanelProvider.notifier);
     final playerNotifier = ref.read(playerUiStateProvider.notifier);
+    final l10n = AppLocalizations.of(context);
     final hasTracks = ref.watch(libraryServiceProvider).isReady &&
         ref.watch(libraryServiceProvider).getAllTracks().isNotEmpty;
 
@@ -37,11 +39,12 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Главное',
+                    l10n.navHome,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
                 _PlayAllButton(
+                  label: l10n.playAll,
                   enabled: hasTracks,
                   onPressed: () => playerNotifier.playAllShuffled(),
                 ),
@@ -49,12 +52,11 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
           if (isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
               child: Text(
-                'Библиотека пуста. Добавьте музыку в выбранную папку '
-                'и нажмите «Пересканировать» в настройках.',
-                style: TextStyle(
+                l10n.emptyLibrary,
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
@@ -62,7 +64,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           if (sections.recentlyPlayed.isNotEmpty) ...[
             ContentSection(
-              title: 'Последнее прослушанное',
+              title: l10n.recentlyPlayed,
               fullBleedChild: true,
               child: HorizontalCardList(
                 itemCount: sections.recentlyPlayed.length,
@@ -79,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
           ],
           if (sections.recentlyAdded.isNotEmpty) ...[
             ContentSection(
-              title: 'Последнее добавленное',
+              title: l10n.recentlyAdded,
               fullBleedChild: true,
               child: HorizontalCardList(
                 itemCount: sections.recentlyAdded.length,
@@ -96,7 +98,7 @@ class HomeScreen extends ConsumerWidget {
           ],
           if (sections.favoriteAlbums.isNotEmpty) ...[
             ContentSection(
-              title: 'Любимые альбомы',
+              title: l10n.favoriteAlbums,
               fullBleedChild: true,
               child: HorizontalCardList(
                 itemCount: sections.favoriteAlbums.length,
@@ -113,7 +115,7 @@ class HomeScreen extends ConsumerWidget {
           ],
           if (sections.favoriteArtists.isNotEmpty)
             ContentSection(
-              title: 'Любимые исполнители',
+              title: l10n.favoriteArtists,
               fullBleedChild: true,
               child: HorizontalCardList(
                 itemCount: sections.favoriteArtists.length,
@@ -134,10 +136,12 @@ class HomeScreen extends ConsumerWidget {
 
 class _PlayAllButton extends StatefulWidget {
   const _PlayAllButton({
+    required this.label,
     required this.enabled,
     required this.onPressed,
   });
 
+  final String label;
   final bool enabled;
   final VoidCallback onPressed;
 
@@ -166,7 +170,7 @@ class _PlayAllButtonState extends State<_PlayAllButton> {
               : AppColors.textSecondary.withValues(alpha: 0.4),
         ),
         label: Text(
-          'Играть всё',
+          widget.label,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'package:music_player/l10n/app_locale.dart';
 import 'package:music_player/repositories/app_settings_repository.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
@@ -17,6 +18,7 @@ class SettingsService {
       AlbumGroupingStrategy.byAlbumArtist;
   MetadataEditMode _metadataEditMode = MetadataEditMode.override;
   String? _lastFmApiKey;
+  AppLanguage? _language;
 
   String? get musicLibraryPath => _musicLibraryPath;
 
@@ -25,6 +27,10 @@ class SettingsService {
   MetadataEditMode get metadataEditMode => _metadataEditMode;
 
   String? get lastFmApiKey => _lastFmApiKey;
+
+  AppLanguage? get language => _language;
+
+  bool get hasLanguageSelected => _language != null;
 
   bool get isLibraryConfigured {
     final path = _musicLibraryPath;
@@ -37,13 +43,16 @@ class SettingsService {
         await _appSettingsRepository.getAlbumGroupingStrategy();
     _metadataEditMode = await _appSettingsRepository.getMetadataEditMode();
     _lastFmApiKey = await _appSettingsRepository.getLastFmApiKey();
+    _language = AppLanguage.fromCode(
+      await _appSettingsRepository.getLanguageCode(),
+    );
   }
 
-  Future<String?> pickMusicFolder() async {
+  Future<String?> pickMusicFolder({required String dialogTitle}) async {
     await _focusAppWindow();
 
     return FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Выберите папку с музыкой',
+      dialogTitle: dialogTitle,
     );
   }
 
@@ -71,6 +80,11 @@ class SettingsService {
   Future<void> setMetadataEditMode(MetadataEditMode mode) async {
     _metadataEditMode = mode;
     await _appSettingsRepository.setMetadataEditMode(mode);
+  }
+
+  Future<void> setLanguage(AppLanguage language) async {
+    _language = language;
+    await _appSettingsRepository.setLanguageCode(language.code);
   }
 
   Future<void> setLastFmApiKey(String? key) async {

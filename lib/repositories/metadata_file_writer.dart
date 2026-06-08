@@ -53,7 +53,8 @@ class MetadataFileWriter {
       await MetadataGod.writeMetadata(file: filePath, metadata: merged);
     } on Object catch (error) {
       throw MetadataEditException(
-        'Не удалось записать теги в файл: $error',
+        MetadataEditErrorCode.fileWriteFailed,
+        details: error.toString(),
       );
     }
   }

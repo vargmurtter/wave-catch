@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_locale.dart';
+import 'package:music_player/l10n/app_localizations.dart';
+import 'package:music_player/l10n/l10n_extensions.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
@@ -20,26 +23,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String? _message;
 
   Future<void> _changeFolder() async {
+    final l10n = AppLocalizations.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Изменить папку с музыкой?'),
-        content: const Text(
-          'Текущий индекс останется в прежней папке. '
-          'Для новой папки будет создан .wave_catcher/library.db и выполнено сканирование.',
-          style: TextStyle(color: AppColors.textSecondary),
+        title: Text(l10n.changeMusicFolderTitle),
+        content: Text(
+          l10n.changeMusicFolderBody,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Изменить',
-              style: TextStyle(color: AppColors.accent),
+            child: Text(
+              l10n.change,
+              style: const TextStyle(color: AppColors.accent),
             ),
           ),
         ],
@@ -48,8 +52,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    final path =
-        await ref.read(appSettingsStateProvider.notifier).pickMusicFolder();
+    final path = await ref
+        .read(appSettingsStateProvider.notifier)
+        .pickMusicFolder(dialogTitle: l10n.pickMusicFolderDialog);
     if (path == null || !mounted) return;
 
     await ref.read(appSettingsStateProvider.notifier).setMusicLibraryPath(path);
@@ -65,6 +70,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _onGroupingStrategyChanged(
     AlbumGroupingStrategy strategy,
   ) async {
+    final l10n = AppLocalizations.of(context);
     final current = ref.read(appSettingsStateProvider).albumGroupingStrategy;
     if (current == strategy) return;
 
@@ -72,21 +78,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Изменить группировку альбомов?'),
-        content: const Text(
-          'Изменится состав альбомов в библиотеке. Пересканировать сейчас?',
-          style: TextStyle(color: AppColors.textSecondary),
+        title: Text(l10n.changeGroupingTitle),
+        content: Text(
+          l10n.changeGroupingBody,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Позже'),
+            child: Text(l10n.later),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Пересканировать',
-              style: TextStyle(color: AppColors.accent),
+            child: Text(
+              l10n.rescanNow,
+              style: const TextStyle(color: AppColors.accent),
             ),
           ),
         ],
@@ -117,20 +123,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context);
     if (result != null) {
       setState(
-        () => _message =
-            'Готово: ${result.trackCount} треков, ${result.albumCount} альбомов, '
-            '${result.artistCount} исполнителей',
+        () => _message = l10n.scanComplete(
+          result.trackCount,
+          result.albumCount,
+          result.artistCount,
+        ),
       );
     } else {
       final error = ref.read(libraryScanStateProvider).errorMessage;
-      setState(() => _message = error ?? 'Ошибка сканирования');
+      setState(() => _message = error ?? l10n.scanError);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsStateProvider);
     final scanState = ref.watch(libraryScanStateProvider);
     final isScanning = scanState.status == LibraryScanStatus.scanning;
@@ -139,18 +149,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: ScreenHeader(title: 'Настройки'),
+          Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: ScreenHeader(title: l10n.settingsTitle),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Папка с музыкой',
-                  style: TextStyle(
+                Text(
+                  l10n.settingsLanguage,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...AppLanguage.values.map(
+                  (language) => _LanguageTile(
+                    label: language == AppLanguage.en
+                        ? l10n.languageEnglish
+                        : l10n.languageRussian,
+                    isSelected: settings.language == language,
+                    onChanged: () => ref
+                        .read(appSettingsStateProvider.notifier)
+                        .setLanguage(language),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  l10n.musicFolder,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -166,7 +197,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     border: Border.all(color: AppColors.divider),
                   ),
                   child: Text(
-                    settings.musicLibraryPath ?? 'Не выбрана',
+                    settings.musicLibraryPath ?? l10n.notSelected,
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
@@ -182,7 +213,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    scanState.progress?.currentPath ?? 'Сканирование…',
+                    scanState.progress?.currentPath ?? l10n.scanning,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -193,14 +224,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ] else ...[
                   _SettingsButton(
                     icon: LucideIcons.folderOpen,
-                    label: 'Изменить папку',
+                    label: l10n.changeFolder,
                     onTap: _changeFolder,
                   ),
                   const SizedBox(height: 8),
                   if (settings.isConfigured)
                     _SettingsButton(
                       icon: LucideIcons.refreshCw,
-                      label: 'Пересканировать',
+                      label: l10n.rescan,
                       onTap: _rescan,
                     ),
                 ],
@@ -215,9 +246,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ],
                 const SizedBox(height: 32),
-                const Text(
-                  'Группировка альбомов',
-                  style: TextStyle(
+                Text(
+                  l10n.albumGrouping,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -233,9 +264,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  'Редактирование метаданных',
-                  style: TextStyle(
+                Text(
+                  l10n.metadataEditing,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -256,6 +287,75 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageTile extends StatefulWidget {
+  const _LanguageTile({
+    required this.label,
+    required this.isSelected,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onChanged;
+
+  @override
+  State<_LanguageTile> createState() => _LanguageTileState();
+}
+
+class _LanguageTileState extends State<_LanguageTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: widget.onChanged,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _isHovered
+                  ? AppColors.surfaceElevated.withValues(alpha: 0.8)
+                  : AppColors.surface.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: widget.isSelected ? AppColors.accent : AppColors.divider,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  widget.isSelected
+                      ? LucideIcons.circleDot
+                      : LucideIcons.circle,
+                  size: 18,
+                  color: widget.isSelected
+                      ? AppColors.accent
+                      : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  widget.label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -283,6 +383,7 @@ class _GroupingStrategyTileState extends State<_GroupingStrategyTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isSelected = widget.strategy == widget.groupValue;
 
     return Padding(
@@ -329,7 +430,7 @@ class _GroupingStrategyTileState extends State<_GroupingStrategyTile> {
                         children: [
                           Flexible(
                             child: Text(
-                              widget.strategy.label,
+                              widget.strategy.labelL10n(l10n),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -339,9 +440,9 @@ class _GroupingStrategyTileState extends State<_GroupingStrategyTile> {
                           ),
                           if (widget.strategy.isRecommended) ...[
                             const SizedBox(width: 8),
-                            const Text(
-                              'Рекомендуется',
-                              style: TextStyle(
+                            Text(
+                              l10n.recommended,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.accent,
                               ),
@@ -351,7 +452,7 @@ class _GroupingStrategyTileState extends State<_GroupingStrategyTile> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.strategy.description,
+                        widget.strategy.descriptionL10n(l10n),
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,
@@ -392,6 +493,7 @@ class _MetadataEditModeTileState extends State<_MetadataEditModeTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isSelected = widget.mode == widget.groupValue;
 
     return Padding(
@@ -435,7 +537,7 @@ class _MetadataEditModeTileState extends State<_MetadataEditModeTile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.mode.label,
+                        widget.mode.labelL10n(l10n),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -444,7 +546,7 @@ class _MetadataEditModeTileState extends State<_MetadataEditModeTile> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.mode.description,
+                        widget.mode.descriptionL10n(l10n),
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,

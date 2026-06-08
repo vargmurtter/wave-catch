@@ -14,6 +14,7 @@ class AppSettingsRepository {
   static const _albumGroupingStrategyKey = 'albumGroupingStrategy';
   static const _metadataEditModeKey = 'metadataEditMode';
   static const _lastFmApiKeyKey = 'lastFmApiKey';
+  static const _languageCodeKey = 'languageCode';
 
   Future<File> _configFile() async {
     final supportDir = await getApplicationSupportDirectory();
@@ -61,6 +62,13 @@ class AppSettingsRepository {
     );
   }
 
+  Future<String?> getLanguageCode() async {
+    final config = await _readConfig();
+    final code = config[_languageCodeKey] as String?;
+    if (code == null || code.trim().isEmpty) return null;
+    return code.trim();
+  }
+
   Future<String?> getLastFmApiKey() async {
     final config = await _readConfig();
     final key = config[_lastFmApiKeyKey] as String?;
@@ -83,6 +91,17 @@ class AppSettingsRepository {
   Future<void> setMetadataEditMode(MetadataEditMode mode) async {
     final config = await _readConfig();
     config[_metadataEditModeKey] = mode.toJson();
+    await _writeConfig(config);
+  }
+
+  Future<void> setLanguageCode(String? code) async {
+    final config = await _readConfig();
+    final trimmed = code?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      config.remove(_languageCodeKey);
+    } else {
+      config[_languageCodeKey] = trimmed;
+    }
     await _writeConfig(config);
   }
 

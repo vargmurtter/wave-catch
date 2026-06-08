@@ -175,7 +175,7 @@ void main() {
         ],
       );
 
-      expect(result.name, 'Разные исполнители');
+      expect(result.name, 'Various artists');
     });
   });
 }

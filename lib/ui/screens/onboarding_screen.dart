@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
 import 'package:music_player/ui/shell/app_shell.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
@@ -21,14 +22,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   String? _error;
 
   Future<void> _pickFolder() async {
+    final l10n = AppLocalizations.of(context);
+
     setState(() {
       _phase = _OnboardingPhase.pickingFolder;
       _error = null;
     });
 
     try {
-      final path =
-          await ref.read(appSettingsStateProvider.notifier).pickMusicFolder();
+      final path = await ref
+          .read(appSettingsStateProvider.notifier)
+          .pickMusicFolder(dialogTitle: l10n.pickMusicFolderDialog);
       if (!mounted) return;
 
       if (path == null) {
@@ -52,8 +56,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         final scanState = ref.read(libraryScanStateProvider);
         setState(() {
           _phase = _OnboardingPhase.idle;
-          _error = scanState.errorMessage ??
-              'Не удалось просканировать библиотеку';
+          _error = scanState.errorMessage ?? l10n.scanFailed;
         });
         return;
       }
@@ -67,13 +70,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       if (!mounted) return;
       setState(() {
         _phase = _OnboardingPhase.idle;
-        _error = 'Не удалось открыть диалог выбора папки: $error';
+        _error = l10n.folderPickerFailed(error.toString());
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final scanState = ref.watch(libraryScanStateProvider);
     final isScanning = _phase == _OnboardingPhase.scanning ||
         scanState.status == LibraryScanStatus.scanning;
@@ -97,16 +101,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Добро пожаловать',
+                  l10n.welcomeTitle,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Выберите папку с музыкой. Приложение просканирует её '
-                  'и создаст индекс в .wave_catcher/library.db.',
+                Text(
+                  l10n.welcomeDescription,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     color: AppColors.textSecondary,
                     height: 1.5,
@@ -119,11 +122,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     backgroundColor: AppColors.surfaceElevated,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Откройте диалог выбора папки…\n'
-                    'Если его не видно, проверьте окна за приложением.',
+                  Text(
+                    l10n.folderPickerHint,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
                       height: 1.4,
@@ -137,7 +139,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    scanState.progress?.currentPath ?? 'Сканирование…',
+                    scanState.progress?.currentPath ?? l10n.scanning,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -147,7 +149,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                 ] else
                   _PrimaryButton(
-                    label: 'Выбрать папку с музыкой',
+                    label: l10n.pickMusicFolder,
                     onPressed: _pickFolder,
                   ),
                 if (_error != null) ...[

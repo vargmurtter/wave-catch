@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
@@ -15,6 +16,7 @@ class QueuePanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final playerState = ref.watch(playerUiStateProvider);
     final currentTrack = playerState.currentTrack;
 
@@ -33,10 +35,10 @@ class QueuePanel extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 20, 8, 12),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Текущий плейлист',
-                      style: TextStyle(
+                      l10n.currentPlaylist,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -48,7 +50,7 @@ class QueuePanel extends ConsumerWidget {
                         ref.read(playerUiStateProvider.notifier).closeQueue(),
                     icon: const Icon(LucideIcons.x),
                     color: AppColors.textSecondary,
-                    tooltip: 'Закрыть',
+                    tooltip: l10n.close,
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/mock/mock_data.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
@@ -10,15 +11,16 @@ class PlaylistsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final playlists = MockData.playlists;
 
     return ScreenScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: ScreenHeader(title: 'Плейлисты'),
+          Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: ScreenHeader(title: l10n.playlists),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -31,7 +33,7 @@ class PlaylistsScreen extends StatelessWidget {
                 final playlist = playlists[index];
                 return _PlaylistTile(
                   name: playlist.name,
-                  trackCount: playlist.trackCount,
+                  trackCountLabel: l10n.playlistsTrackCount(playlist.trackCount),
                 );
               },
             ),
@@ -45,11 +47,11 @@ class PlaylistsScreen extends StatelessWidget {
 class _PlaylistTile extends StatefulWidget {
   const _PlaylistTile({
     required this.name,
-    required this.trackCount,
+    required this.trackCountLabel,
   });
 
   final String name;
-  final int trackCount;
+  final String trackCountLabel;
 
   @override
   State<_PlaylistTile> createState() => _PlaylistTileState();
@@ -102,7 +104,7 @@ class _PlaylistTileState extends State<_PlaylistTile> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${widget.trackCount} треков',
+                    widget.trackCountLabel,
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,

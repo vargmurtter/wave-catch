@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/artist/artist_hero_banner.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
@@ -21,12 +22,13 @@ class ArtistDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final artist = ref.watch(artistByIdProvider(artistId));
     if (artist == null) {
-      return const Center(
+      return Center(
         child: Text(
-          'Исполнитель не найден',
-          style: TextStyle(color: AppColors.textSecondary),
+          l10n.artistNotFound,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
@@ -96,7 +98,7 @@ class ArtistDetailScreen extends ConsumerWidget {
                 ),
                 if (isLoadingArtistInfo) ...[
                   const SizedBox(height: 16),
-                  const _ArtistInfoLoadingIndicator(),
+                  _ArtistInfoLoadingIndicator(label: l10n.loadingInfo),
                 ],
                 if (artistInfo?.description != null &&
                     artistInfo!.description!.isNotEmpty) ...[
@@ -118,7 +120,7 @@ class ArtistDetailScreen extends ConsumerWidget {
           if (albums.isNotEmpty) ...[
             const SizedBox(height: 32),
             ContentSection(
-              title: 'Альбомы',
+              title: l10n.albums,
               fullBleedChild: true,
               child: HorizontalCardList(
                 itemCount: albums.length,
@@ -140,12 +142,13 @@ class ArtistDetailScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Популярные треки',
+                      l10n.popularTracks,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   if (tracks.length > _previewTrackCount)
                     _ShowAllLink(
+                      label: l10n.showAll,
                       onTap: () => routeNotifier.openArtistTracks(artistId),
                     ),
                 ],
@@ -169,13 +172,15 @@ class ArtistDetailScreen extends ConsumerWidget {
 }
 
 class _ArtistInfoLoadingIndicator extends StatelessWidget {
-  const _ArtistInfoLoadingIndicator();
+  const _ArtistInfoLoadingIndicator({required this.label});
+
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        SizedBox(
+        const SizedBox(
           width: 16,
           height: 16,
           child: CircularProgressIndicator(
@@ -183,10 +188,10 @@ class _ArtistInfoLoadingIndicator extends StatelessWidget {
             color: AppColors.accent,
           ),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Text(
-          'Загрузка информации…',
-          style: TextStyle(
+          label,
+          style: const TextStyle(
             fontSize: 13,
             color: AppColors.textSecondary,
           ),
@@ -197,8 +202,9 @@ class _ArtistInfoLoadingIndicator extends StatelessWidget {
 }
 
 class _ShowAllLink extends StatefulWidget {
-  const _ShowAllLink({required this.onTap});
+  const _ShowAllLink({required this.label, required this.onTap});
 
+  final String label;
   final VoidCallback onTap;
 
   @override
@@ -217,7 +223,7 @@ class _ShowAllLinkState extends State<_ShowAllLink> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Text(
-          'Показать все',
+          widget.label,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

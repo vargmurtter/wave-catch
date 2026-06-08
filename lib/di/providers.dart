@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:music_player/l10n/app_locale.dart';
 import 'package:music_player/repositories/app_settings_repository.dart';
 import 'package:music_player/repositories/artist_info_cache_repository.dart';
 import 'package:music_player/repositories/library_repository.dart';
@@ -117,14 +119,20 @@ class AppSettingsState {
   const AppSettingsState({
     this.musicLibraryPath,
     this.isConfigured = false,
+    this.hasLanguageSelected = false,
+    this.language = AppLanguage.en,
     this.albumGroupingStrategy = AlbumGroupingStrategy.byAlbumArtist,
     this.metadataEditMode = MetadataEditMode.override,
   });
 
   final String? musicLibraryPath;
   final bool isConfigured;
+  final bool hasLanguageSelected;
+  final AppLanguage language;
   final AlbumGroupingStrategy albumGroupingStrategy;
   final MetadataEditMode metadataEditMode;
+
+  Locale get locale => language.locale;
 }
 
 final appSettingsStateProvider =
@@ -139,6 +147,8 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     return AppSettingsState(
       musicLibraryPath: service.musicLibraryPath,
       isConfigured: service.isLibraryConfigured,
+      hasLanguageSelected: service.hasLanguageSelected,
+      language: service.language ?? AppLanguage.en,
       albumGroupingStrategy: service.albumGroupingStrategy,
       metadataEditMode: service.metadataEditMode,
     );
@@ -149,8 +159,15 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     _syncFromService();
   }
 
-  Future<String?> pickMusicFolder() {
-    return ref.read(settingsServiceProvider).pickMusicFolder();
+  Future<String?> pickMusicFolder({required String dialogTitle}) {
+    return ref
+        .read(settingsServiceProvider)
+        .pickMusicFolder(dialogTitle: dialogTitle);
+  }
+
+  Future<void> setLanguage(AppLanguage language) async {
+    await ref.read(settingsServiceProvider).setLanguage(language);
+    _syncFromService();
   }
 
   Future<void> setMusicLibraryPath(String path) async {
@@ -174,6 +191,8 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     state = AppSettingsState(
       musicLibraryPath: service.musicLibraryPath,
       isConfigured: service.isLibraryConfigured,
+      hasLanguageSelected: service.hasLanguageSelected,
+      language: service.language ?? AppLanguage.en,
       albumGroupingStrategy: service.albumGroupingStrategy,
       metadataEditMode: service.metadataEditMode,
     );
@@ -531,11 +550,13 @@ class TrackInfoPanelNotifier extends Notifier<Track?> {
 class TrackMetadataEditState {
   const TrackMetadataEditState({
     this.isSaving = false,
-    this.errorMessage,
+    this.errorCode,
+    this.errorDetails,
   });
 
   final bool isSaving;
-  final String? errorMessage;
+  final MetadataEditErrorCode? errorCode;
+  final String? errorDetails;
 }
 
 final trackMetadataEditProvider =
@@ -575,10 +596,14 @@ class TrackMetadataEditNotifier extends Notifier<TrackMetadataEditState> {
       state = const TrackMetadataEditState();
       return updatedTrack;
     } on MetadataEditException catch (error) {
-      state = TrackMetadataEditState(errorMessage: error.message);
+      // Error message is localized in the UI layer when displayed.
+      state = TrackMetadataEditState(
+        errorCode: error.code,
+        errorDetails: error.details,
+      );
       return null;
     } catch (error) {
-      state = TrackMetadataEditState(errorMessage: error.toString());
+      state = TrackMetadataEditState(errorDetails: error.toString());
       return null;
     }
   }

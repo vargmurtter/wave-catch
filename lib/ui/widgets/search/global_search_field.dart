@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 
 class GlobalSearchField extends ConsumerStatefulWidget {
@@ -33,6 +34,7 @@ class _GlobalSearchFieldState extends ConsumerState<GlobalSearchField> {
   @override
   Widget build(BuildContext context) {
     final query = ref.watch(searchQueryProvider);
+    final l10n = AppLocalizations.of(context);
 
     ref.listen(searchQueryProvider, (previous, next) {
       if (next.isEmpty && _controller.text.isNotEmpty) {
@@ -52,7 +54,7 @@ class _GlobalSearchFieldState extends ConsumerState<GlobalSearchField> {
           color: AppColors.textPrimary,
         ),
         decoration: InputDecoration(
-          hintText: 'Поиск',
+          hintText: l10n.search,
           hintStyle: const TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
@@ -81,7 +83,7 @@ class _GlobalSearchFieldState extends ConsumerState<GlobalSearchField> {
                     size: 16,
                     color: AppColors.textSecondary,
                   ),
-                  tooltip: 'Очистить',
+                  tooltip: l10n.clear,
                 )
               : null,
         ),

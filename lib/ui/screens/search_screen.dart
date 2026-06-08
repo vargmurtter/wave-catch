@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/models/track.dart';
@@ -43,32 +44,33 @@ class SearchScreen extends ConsumerWidget {
     final results = ref.watch(librarySearchResultsProvider);
     final isLoading =
         query.trim().isNotEmpty && query != debouncedQuery;
+    final l10n = AppLocalizations.of(context);
 
     return ScreenScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(32, 24, 32, 0),
-            child: ScreenHeader(title: 'Результаты поиска'),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
+            child: ScreenHeader(title: l10n.searchResults),
           ),
           if (isLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
               child: Text(
-                'Поиск…',
-                style: TextStyle(
+                l10n.searching,
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
               ),
             )
           else if (results.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
               child: Text(
-                'Ничего не найдено',
-                style: TextStyle(
+                l10n.nothingFound,
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),
@@ -77,7 +79,7 @@ class SearchScreen extends ConsumerWidget {
           else ...[
             if (results.artists.isNotEmpty)
               ContentSection(
-                title: 'Исполнители',
+                title: l10n.artists,
                 child: Column(
                   children: [
                     for (final artist in results.artists)
@@ -91,7 +93,7 @@ class SearchScreen extends ConsumerWidget {
             if (results.albums.isNotEmpty) ...[
               if (results.artists.isNotEmpty) const SizedBox(height: 32),
               ContentSection(
-                title: 'Альбомы',
+                title: l10n.albums,
                 child: Column(
                   children: [
                     for (final album in results.albums)
@@ -110,7 +112,7 @@ class SearchScreen extends ConsumerWidget {
               if (results.artists.isNotEmpty || results.albums.isNotEmpty)
                 const SizedBox(height: 32),
               ContentSection(
-                title: 'Треки',
+                title: l10n.tracks,
                 child: Column(
                   children: [
                     for (final track in results.tracks)

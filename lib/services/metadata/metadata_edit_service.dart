@@ -41,13 +41,13 @@ class MetadataEditService {
 
     final musicRoot = _settingsService.musicLibraryPath;
     if (musicRoot == null) {
-      throw MetadataEditException('Папка с музыкой не выбрана');
+      throw MetadataEditException(MetadataEditErrorCode.musicLibraryNotSelected);
     }
 
     _libraryRepository.open(musicRoot);
     final track = _libraryRepository.getTrackById(trackId);
     if (track == null) {
-      throw MetadataEditException('Трек не найден');
+      throw MetadataEditException(MetadataEditErrorCode.trackNotFound);
     }
 
     final mode = _settingsService.metadataEditMode;
@@ -105,13 +105,13 @@ class MetadataEditService {
 
   void _validate(TrackMetadataEdit changes) {
     if (changes.title.trim().isEmpty) {
-      throw MetadataEditException('Укажите название трека');
+      throw MetadataEditException(MetadataEditErrorCode.titleRequired);
     }
     if (changes.artist.trim().isEmpty) {
-      throw MetadataEditException('Укажите исполнителя');
+      throw MetadataEditException(MetadataEditErrorCode.artistRequired);
     }
     if (changes.album.trim().isEmpty) {
-      throw MetadataEditException('Укажите альбом');
+      throw MetadataEditException(MetadataEditErrorCode.albumRequired);
     }
   }
 
@@ -122,7 +122,7 @@ class MetadataEditService {
   }) async {
     final coverData = await _fileWriter.readCoverBytes(imagePath);
     if (coverData == null) {
-      throw MetadataEditException('Не удалось прочитать файл обложки');
+      throw MetadataEditException(MetadataEditErrorCode.coverReadFailed);
     }
 
     final coversDir = p.join(musicRoot, kAppDataDirName, kEmbeddedCoversDirName);

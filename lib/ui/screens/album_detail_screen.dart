@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
@@ -18,12 +19,13 @@ class AlbumDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final album = ref.watch(albumByIdProvider(albumId));
     if (album == null) {
-      return const Center(
+      return Center(
         child: Text(
-          'Альбом не найден',
-          style: TextStyle(color: AppColors.textSecondary),
+          l10n.albumNotFound,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
@@ -101,7 +103,7 @@ class AlbumDetailScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                'Треки',
+                l10n.tracks,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -123,7 +125,7 @@ class AlbumDetailScreen extends ConsumerWidget {
           if (otherAlbums.isNotEmpty) ...[
             const SizedBox(height: 32),
             ContentSection(
-              title: 'Другие альбомы',
+              title: l10n.otherAlbums,
               fullBleedChild: true,
               child: HorizontalCardList(
                 itemCount: otherAlbums.length,

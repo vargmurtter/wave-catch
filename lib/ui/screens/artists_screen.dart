@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/home/artist_card.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
@@ -18,6 +19,7 @@ class ArtistsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final artists = ref.watch(artistsProvider);
     final routeNotifier = ref.read(libraryRouteProvider.notifier);
 
@@ -25,14 +27,12 @@ class ArtistsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: ScreenHeader(title: 'Исполнители'),
+          Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: ScreenHeader(title: l10n.artists),
           ),
           if (artists.isEmpty)
-            const _EmptyLibraryMessage(
-              message: 'Исполнители не найдены. Проверьте папку с музыкой в настройках.',
-            )
+            _EmptyLibraryMessage(message: l10n.artistsNotFound)
           else
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),

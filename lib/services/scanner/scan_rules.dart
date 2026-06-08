@@ -1,8 +1,8 @@
 export 'package:music_player/app_paths.dart';
 
-const kUnknownArtist = 'Неизвестный исполнитель';
-const kUnknownAlbum = 'Неизвестный альбом';
-const kVariousArtists = 'Разные исполнители';
+const kUnknownArtist = 'Unknown artist';
+const kUnknownAlbum = 'Unknown album';
+const kVariousArtists = 'Various artists';
 
 const kCoverExtensions = {'jpg', 'jpeg', 'png', 'webp'};
 

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
+import 'package:music_player/l10n/l10n_extensions.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/metadata/track_metadata_edit.dart';
 import 'package:music_player/services/metadata/track_metadata_override.dart';
@@ -91,10 +93,11 @@ class _TrackMetadataEditDialogState
   }
 
   Future<void> _pickCover() async {
+    final l10n = AppLocalizations.of(context);
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: kCoverExtensions.toList(),
-      dialogTitle: 'Выберите обложку',
+      dialogTitle: l10n.pickCoverDialog,
     );
     if (result == null || result.files.isEmpty) return;
 
@@ -135,22 +138,30 @@ class _TrackMetadataEditDialogState
     if (updated != null) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Метаданные сохранены')),
+        SnackBar(content: Text(AppLocalizations.of(context).metadataSaved)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final editState = ref.watch(trackMetadataEditProvider);
     final settings = ref.watch(appSettingsStateProvider);
     final modeLabel = settings.metadataEditMode == MetadataEditMode.inFile
-        ? 'Изменения сохраняются в файл трека'
-        : 'Изменения сохраняются в override-конфиг';
+        ? l10n.changesSavedInFile
+        : l10n.changesSavedInOverride;
+    final errorMessage = editState.errorCode != null
+        ? metadataEditErrorMessage(
+            l10n,
+            editState.errorCode!,
+            details: editState.errorDetails,
+          )
+        : editState.errorDetails;
 
     return AlertDialog(
       backgroundColor: AppColors.surface,
-      title: const Text('Редактировать метаданные'),
+      title: Text(l10n.editMetadata),
       content: SizedBox(
         width: 480,
         child: SingleChildScrollView(
@@ -167,9 +178,9 @@ class _TrackMetadataEditDialogState
               ),
               if (settings.metadataEditMode == MetadataEditMode.inFile) ...[
                 const SizedBox(height: 4),
-                const Text(
-                  'Приглашённые исполнители сохраняются в override-конфиг.',
-                  style: TextStyle(
+                Text(
+                  l10n.featuredArtistsOverrideHint,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -188,32 +199,38 @@ class _TrackMetadataEditDialogState
                     TextButton.icon(
                       onPressed: editState.isSaving ? null : _pickCover,
                       icon: const Icon(LucideIcons.image, size: 16),
-                      label: const Text('Выбрать обложку'),
+                      label: Text(l10n.pickCover),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-              _Field(label: 'Название', controller: _titleController),
-              _Field(label: 'Исполнитель', controller: _artistController),
+              _Field(label: l10n.title, controller: _titleController),
+              _Field(label: l10n.artist, controller: _artistController),
               _Field(
-                label: 'Приглашённые исполнители',
+                label: l10n.featuredArtists,
                 controller: _featuredController,
-                hint: 'Через запятую',
+                hint: l10n.commaSeparated,
               ),
               _Field(
                 label: 'Album Artist',
                 controller: _albumArtistController,
               ),
-              _Field(label: 'Альбом', controller: _albumController),
-              _Field(label: 'Год', controller: _yearController),
-              _Field(label: 'Жанр', controller: _genreController),
-              _Field(label: 'Номер трека', controller: _trackNumberController),
-              _Field(label: 'Номер диска', controller: _discNumberController),
-              if (editState.errorMessage != null) ...[
+              _Field(label: l10n.album, controller: _albumController),
+              _Field(label: l10n.year, controller: _yearController),
+              _Field(label: l10n.genre, controller: _genreController),
+              _Field(
+                label: l10n.trackNumber,
+                controller: _trackNumberController,
+              ),
+              _Field(
+                label: l10n.discNumber,
+                controller: _discNumberController,
+              ),
+              if (errorMessage != null) ...[
                 const SizedBox(height: 12),
                 Text(
-                  editState.errorMessage!,
+                  errorMessage,
                   style: const TextStyle(color: AppColors.accent),
                 ),
               ],
@@ -224,7 +241,7 @@ class _TrackMetadataEditDialogState
       actions: [
         TextButton(
           onPressed: editState.isSaving ? null : () => Navigator.pop(context),
-          child: const Text('Отмена'),
+          child: Text(l10n.cancel),
         ),
         TextButton(
           onPressed: editState.isSaving ? null : _save,
@@ -234,9 +251,9 @@ class _TrackMetadataEditDialogState
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text(
-                  'Сохранить',
-                  style: TextStyle(color: AppColors.accent),
+              : Text(
+                  l10n.save,
+                  style: const TextStyle(color: AppColors.accent),
                 ),
         ),
       ],

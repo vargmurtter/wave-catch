@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/app_info.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
@@ -18,6 +19,7 @@ class AppSidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(selectedNavItemProvider);
+    final l10n = AppLocalizations.of(context);
 
     return FrostedPanel(
       color: AppColors.sidebarOverlay,
@@ -53,7 +55,7 @@ class AppSidebar extends ConsumerWidget {
             ),
             const GlobalSearchField(),
             SidebarNavItem(
-              label: 'Главное',
+              label: l10n.navHome,
               icon: LucideIcons.house,
               isSelected: selected == NavItem.main,
               onTap: () => ref
@@ -61,7 +63,7 @@ class AppSidebar extends ConsumerWidget {
                   .select(NavItem.main),
             ),
             SidebarNavItem(
-              label: 'Исполнители',
+              label: l10n.navArtists,
               icon: LucideIcons.users,
               isSelected: selected == NavItem.artists,
               onTap: () => ref
@@ -69,7 +71,7 @@ class AppSidebar extends ConsumerWidget {
                   .select(NavItem.artists),
             ),
             SidebarNavItem(
-              label: 'Альбомы',
+              label: l10n.navAlbums,
               icon: LucideIcons.disc3,
               isSelected: selected == NavItem.albums,
               onTap: () => ref
@@ -77,7 +79,7 @@ class AppSidebar extends ConsumerWidget {
                   .select(NavItem.albums),
             ),
             SidebarNavItem(
-              label: 'Плейлисты',
+              label: l10n.navPlaylists,
               icon: LucideIcons.listMusic,
               isSelected: selected == NavItem.playlists,
               onTap: () => ref
@@ -86,7 +88,7 @@ class AppSidebar extends ConsumerWidget {
             ),
             const Spacer(),
             SidebarNavItem(
-              label: 'Настройки',
+              label: l10n.navSettings,
               icon: LucideIcons.settings,
               isSelected: selected == NavItem.settings,
               onTap: () => ref

@@ -66,11 +66,22 @@ class TrackMetadataEditResult {
   final Track track;
 }
 
-class MetadataEditException implements Exception {
-  MetadataEditException(this.message);
+enum MetadataEditErrorCode {
+  musicLibraryNotSelected,
+  trackNotFound,
+  titleRequired,
+  artistRequired,
+  albumRequired,
+  coverReadFailed,
+  fileWriteFailed,
+}
 
-  final String message;
+class MetadataEditException implements Exception {
+  MetadataEditException(this.code, {this.details});
+
+  final MetadataEditErrorCode code;
+  final String? details;
 
   @override
-  String toString() => message;
+  String toString() => code.name;
 }

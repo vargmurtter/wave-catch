@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:music_player/di/providers.dart';
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/detail_back_button.dart';
 import 'package:music_player/ui/widgets/common/play_action_button.dart';
@@ -15,12 +16,13 @@ class ArtistTracksScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final artist = ref.watch(artistByIdProvider(artistId));
     if (artist == null) {
-      return const Center(
+      return Center(
         child: Text(
-          'Исполнитель не найден',
-          style: TextStyle(color: AppColors.textSecondary),
+          l10n.artistNotFound,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
@@ -40,7 +42,7 @@ class ArtistTracksScreen extends ConsumerWidget {
                 const DetailBackButton(),
                 const SizedBox(height: 24),
                 Text(
-                  'Все треки',
+                  l10n.allTracks,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 4),

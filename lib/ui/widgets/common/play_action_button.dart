@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 
 class PlayActionButton extends StatefulWidget {
   const PlayActionButton({
     super.key,
     required this.onPressed,
-    this.tooltip = 'Воспроизвести',
+    this.tooltip,
     this.enabled = true,
   });
 
   final VoidCallback? onPressed;
-  final String tooltip;
+  final String? tooltip;
   final bool enabled;
 
   @override
@@ -25,6 +26,7 @@ class _PlayActionButtonState extends State<PlayActionButton> {
   @override
   Widget build(BuildContext context) {
     final active = widget.enabled && widget.onPressed != null;
+    final tooltip = widget.tooltip ?? AppLocalizations.of(context).play;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -32,7 +34,7 @@ class _PlayActionButtonState extends State<PlayActionButton> {
       cursor: active ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: IconButton(
         onPressed: active ? widget.onPressed : null,
-        tooltip: widget.tooltip,
+        tooltip: tooltip,
         icon: const Icon(LucideIcons.play, size: 28),
         style: IconButton.styleFrom(
           backgroundColor: active
