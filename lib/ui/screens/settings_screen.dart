@@ -6,6 +6,7 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/l10n/app_locale.dart';
 import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/l10n/l10n_extensions.dart';
+import 'package:music_player/repositories/ytdlp_auth_settings.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
@@ -111,6 +112,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         await _runScan(path, ScanMode.rescan);
       }
     }
+  }
+
+  Future<void> _setYtdlpCookieSource(YtdlpCookieSource source) async {
+    final current = ref.read(appSettingsStateProvider).ytdlpAuthSettings;
+    if (current.source == source) return;
+
+    await ref.read(appSettingsStateProvider.notifier).setYtdlpAuthSettings(
+          current.copyWith(source: source),
+        );
+  }
+
+  Future<void> _pickCookiesFile() async {
+    final l10n = AppLocalizations.of(context);
+    final path = await ref
+        .read(appSettingsStateProvider.notifier)
+        .pickCookiesFile(dialogTitle: l10n.settingsYtdlpCookiesPickFile);
+    if (path == null || !mounted) return;
+
+    final current = ref.read(appSettingsStateProvider).ytdlpAuthSettings;
+    await ref.read(appSettingsStateProvider.notifier).setYtdlpAuthSettings(
+          current.copyWith(
+            source: YtdlpCookieSource.file,
+            cookiesFilePath: path,
+          ),
+        );
+  }
+
+  Future<void> _setYtdlpBrowser(String browser) async {
+    final current = ref.read(appSettingsStateProvider).ytdlpAuthSettings;
+    if (current.browser == browser) return;
+
+    await ref.read(appSettingsStateProvider.notifier).setYtdlpAuthSettings(
+          current.copyWith(
+            source: YtdlpCookieSource.browser,
+            browser: browser,
+          ),
+        );
   }
 
   Future<void> _runScan(String path, ScanMode mode) async {
@@ -236,6 +274,111 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.settingsYtdlpCookiesTitle,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.settingsYtdlpCookiesHint,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _YtdlpCookieSourceTile(
+                  label: l10n.settingsYtdlpCookiesNone,
+                  isSelected:
+                      settings.ytdlpAuthSettings.source == YtdlpCookieSource.none,
+                  onTap: () => _setYtdlpCookieSource(YtdlpCookieSource.none),
+                ),
+                _YtdlpCookieSourceTile(
+                  label: l10n.settingsYtdlpCookiesFile,
+                  isSelected:
+                      settings.ytdlpAuthSettings.source == YtdlpCookieSource.file,
+                  onTap: () => _setYtdlpCookieSource(YtdlpCookieSource.file),
+                ),
+                if (settings.ytdlpAuthSettings.source ==
+                    YtdlpCookieSource.file) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.divider),
+                    ),
+                    child: Text(
+                      settings.ytdlpAuthSettings.cookiesFilePath ??
+                          l10n.notSelected,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _SettingsButton(
+                    icon: LucideIcons.fileText,
+                    label: l10n.settingsYtdlpCookiesPickFile,
+                    onTap: _pickCookiesFile,
+                  ),
+                ],
+                _YtdlpCookieSourceTile(
+                  label: l10n.settingsYtdlpCookiesBrowser,
+                  isSelected: settings.ytdlpAuthSettings.source ==
+                      YtdlpCookieSource.browser,
+                  onTap: () => _setYtdlpCookieSource(YtdlpCookieSource.browser),
+                ),
+                if (settings.ytdlpAuthSettings.source ==
+                    YtdlpCookieSource.browser) ...[
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Row(
+                      children: [
+                        Text(
+                          l10n.settingsYtdlpCookiesBrowserLabel,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        DropdownButton<String>(
+                          value: kYtdlpBrowsers.contains(
+                            settings.ytdlpAuthSettings.browser,
+                          )
+                              ? settings.ytdlpAuthSettings.browser
+                              : kYtdlpBrowsers.first,
+                          dropdownColor: AppColors.surface,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textPrimary,
+                          ),
+                          items: kYtdlpBrowsers
+                              .map(
+                                (browser) => DropdownMenuItem(
+                                  value: browser,
+                                  child: Text(browser),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) _setYtdlpBrowser(value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 32),
                 Text(
                   l10n.musicFolder,
@@ -612,6 +755,75 @@ class _MetadataEditModeTileState extends State<_MetadataEditModeTile> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _YtdlpCookieSourceTile extends StatefulWidget {
+  const _YtdlpCookieSourceTile({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  State<_YtdlpCookieSourceTile> createState() => _YtdlpCookieSourceTileState();
+}
+
+class _YtdlpCookieSourceTileState extends State<_YtdlpCookieSourceTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _isHovered
+                  ? AppColors.surfaceElevated.withValues(alpha: 0.8)
+                  : AppColors.surface.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    widget.isSelected ? AppColors.accent : AppColors.divider,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  widget.isSelected
+                      ? LucideIcons.circleDot
+                      : LucideIcons.circle,
+                  size: 16,
+                  color: widget.isSelected
+                      ? AppColors.accent
+                      : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  widget.label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],

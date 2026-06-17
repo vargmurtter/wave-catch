@@ -203,6 +203,15 @@
     }
   },
   "settingsYtdlpMissing": "Not found",
+  "settingsYtdlpCookiesTitle": "YouTube authentication",
+  "settingsYtdlpCookiesHint": "Required for age-restricted videos. Sign in to YouTube in your browser and confirm your age. Cookies contain sensitive data.",
+  "settingsYtdlpCookiesNone": "No cookies",
+  "settingsYtdlpCookiesFile": "From file",
+  "settingsYtdlpCookiesBrowser": "From browser",
+  "settingsYtdlpCookiesFilePath": "Cookies file",
+  "settingsYtdlpCookiesPickFile": "Choose cookies.txt",
+  "settingsYtdlpCookiesBrowserLabel": "Browser",
+  "exploreSaveAgeRestricted": "This track is age-restricted. Configure YouTube cookies in Settings → yt-dlp.",
 
   "createPlaylist": "Create playlist",
   "playlistName": "Playlist name",

@@ -908,6 +908,60 @@ abstract class AppLocalizations {
   /// **'Not found'**
   String get settingsYtdlpMissing;
 
+  /// No description provided for @settingsYtdlpCookiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube authentication'**
+  String get settingsYtdlpCookiesTitle;
+
+  /// No description provided for @settingsYtdlpCookiesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Required for age-restricted videos. Sign in to YouTube in your browser and confirm your age. Cookies contain sensitive data.'**
+  String get settingsYtdlpCookiesHint;
+
+  /// No description provided for @settingsYtdlpCookiesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No cookies'**
+  String get settingsYtdlpCookiesNone;
+
+  /// No description provided for @settingsYtdlpCookiesFile.
+  ///
+  /// In en, this message translates to:
+  /// **'From file'**
+  String get settingsYtdlpCookiesFile;
+
+  /// No description provided for @settingsYtdlpCookiesBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'From browser'**
+  String get settingsYtdlpCookiesBrowser;
+
+  /// No description provided for @settingsYtdlpCookiesFilePath.
+  ///
+  /// In en, this message translates to:
+  /// **'Cookies file'**
+  String get settingsYtdlpCookiesFilePath;
+
+  /// No description provided for @settingsYtdlpCookiesPickFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose cookies.txt'**
+  String get settingsYtdlpCookiesPickFile;
+
+  /// No description provided for @settingsYtdlpCookiesBrowserLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser'**
+  String get settingsYtdlpCookiesBrowserLabel;
+
+  /// No description provided for @exploreSaveAgeRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'This track is age-restricted. Configure YouTube cookies in Settings → yt-dlp.'**
+  String get exploreSaveAgeRestricted;
+
   /// No description provided for @createPlaylist.
   ///
   /// In en, this message translates to:

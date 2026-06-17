@@ -5,6 +5,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'package:music_player/l10n/app_locale.dart';
 import 'package:music_player/repositories/app_settings_repository.dart';
+import 'package:music_player/repositories/ytdlp_auth_settings.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 
@@ -19,6 +20,7 @@ class SettingsService {
   MetadataEditMode _metadataEditMode = MetadataEditMode.override;
   String? _lastFmApiKey;
   AppLanguage? _language;
+  YtdlpAuthSettings _ytdlpAuthSettings = const YtdlpAuthSettings();
 
   String? get musicLibraryPath => _musicLibraryPath;
 
@@ -31,6 +33,8 @@ class SettingsService {
   AppLanguage? get language => _language;
 
   bool get hasLanguageSelected => _language != null;
+
+  YtdlpAuthSettings get ytdlpAuthSettings => _ytdlpAuthSettings;
 
   bool get isLibraryConfigured {
     final path = _musicLibraryPath;
@@ -46,6 +50,7 @@ class SettingsService {
     _language = AppLanguage.fromCode(
       await _appSettingsRepository.getLanguageCode(),
     );
+    _ytdlpAuthSettings = await _appSettingsRepository.getYtdlpAuthSettings();
   }
 
   Future<String?> pickMusicFolder({required String dialogTitle}) async {
@@ -92,5 +97,24 @@ class SettingsService {
     _lastFmApiKey =
         trimmed == null || trimmed.isEmpty ? null : trimmed;
     await _appSettingsRepository.setLastFmApiKey(_lastFmApiKey);
+  }
+
+  Future<String?> pickCookiesFile({required String dialogTitle}) async {
+    await _focusAppWindow();
+
+    return FilePicker.platform.pickFiles(
+      dialogTitle: dialogTitle,
+      type: FileType.custom,
+      allowedExtensions: ['txt'],
+    ).then((result) {
+      final path = result?.files.single.path;
+      if (path == null || path.isEmpty) return null;
+      return path;
+    });
+  }
+
+  Future<void> setYtdlpAuthSettings(YtdlpAuthSettings settings) async {
+    _ytdlpAuthSettings = settings;
+    await _appSettingsRepository.setYtdlpAuthSettings(settings);
   }
 }

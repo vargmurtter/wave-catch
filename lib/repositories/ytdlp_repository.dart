@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:music_player/repositories/ytdlp_auth_settings.dart';
 import 'package:music_player/repositories/ytdlp_binary_resolver.dart';
 
 class YtdlpException implements Exception {
@@ -20,10 +21,14 @@ class _CacheEntry {
 }
 
 class YtdlpRepository {
-  YtdlpRepository({YtdlpBinaryResolver? resolver})
-      : _resolver = resolver ?? YtdlpBinaryResolver();
+  YtdlpRepository({
+    YtdlpBinaryResolver? resolver,
+    YtdlpAuthSettings Function()? authSettings,
+  })  : _resolver = resolver ?? YtdlpBinaryResolver(),
+        _authSettings = authSettings ?? (() => const YtdlpAuthSettings());
 
   final YtdlpBinaryResolver _resolver;
+  final YtdlpAuthSettings Function() _authSettings;
   final Map<String, _CacheEntry> _streamCache = {};
   static const _cacheTtl = Duration(hours: 4);
   Process? _activeDownload;
@@ -46,6 +51,7 @@ class YtdlpRepository {
     final result = await Process.run(
       binary.path,
       [
+        ..._buildAuthArgs(),
         '-f',
         fmt,
         '--get-url',
@@ -87,6 +93,7 @@ class YtdlpRepository {
     _activeDownload = await Process.start(
       binary.path,
       [
+        ..._buildAuthArgs(),
         '-f',
         'bestaudio/bestaudio*/best',
         '-x',
@@ -185,6 +192,24 @@ class YtdlpRepository {
     if (_streamCache.length > 200) {
       final now = DateTime.now();
       _streamCache.removeWhere((_, entry) => now.isAfter(entry.expiresAt));
+    }
+  }
+
+  List<String> _buildAuthArgs() {
+    final auth = _authSettings();
+    switch (auth.source) {
+      case YtdlpCookieSource.none:
+        return const [];
+      case YtdlpCookieSource.file:
+        final path = auth.cookiesFilePath;
+        if (path == null || path.isEmpty || !File(path).existsSync()) {
+          return const [];
+        }
+        return ['--cookies', path];
+      case YtdlpCookieSource.browser:
+        final browser = auth.browser.trim();
+        if (browser.isEmpty) return const [];
+        return ['--cookies-from-browser', browser];
     }
   }
 }

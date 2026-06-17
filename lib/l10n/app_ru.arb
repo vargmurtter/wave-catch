@@ -155,6 +155,15 @@
     }
   },
   "settingsYtdlpMissing": "Не найден",
+  "settingsYtdlpCookiesTitle": "Авторизация YouTube",
+  "settingsYtdlpCookiesHint": "Нужна для видео с возрастным ограничением. Войдите в YouTube в браузере и подтвердите возраст. Cookies содержат чувствительные данные.",
+  "settingsYtdlpCookiesNone": "Без cookies",
+  "settingsYtdlpCookiesFile": "Из файла",
+  "settingsYtdlpCookiesBrowser": "Из браузера",
+  "settingsYtdlpCookiesFilePath": "Файл cookies",
+  "settingsYtdlpCookiesPickFile": "Выбрать cookies.txt",
+  "settingsYtdlpCookiesBrowserLabel": "Браузер",
+  "exploreSaveAgeRestricted": "Трек с возрастным ограничением. Настройте cookies YouTube в Настройки → yt-dlp.",
 
   "createPlaylist": "Создать плейлист",
   "playlistName": "Название плейлиста",

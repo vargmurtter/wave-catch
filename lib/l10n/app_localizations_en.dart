@@ -449,6 +449,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsYtdlpMissing => 'Not found';
 
   @override
+  String get settingsYtdlpCookiesTitle => 'YouTube authentication';
+
+  @override
+  String get settingsYtdlpCookiesHint =>
+      'Required for age-restricted videos. Sign in to YouTube in your browser and confirm your age. Cookies contain sensitive data.';
+
+  @override
+  String get settingsYtdlpCookiesNone => 'No cookies';
+
+  @override
+  String get settingsYtdlpCookiesFile => 'From file';
+
+  @override
+  String get settingsYtdlpCookiesBrowser => 'From browser';
+
+  @override
+  String get settingsYtdlpCookiesFilePath => 'Cookies file';
+
+  @override
+  String get settingsYtdlpCookiesPickFile => 'Choose cookies.txt';
+
+  @override
+  String get settingsYtdlpCookiesBrowserLabel => 'Browser';
+
+  @override
+  String get exploreSaveAgeRestricted =>
+      'This track is age-restricted. Configure YouTube cookies in Settings → yt-dlp.';
+
+  @override
   String get createPlaylist => 'Create playlist';
 
   @override

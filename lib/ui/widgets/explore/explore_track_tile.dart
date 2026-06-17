@@ -100,9 +100,21 @@ class ExploreTrackTile extends ConsumerWidget {
                 else
                   TextButton.icon(
                     onPressed: ytdlpAvailable && !isSaving
-                        ? () => ref
-                            .read(exploreSaveProvider.notifier)
-                            .save(track)
+                        ? () async {
+                            final error = await ref
+                                .read(exploreSaveProvider.notifier)
+                                .save(track);
+                            if (error != null && context.mounted) {
+                              final message = error == 'age_restricted'
+                                  ? l10n.exploreSaveAgeRestricted
+                                  : (error.isNotEmpty
+                                      ? error
+                                      : l10n.exploreSaveFailed);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(message)),
+                              );
+                            }
+                          }
                         : null,
                     icon: isSaving
                         ? const SizedBox(

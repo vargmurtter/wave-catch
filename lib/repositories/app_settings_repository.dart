@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:music_player/app_paths.dart';
+import 'package:music_player/repositories/ytdlp_auth_settings.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 
@@ -15,6 +16,9 @@ class AppSettingsRepository {
   static const _metadataEditModeKey = 'metadataEditMode';
   static const _lastFmApiKeyKey = 'lastFmApiKey';
   static const _languageCodeKey = 'languageCode';
+  static const _ytdlpCookieSourceKey = 'ytdlpCookieSource';
+  static const _ytdlpCookiesFilePathKey = 'ytdlpCookiesFilePath';
+  static const _ytdlpBrowserKey = 'ytdlpBrowser';
 
   Future<File> _configFile() async {
     final supportDir = await getApplicationSupportDirectory();
@@ -76,6 +80,26 @@ class AppSettingsRepository {
     return key.trim();
   }
 
+  Future<YtdlpAuthSettings> getYtdlpAuthSettings() async {
+    final config = await _readConfig();
+    final source = YtdlpCookieSource.fromJson(
+      config[_ytdlpCookieSourceKey] as String?,
+    );
+    final cookiesPath = config[_ytdlpCookiesFilePathKey] as String?;
+    final browser = config[_ytdlpBrowserKey] as String?;
+    return YtdlpAuthSettings(
+      source: source,
+      cookiesFilePath:
+          cookiesPath == null || cookiesPath.trim().isEmpty
+              ? null
+              : cookiesPath.trim(),
+      browser:
+          browser == null || browser.trim().isEmpty
+              ? 'chrome'
+              : browser.trim(),
+    );
+  }
+
   Future<void> setMusicLibraryPath(String path) async {
     final config = await _readConfig();
     config[_musicLibraryPathKey] = path;
@@ -113,6 +137,31 @@ class AppSettingsRepository {
     } else {
       config[_lastFmApiKeyKey] = trimmed;
     }
+    await _writeConfig(config);
+  }
+
+  Future<void> setYtdlpAuthSettings(YtdlpAuthSettings settings) async {
+    final config = await _readConfig();
+    if (settings.source == YtdlpCookieSource.none) {
+      config.remove(_ytdlpCookieSourceKey);
+    } else {
+      config[_ytdlpCookieSourceKey] = settings.source.toJson();
+    }
+
+    final cookiesPath = settings.cookiesFilePath?.trim();
+    if (cookiesPath == null || cookiesPath.isEmpty) {
+      config.remove(_ytdlpCookiesFilePathKey);
+    } else {
+      config[_ytdlpCookiesFilePathKey] = cookiesPath;
+    }
+
+    final browser = settings.browser.trim();
+    if (browser.isEmpty || browser == 'chrome') {
+      config.remove(_ytdlpBrowserKey);
+    } else {
+      config[_ytdlpBrowserKey] = browser;
+    }
+
     await _writeConfig(config);
   }
 }

@@ -451,6 +451,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsYtdlpMissing => 'Не найден';
 
   @override
+  String get settingsYtdlpCookiesTitle => 'Авторизация YouTube';
+
+  @override
+  String get settingsYtdlpCookiesHint =>
+      'Нужна для видео с возрастным ограничением. Войдите в YouTube в браузере и подтвердите возраст. Cookies содержат чувствительные данные.';
+
+  @override
+  String get settingsYtdlpCookiesNone => 'Без cookies';
+
+  @override
+  String get settingsYtdlpCookiesFile => 'Из файла';
+
+  @override
+  String get settingsYtdlpCookiesBrowser => 'Из браузера';
+
+  @override
+  String get settingsYtdlpCookiesFilePath => 'Файл cookies';
+
+  @override
+  String get settingsYtdlpCookiesPickFile => 'Выбрать cookies.txt';
+
+  @override
+  String get settingsYtdlpCookiesBrowserLabel => 'Браузер';
+
+  @override
+  String get exploreSaveAgeRestricted =>
+      'Трек с возрастным ограничением. Настройте cookies YouTube в Настройки → yt-dlp.';
+
+  @override
   String get createPlaylist => 'Создать плейлист';
 
   @override

@@ -80,6 +80,22 @@ ImportSourceRepository.upsert → LibraryService.refresh
 
 Альтернатива: `brew install yt-dlp` (macOS) или установка в PATH на Linux/Windows.
 
+### YouTube cookies (age-restricted)
+
+Поиск через InnerTube работает без авторизации, но **превью и сохранение** age-restricted видео требуют cookies YouTube-аккаунта с подтверждённым возрастом.
+
+В **Настройки → yt-dlp → Авторизация YouTube** доступны режимы:
+
+| Режим | Флаг yt-dlp | Описание |
+|-------|-------------|----------|
+| Без cookies | — | По умолчанию; age-restricted треки недоступны |
+| Из файла | `--cookies path/to/cookies.txt` | Netscape-формат (экспорт расширением или `yt-dlp --cookies-from-browser … --cookies cookies.txt`) |
+| Из браузера | `--cookies-from-browser chrome` | Cookies из установленного браузера; нужен вход в YouTube |
+
+Настройки хранятся в `app_config.json` (`ytdlpCookieSource`, `ytdlpCookiesFilePath`, `ytdlpBrowser`). При смене режима кэш stream URL сбрасывается.
+
+Модель: `YtdlpAuthSettings` в `lib/repositories/ytdlp_auth_settings.dart`.
+
 ## YouTube Music API
 
 `YtmInnerTubeRepository` — прямые запросы к InnerTube (как в Snowify), без официального YouTube Data API:
@@ -116,6 +132,7 @@ ImportSourceRepository.upsert → LibraryService.refresh
 | `lib/services/track_import_service.dart` | Сохранение в библиотеку |
 | `lib/repositories/ytm_innertube_repository.dart` | InnerTube-клиент |
 | `lib/repositories/ytdlp_repository.dart` | stream URL, download, кэш |
+| `lib/repositories/ytdlp_auth_settings.dart` | Настройки cookies для yt-dlp |
 | `lib/repositories/ytdlp_binary_resolver.dart` | Поиск бинарника |
 | `lib/repositories/import_source_repository.dart` | CRUD `import_sources` |
 | `scripts/fetch_ytdlp.sh` | Загрузка standalone-бинарников в assets |

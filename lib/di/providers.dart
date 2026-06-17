@@ -12,6 +12,7 @@ import 'package:music_player/repositories/metadata_file_writer.dart';
 import 'package:music_player/repositories/metadata_override_repository.dart';
 import 'package:music_player/repositories/musicbrainz_api_repository.dart';
 import 'package:music_player/repositories/wikipedia_api_repository.dart';
+import 'package:music_player/repositories/ytdlp_auth_settings.dart';
 import 'package:music_player/repositories/ytdlp_binary_resolver.dart';
 import 'package:music_player/repositories/ytdlp_repository.dart';
 import 'package:music_player/repositories/ytm_innertube_repository.dart';
@@ -122,8 +123,10 @@ final ytdlpBinaryResolverProvider = Provider<YtdlpBinaryResolver>(
 );
 
 final ytdlpRepositoryProvider = Provider<YtdlpRepository>((ref) {
+  final settings = ref.watch(settingsServiceProvider);
   return YtdlpRepository(
     resolver: ref.watch(ytdlpBinaryResolverProvider),
+    authSettings: () => settings.ytdlpAuthSettings,
   );
 });
 
@@ -197,16 +200,24 @@ class ExploreSaveNotifier extends Notifier<String?> {
   @override
   String? build() => null;
 
-  Future<void> save(ExploreTrack track) async {
+  Future<String?> save(ExploreTrack track) async {
     state = track.videoId;
     try {
       final savedTrack =
           await ref.read(trackImportServiceProvider).saveExploreTrack(track);
-      ref.read(libraryRefreshProvider.notifier).refresh();
       final player = ref.read(playerServiceProvider);
       if (player.currentExploreTrack?.videoId == track.videoId) {
         await player.replaceCurrentExploreWithLocal(savedTrack);
       }
+      ref.read(libraryRefreshProvider.notifier).refresh();
+      return null;
+    } on YtdlpException catch (e) {
+      if (e.message.contains('Sign in to confirm your age')) {
+        return 'age_restricted';
+      }
+      return e.message;
+    } on Object catch (e) {
+      return e.toString();
     } finally {
       state = null;
     }
@@ -250,6 +261,7 @@ class AppSettingsState {
     this.language = AppLanguage.en,
     this.albumGroupingStrategy = AlbumGroupingStrategy.byAlbumArtist,
     this.metadataEditMode = MetadataEditMode.override,
+    this.ytdlpAuthSettings = const YtdlpAuthSettings(),
   });
 
   final String? musicLibraryPath;
@@ -258,6 +270,7 @@ class AppSettingsState {
   final AppLanguage language;
   final AlbumGroupingStrategy albumGroupingStrategy;
   final MetadataEditMode metadataEditMode;
+  final YtdlpAuthSettings ytdlpAuthSettings;
 
   Locale get locale => language.locale;
 }
@@ -278,6 +291,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
       language: service.language ?? AppLanguage.en,
       albumGroupingStrategy: service.albumGroupingStrategy,
       metadataEditMode: service.metadataEditMode,
+      ytdlpAuthSettings: service.ytdlpAuthSettings,
     );
   }
 
@@ -313,6 +327,18 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
     _syncFromService();
   }
 
+  Future<String?> pickCookiesFile({required String dialogTitle}) {
+    return ref
+        .read(settingsServiceProvider)
+        .pickCookiesFile(dialogTitle: dialogTitle);
+  }
+
+  Future<void> setYtdlpAuthSettings(YtdlpAuthSettings settings) async {
+    await ref.read(settingsServiceProvider).setYtdlpAuthSettings(settings);
+    ref.read(ytdlpRepositoryProvider).invalidateStreamCache();
+    _syncFromService();
+  }
+
   void _syncFromService() {
     final service = ref.read(settingsServiceProvider);
     state = AppSettingsState(
@@ -322,6 +348,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsState> {
       language: service.language ?? AppLanguage.en,
       albumGroupingStrategy: service.albumGroupingStrategy,
       metadataEditMode: service.metadataEditMode,
+      ytdlpAuthSettings: service.ytdlpAuthSettings,
     );
   }
 }

@@ -74,9 +74,22 @@ class PlayerBar extends ConsumerWidget {
                         children: [
                           if (isExplore && exploreTrack != null && !isSaved)
                             TextButton.icon(
-                              onPressed: () => ref
-                                  .read(exploreSaveProvider.notifier)
-                                  .save(exploreTrack),
+                              onPressed: () async {
+                                final error = await ref
+                                    .read(exploreSaveProvider.notifier)
+                                    .save(exploreTrack);
+                                if (error != null && context.mounted) {
+                                  final l10n = AppLocalizations.of(context);
+                                  final message = error == 'age_restricted'
+                                      ? l10n.exploreSaveAgeRestricted
+                                      : (error.isNotEmpty
+                                          ? error
+                                          : l10n.exploreSaveFailed);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(message)),
+                                  );
+                                }
+                              },
                               icon: const Icon(LucideIcons.download, size: 16),
                               label: Text(
                                 AppLocalizations.of(context).exploreSaveToLibrary,
