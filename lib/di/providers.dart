@@ -89,7 +89,6 @@ final libraryScannerServiceProvider = Provider<LibraryScannerService>((ref) {
 });
 
 final libraryServiceProvider = Provider<LibraryService>((ref) {
-  ref.watch(libraryRefreshProvider);
   return LibraryService(
     ref.watch(libraryRepositoryProvider),
     ref.watch(settingsServiceProvider),
@@ -98,7 +97,6 @@ final libraryServiceProvider = Provider<LibraryService>((ref) {
 });
 
 final playlistServiceProvider = Provider<PlaylistService>((ref) {
-  ref.watch(libraryRefreshProvider);
   return PlaylistService(
     ref.watch(libraryRepositoryProvider),
     ref.watch(libraryServiceProvider),
@@ -106,8 +104,9 @@ final playlistServiceProvider = Provider<PlaylistService>((ref) {
 });
 
 final playerServiceProvider = Provider<PlayerService>((ref) {
+  ref.keepAlive();
   final service = PlayerService(
-    ref.watch(libraryServiceProvider),
+    ref.read(libraryServiceProvider),
     ytdlpRepository: ref.watch(ytdlpRepositoryProvider),
   );
   ref.onDispose(() => service.dispose());
