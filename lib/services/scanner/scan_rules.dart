@@ -18,4 +18,6 @@ const kAudioExtensions = {
 };
 
 
-const kLibrarySchemaVersion = 3;
+const kLibrarySchemaVersion = 4;
+
+const kFavoritesPlaylistId = '__favorites__';

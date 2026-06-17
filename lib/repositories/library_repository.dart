@@ -4,6 +4,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:music_player/repositories/entities/library_entities.dart';
 import 'package:music_player/repositories/import_source_repository.dart';
 import 'package:music_player/repositories/library_database.dart';
+import 'package:music_player/repositories/playlist_repository.dart';
 import 'package:music_player/services/metadata/track_metadata_override.dart';
 
 class LibraryRepository {
@@ -46,6 +47,8 @@ class LibraryRepository {
 
   ImportSourceRepository get importSourceRepository =>
       ImportSourceRepository(this);
+
+  PlaylistRepository get playlistRepository => PlaylistRepository(this);
 
   List<ArtistRecord> getArtists() {
     final rows = _db.db.select('SELECT id, name, cover_path FROM artists ORDER BY name');

@@ -7,6 +7,7 @@ import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
+import 'package:music_player/ui/widgets/track/favorite_track_button.dart';
 
 class TrackListTile extends ConsumerStatefulWidget {
   const TrackListTile({
@@ -15,12 +16,14 @@ class TrackListTile extends ConsumerStatefulWidget {
     this.showTrackNumber = false,
     this.showArtist = true,
     this.showAlbum = false,
+    this.onRemove,
   });
 
   final Track track;
   final bool showTrackNumber;
   final bool showArtist;
   final bool showAlbum;
+  final VoidCallback? onRemove;
 
   @override
   ConsumerState<TrackListTile> createState() => _TrackListTileState();
@@ -76,10 +79,12 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
                 ),
                 const SizedBox(width: 8),
               ],
-              CoverArt(
-                size: 40,
-                seed: widget.track.id,
-                imagePath: widget.track.albumArtUrl,
+              _CoverWithPlayOverlay(
+                track: widget.track,
+                isHovered: _isHovered,
+                onPlay: () => ref
+                    .read(playerUiStateProvider.notifier)
+                    .playTrackInAlbum(widget.track),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -109,22 +114,24 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
                   ],
                 ),
               ),
-              if (_isHovered)
-                IconButton(
-                  onPressed: () => ref
-                      .read(playerUiStateProvider.notifier)
-                      .playTrackInAlbum(widget.track),
-                  icon: const Icon(LucideIcons.play, size: 18),
-                  color: AppColors.textPrimary,
-                  tooltip: AppLocalizations.of(context).play,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    foregroundColor: AppColors.textPrimary,
-                    minimumSize: const Size(32, 32),
-                    padding: EdgeInsets.zero,
+              if (_isHovered) ...[
+                FavoriteTrackButton(track: widget.track, compact: true),
+                const SizedBox(width: 4),
+                AddToPlaylistButton(track: widget.track),
+                if (widget.onRemove != null) ...[
+                  const SizedBox(width: 4),
+                  IconButton(
+                    onPressed: widget.onRemove,
+                    icon: const Icon(LucideIcons.x, size: 18),
+                    color: AppColors.textSecondary,
+                    tooltip: AppLocalizations.of(context).removeFromPlaylist,
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(32, 32),
+                      padding: EdgeInsets.zero,
+                    ),
                   ),
-                )
-              else
+                ],
+              ] else
                 Text(
                   _formatDuration(widget.track.duration),
                   style: const TextStyle(
@@ -135,6 +142,57 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CoverWithPlayOverlay extends StatelessWidget {
+  const _CoverWithPlayOverlay({
+    required this.track,
+    required this.isHovered,
+    required this.onPlay,
+  });
+
+  static const _size = 40.0;
+
+  final Track track;
+  final bool isHovered;
+  final VoidCallback onPlay;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return SizedBox(
+      width: _size,
+      height: _size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CoverArt(
+            size: _size,
+            seed: track.id,
+            imagePath: track.albumArtUrl,
+          ),
+          if (isHovered)
+            Positioned.fill(
+              child: Material(
+                color: Colors.black.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(4),
+                clipBehavior: Clip.antiAlias,
+                child: IconButton(
+                  onPressed: onPlay,
+                  icon: const Icon(LucideIcons.play, size: 18),
+                  color: AppColors.textPrimary,
+                  tooltip: l10n.play,
+                  style: IconButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

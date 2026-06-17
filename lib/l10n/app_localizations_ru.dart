@@ -449,4 +449,45 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsYtdlpMissing => 'Не найден';
+
+  @override
+  String get createPlaylist => 'Создать плейлист';
+
+  @override
+  String get playlistName => 'Название плейлиста';
+
+  @override
+  String get addToPlaylist => 'Добавить в плейлист';
+
+  @override
+  String get removeFromPlaylist => 'Удалить из плейлиста';
+
+  @override
+  String get deletePlaylist => 'Удалить плейлист';
+
+  @override
+  String get favorites => 'Избранное';
+
+  @override
+  String get addedToPlaylist => 'Добавлено в плейлист';
+
+  @override
+  String get removedFromPlaylist => 'Удалено из плейлиста';
+
+  @override
+  String get playlistEmpty => 'Плейлист пуст';
+
+  @override
+  String confirmDeletePlaylist(String name) {
+    return 'Удалить плейлист «$name»?';
+  }
+
+  @override
+  String get playlistNotFound => 'Плейлист не найден';
+
+  @override
+  String get playlistNameRequired => 'Введите название плейлиста';
+
+  @override
+  String get inPlaylist => 'В плейлисте';
 }

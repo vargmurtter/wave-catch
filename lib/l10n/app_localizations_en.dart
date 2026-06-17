@@ -447,4 +447,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsYtdlpMissing => 'Not found';
+
+  @override
+  String get createPlaylist => 'Create playlist';
+
+  @override
+  String get playlistName => 'Playlist name';
+
+  @override
+  String get addToPlaylist => 'Add to playlist';
+
+  @override
+  String get removeFromPlaylist => 'Remove from playlist';
+
+  @override
+  String get deletePlaylist => 'Delete playlist';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get addedToPlaylist => 'Added to playlist';
+
+  @override
+  String get removedFromPlaylist => 'Removed from playlist';
+
+  @override
+  String get playlistEmpty => 'This playlist is empty';
+
+  @override
+  String confirmDeletePlaylist(String name) {
+    return 'Delete playlist \"$name\"?';
+  }
+
+  @override
+  String get playlistNotFound => 'Playlist not found';
+
+  @override
+  String get playlistNameRequired => 'Enter a playlist name';
+
+  @override
+  String get inPlaylist => 'In playlist';
 }

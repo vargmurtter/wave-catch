@@ -90,6 +90,9 @@ class LibraryDatabase {
     if (version < 3) {
       _migrateToV3();
     }
+    if (version < 4) {
+      _migrateToV4();
+    }
 
     _setMeta('schema_version', kLibrarySchemaVersion.toString());
     _setMeta('root_path', musicRoot);
@@ -128,6 +131,35 @@ class LibraryDatabase {
     ''');
     _db.execute(
       'CREATE INDEX IF NOT EXISTS idx_import_sources_path ON import_sources(file_path)',
+    );
+  }
+
+  void _migrateToV4() {
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS playlists (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        is_system INTEGER NOT NULL DEFAULT 0,
+        created_at_ms INTEGER NOT NULL
+      )
+    ''');
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS playlist_tracks (
+        playlist_id TEXT NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+        track_id TEXT NOT NULL REFERENCES tracks(id) ON DELETE CASCADE,
+        added_at_ms INTEGER NOT NULL,
+        PRIMARY KEY (playlist_id, track_id)
+      )
+    ''');
+    _db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_playlist_tracks_playlist ON playlist_tracks(playlist_id)',
+    );
+    _db.execute(
+      '''
+      INSERT OR IGNORE INTO playlists (id, name, is_system, created_at_ms)
+      VALUES (?, 'Favorites', 1, ?)
+      ''',
+      [kFavoritesPlaylistId, DateTime.now().millisecondsSinceEpoch],
     );
   }
 

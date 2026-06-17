@@ -202,5 +202,26 @@
       }
     }
   },
-  "settingsYtdlpMissing": "Not found"
+  "settingsYtdlpMissing": "Not found",
+
+  "createPlaylist": "Create playlist",
+  "playlistName": "Playlist name",
+  "addToPlaylist": "Add to playlist",
+  "removeFromPlaylist": "Remove from playlist",
+  "deletePlaylist": "Delete playlist",
+  "favorites": "Favorites",
+  "addedToPlaylist": "Added to playlist",
+  "removedFromPlaylist": "Removed from playlist",
+  "playlistEmpty": "This playlist is empty",
+  "confirmDeletePlaylist": "Delete playlist \"{name}\"?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistNotFound": "Playlist not found",
+  "playlistNameRequired": "Enter a playlist name",
+  "inPlaylist": "In playlist"
 }

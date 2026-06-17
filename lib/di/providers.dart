@@ -23,6 +23,7 @@ import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/metadata/metadata_edit_service.dart';
 import 'package:music_player/services/metadata/track_metadata_edit.dart';
 import 'package:music_player/services/player_service.dart';
+import 'package:music_player/services/playlist_service.dart';
 import 'package:music_player/services/track_import_service.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 import 'package:music_player/services/scanner/cover_art_resolver.dart';
@@ -37,6 +38,7 @@ import 'package:music_player/ui/models/library_route.dart';
 import 'package:music_player/ui/models/library_search_results.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/models/player_ui_state.dart';
+import 'package:music_player/ui/models/playlist.dart';
 import 'package:music_player/ui/models/track.dart';
 
 // --- Repositories & Services ---
@@ -91,6 +93,14 @@ final libraryServiceProvider = Provider<LibraryService>((ref) {
     ref.watch(libraryRepositoryProvider),
     ref.watch(settingsServiceProvider),
     ref.watch(metadataOverrideRepositoryProvider),
+  );
+});
+
+final playlistServiceProvider = Provider<PlaylistService>((ref) {
+  ref.watch(libraryRefreshProvider);
+  return PlaylistService(
+    ref.watch(libraryRepositoryProvider),
+    ref.watch(libraryServiceProvider),
   );
 });
 
@@ -409,6 +419,77 @@ final albumsProvider = Provider<List<Album>>((ref) {
   return ref.watch(libraryServiceProvider).getAlbums();
 });
 
+final playlistsProvider = Provider<List<Playlist>>((ref) {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(playlistServiceProvider).getPlaylists();
+});
+
+final playlistByIdProvider = Provider.family<Playlist?, String>((ref, id) {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(playlistServiceProvider).getPlaylistById(id);
+});
+
+final tracksForPlaylistProvider =
+    Provider.family<List<Track>, String>((ref, playlistId) {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(playlistServiceProvider).getTracksForPlaylist(playlistId);
+});
+
+final isTrackFavoriteProvider = Provider.family<bool, String>((ref, trackId) {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(playlistServiceProvider).isFavorite(trackId);
+});
+
+final trackPlaylistIdsProvider = Provider.family<Set<String>, String>(
+  (ref, trackId) {
+    ref.watch(libraryRefreshProvider);
+    return ref
+        .watch(playlistServiceProvider)
+        .getPlaylistIdsContainingTrack(trackId);
+  },
+);
+
+final playlistActionsProvider = Provider<PlaylistActions>((ref) {
+  return PlaylistActions(ref);
+});
+
+class PlaylistActions {
+  PlaylistActions(this._ref);
+
+  final Ref _ref;
+
+  PlaylistService get _service => _ref.read(playlistServiceProvider);
+
+  void _refresh() => _ref.read(libraryRefreshProvider.notifier).refresh();
+
+  Playlist createPlaylist(String name) {
+    final playlist = _service.createPlaylist(name);
+    _refresh();
+    return playlist;
+  }
+
+  void deletePlaylist(String id) {
+    _service.deletePlaylist(id);
+    _refresh();
+  }
+
+  void addTrackToPlaylist(String playlistId, String trackId) {
+    _service.addTrackToPlaylist(playlistId, trackId);
+    _refresh();
+  }
+
+  void removeTrackFromPlaylist(String playlistId, String trackId) {
+    _service.removeTrackFromPlaylist(playlistId, trackId);
+    _refresh();
+  }
+
+  bool toggleFavorite(String trackId) {
+    final isFavorite = _service.toggleFavorite(trackId);
+    _refresh();
+    return isFavorite;
+  }
+}
+
 final homeSectionsProvider = Provider<HomeSections>((ref) {
   ref.watch(libraryRefreshProvider);
   return ref.watch(libraryServiceProvider).getHomeSections();
@@ -598,6 +679,9 @@ class PlayerUiStateNotifier extends Notifier<PlayerUiState> {
 
   Future<void> playAlbum(String albumId) => _service.playAlbum(albumId);
 
+  Future<void> playPlaylist(List<Track> tracks, {Track? startTrack}) =>
+      _service.playPlaylist(tracks, startTrack: startTrack);
+
   Future<void> playTrackInAlbum(Track track) =>
       _service.playTrackInAlbum(track);
 
@@ -651,6 +735,10 @@ class LibraryRouteNotifier extends Notifier<List<LibraryRoute>> {
 
   void openAlbum(String albumId) {
     state = [...state, AlbumDetailRoute(albumId)];
+  }
+
+  void openPlaylist(String playlistId) {
+    state = [...state, PlaylistDetailRoute(playlistId)];
   }
 }
 

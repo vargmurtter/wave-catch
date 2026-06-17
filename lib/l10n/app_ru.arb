@@ -154,5 +154,26 @@
       }
     }
   },
-  "settingsYtdlpMissing": "Не найден"
+  "settingsYtdlpMissing": "Не найден",
+
+  "createPlaylist": "Создать плейлист",
+  "playlistName": "Название плейлиста",
+  "addToPlaylist": "Добавить в плейлист",
+  "removeFromPlaylist": "Удалить из плейлиста",
+  "deletePlaylist": "Удалить плейлист",
+  "favorites": "Избранное",
+  "addedToPlaylist": "Добавлено в плейлист",
+  "removedFromPlaylist": "Удалено из плейлиста",
+  "playlistEmpty": "Плейлист пуст",
+  "confirmDeletePlaylist": "Удалить плейлист «{name}»?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistNotFound": "Плейлист не найден",
+  "playlistNameRequired": "Введите название плейлиста",
+  "inPlaylist": "В плейлисте"
 }

@@ -23,3 +23,9 @@ class AlbumDetailRoute extends LibraryRoute {
 
   final String albumId;
 }
+
+class PlaylistDetailRoute extends LibraryRoute {
+  const PlaylistDetailRoute(this.playlistId);
+
+  final String playlistId;
+}

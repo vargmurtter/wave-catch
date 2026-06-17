@@ -10,6 +10,7 @@ import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
 import 'package:music_player/ui/widgets/common/play_action_button.dart';
 import 'package:music_player/services/metadata/track_metadata_override.dart';
+import 'package:music_player/ui/widgets/track/favorite_track_button.dart';
 import 'package:music_player/ui/widgets/track/track_metadata_edit_dialog.dart';
 
 class TrackInfoPanel extends ConsumerWidget {
@@ -110,13 +111,19 @@ class _TrackInfoContent extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Center(
-                  child: PlayActionButton(
-                    onPressed: () => ref
-                        .read(playerUiStateProvider.notifier)
-                        .playTrackInAlbum(track),
-                    tooltip: l10n.play,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PlayActionButton(
+                      onPressed: () => ref
+                          .read(playerUiStateProvider.notifier)
+                          .playTrackInAlbum(track),
+                      tooltip: l10n.play,
+                    ),
+                    const SizedBox(width: 8),
+                    FavoriteTrackButton(track: track),
+                    AddToPlaylistButton(track: track),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 Text(

@@ -907,6 +907,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not found'**
   String get settingsYtdlpMissing;
+
+  /// No description provided for @createPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create playlist'**
+  String get createPlaylist;
+
+  /// No description provided for @playlistName.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist name'**
+  String get playlistName;
+
+  /// No description provided for @addToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to playlist'**
+  String get addToPlaylist;
+
+  /// No description provided for @removeFromPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from playlist'**
+  String get removeFromPlaylist;
+
+  /// No description provided for @deletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete playlist'**
+  String get deletePlaylist;
+
+  /// No description provided for @favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// No description provided for @addedToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to playlist'**
+  String get addedToPlaylist;
+
+  /// No description provided for @removedFromPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from playlist'**
+  String get removedFromPlaylist;
+
+  /// No description provided for @playlistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This playlist is empty'**
+  String get playlistEmpty;
+
+  /// No description provided for @confirmDeletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete playlist \"{name}\"?'**
+  String confirmDeletePlaylist(String name);
+
+  /// No description provided for @playlistNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist not found'**
+  String get playlistNotFound;
+
+  /// No description provided for @playlistNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a playlist name'**
+  String get playlistNameRequired;
+
+  /// No description provided for @inPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'In playlist'**
+  String get inPlaylist;
 }
 
 class _AppLocalizationsDelegate

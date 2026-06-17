@@ -88,6 +88,19 @@ class PlayerService {
     );
   }
 
+  Future<void> playPlaylist(List<Track> tracks, {Track? startTrack}) async {
+    if (tracks.isEmpty) return;
+    var startIndex = 0;
+    if (startTrack != null) {
+      final index = tracks.indexWhere((t) => t.id == startTrack.id);
+      if (index >= 0) startIndex = index;
+    }
+    await _setQueue(
+      tracks.map(LocalPlayableItem.new).toList(),
+      startIndex: startIndex,
+    );
+  }
+
   Future<void> playTrackInAlbum(Track track) async {
     final tracks = _libraryService.getTracksForAlbum(track.albumId);
     if (tracks.isEmpty) return;
