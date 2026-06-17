@@ -142,6 +142,19 @@ class LibraryRepository {
     return rows.map(_mapTrack).toList();
   }
 
+  List<TrackRecord> getRecentlyAddedTracks({int limit = 10}) {
+    final rows = _db.db.select(
+      '''
+      SELECT $_trackColumns
+      FROM tracks
+      ORDER BY indexed_at_ms DESC
+      LIMIT ?
+      ''',
+      [limit],
+    );
+    return rows.map(_mapTrack).toList();
+  }
+
   List<ArtistRecord> searchArtists(String query, {int limit = 20}) {
     final normalizedQuery = _normalizeQueryInput(query);
     if (normalizedQuery.isEmpty) return [];

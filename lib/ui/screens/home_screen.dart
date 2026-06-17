@@ -86,10 +86,10 @@ class HomeScreen extends ConsumerWidget {
               child: HorizontalCardList(
                 itemCount: sections.recentlyAdded.length,
                 itemBuilder: (context, index) {
-                  final album = sections.recentlyAdded[index];
-                  return AlbumCard(
-                    album: album,
-                    onTap: () => routeNotifier.openAlbum(album.id),
+                  final track = sections.recentlyAdded[index];
+                  return RecentTrackTile(
+                    track: track,
+                    onTap: () => trackInfoNotifier.open(track),
                   );
                 },
               ),

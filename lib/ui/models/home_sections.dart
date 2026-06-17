@@ -11,7 +11,7 @@ class HomeSections {
   });
 
   final List<Track> recentlyPlayed;
-  final List<Album> recentlyAdded;
+  final List<Track> recentlyAdded;
   final List<Album> favoriteAlbums;
   final List<Artist> favoriteArtists;
 }

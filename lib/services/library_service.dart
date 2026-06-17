@@ -109,6 +109,14 @@ class LibraryService {
     return _mapTracks(_libraryRepository.getAllTracks());
   }
 
+  List<Track> getRecentlyAddedTracks({int limit = 10}) {
+    ensureOpen();
+    if (!_libraryRepository.isOpen) return [];
+    return _mapTracks(
+      _libraryRepository.getRecentlyAddedTracks(limit: limit),
+    );
+  }
+
   Track? getTrackById(String id) {
     ensureOpen();
     if (!_libraryRepository.isOpen) return null;
@@ -181,7 +189,7 @@ class LibraryService {
 
     return HomeSections(
       recentlyPlayed: const [],
-      recentlyAdded: albums,
+      recentlyAdded: getRecentlyAddedTracks(limit: 10),
       favoriteAlbums: albums,
       favoriteArtists: artists,
     );

@@ -502,7 +502,7 @@ abstract final class MockData {
 
   static HomeSections get homeSections => HomeSections(
         recentlyPlayed: _tracks.take(6).toList(),
-        recentlyAdded: _albums,
+        recentlyAdded: _tracks.take(10).toList(),
         favoriteAlbums: _albums,
         favoriteArtists: _artists.take(6).toList(),
       );
