@@ -78,8 +78,12 @@ lib/
     lastfm_api_repository.dart
     library_repository.dart
     library_database.dart
+    import_source_repository.dart
     metadata_override_repository.dart
     metadata_file_writer.dart
+    ytm_innertube_repository.dart
+    ytdlp_repository.dart
+    ytdlp_binary_resolver.dart
     entities/
   services/       # PlayerService, LibraryService, …
     artist_info_service.dart
@@ -87,6 +91,8 @@ lib/
     library_service.dart
     library_scanner_service.dart
     player_service.dart
+    explore_service.dart
+    track_import_service.dart
     metadata/
       metadata_edit_service.dart
     scanner/        # фазы pipeline сканера
@@ -115,9 +121,16 @@ docs/             # документация (этот файл и др.)
 | `ArtistInfoCacheRepository` | Repository | кэш данных исполнителей на диске |
 | `ArtistInfoService` | Service | загрузка и кэширование информации об исполнителе |
 | `LastFmApiRepository` | Repository | *(неактивно)* HTTP-запросы к Last.fm API |
+| `YtmInnerTubeRepository` | Repository | YouTube Music: поиск, подсказки, Up Next, топ артиста (InnerTube) |
+| `YtdlpRepository` | Repository | stream URL и скачивание аудио через yt-dlp |
+| `YtdlpBinaryResolver` | Repository | поиск бинарника: bundle → Application Support → PATH |
+| `ImportSourceRepository` | Repository | связь `video_id` ↔ локальный файл (`import_sources`) |
+| `ExploreService` | Service | поиск и рекомендации в разделе «Исследование» |
+| `TrackImportService` | Service | сохранение трека из Explore в `{musicRoot}/Imports/` |
 
 Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).  
 Подробности поиска: [features/library-search.md](features/library-search.md).  
+Раздел «Исследование»: [features/explore.md](features/explore.md).  
 Подробности плеера: [features/player.md](features/player.md).  
 Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).  
 Информация об исполнителе: [features/artist-info.md](features/artist-info.md).  

@@ -63,6 +63,14 @@ class AppSidebar extends ConsumerWidget {
                   .select(NavItem.main),
             ),
             SidebarNavItem(
+              label: l10n.navExplore,
+              icon: LucideIcons.compass,
+              isSelected: selected == NavItem.explore,
+              onTap: () => ref
+                  .read(selectedNavItemProvider.notifier)
+                  .select(NavItem.explore),
+            ),
+            SidebarNavItem(
               label: l10n.navArtists,
               icon: LucideIcons.users,
               isSelected: selected == NavItem.artists,

@@ -9,6 +9,8 @@
 | Путь к папке с музыкой | `{ApplicationSupport}/.wave_catcher/app_config.json` |
 | Стратегия группировки альбомов | `{ApplicationSupport}/.wave_catcher/app_config.json` |
 | Индекс библиотеки | `{musicRoot}/.wave_catcher/library.db` |
+| Связь YouTube → файл | таблица `import_sources` в `library.db` (схема v3) |
+| Импорт из Explore | `{musicRoot}/Imports/{Artist}/{Title}.mp3` |
 | Override-конфиг | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
 | Embedded-обложки | `{musicRoot}/.wave_catcher/covers/` |
 
@@ -102,7 +104,18 @@ ScanJob → FileDiscovery → MetadataExtractor → TagTextFixer → EntityResol
 | `album_grouping_strategy.dart` | enum стратегий, тексты для UI |
 | `cover_art_resolver.dart` | обложки треков и альбомов |
 | `library_persister.dart` | запись в SQLite |
-| `library_scanner_service.dart` | оркестратор, прогресс |
+| `library_scanner_service.dart` | оркестратор, прогресс, `scanSingleFile` |
+
+## Инкрементальная индексация одного файла
+
+`LibraryScannerService.scanSingleFile` — полный pipeline сканера для одного пути (без полного rescan библиотеки). Используется при сохранении трека из **Исследования** (`TrackImportService`):
+
+1. `open(musicRoot)` на `LibraryRepository`
+2. извлечение метаданных, override, группировка альбома
+3. `upsertTrack` в SQLite
+4. после записи в `import_sources` — `LibraryService.refreshOverrides()`
+
+Подробности импорта: [explore.md](explore.md).
 
 ## Слои
 
@@ -142,7 +155,8 @@ flutter run -d macos
 ## Вне scope
 
 - Плейлисты (остаются на моках)
-- Инкрементальный scan по `file_modified_ms`
+- Полный инкрементальный rescan по `file_modified_ms` (только точечный `scanSingleFile`)
 - «Недавно проигранные» / избранное
 
-Воспроизведение реализовано отдельно: [player.md](player.md).
+Воспроизведение реализовано отдельно: [player.md](player.md).  
+Импорт из YouTube Music: [explore.md](explore.md).

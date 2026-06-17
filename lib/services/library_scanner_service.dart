@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import 'package:music_player/repositories/entities/library_entities.dart';
 import 'package:music_player/repositories/library_repository.dart';
 import 'package:music_player/repositories/metadata_override_repository.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
@@ -144,6 +145,117 @@ class LibraryScannerService {
       albumCount: library.albums.length,
       errors: errors,
     );
+  }
+
+  Future<String> scanSingleFile({
+    required String musicRoot,
+    required String filePath,
+  }) async {
+    if (!File(filePath).existsSync()) {
+      throw StateError('File does not exist: $filePath');
+    }
+
+    _libraryRepository.open(musicRoot);
+
+    final editMode = _settingsService.metadataEditMode;
+    final overrides = await _overrideRepository.loadTrackOverrides(musicRoot);
+    final strategy = _settingsService.albumGroupingStrategy;
+
+    final stat = File(filePath).statSync();
+    final discovered = DiscoveredAudioFile(
+      filePath: filePath,
+      parentDir: p.dirname(filePath),
+      fileNameWithoutExt: p.basenameWithoutExtension(filePath),
+    );
+    final trackId = trackIdFor(filePath);
+
+    var metadata = await _metadataExtractor.extract(filePath);
+    final override = overrides[trackId];
+    metadata = _applyOverrides(
+      metadata: metadata,
+      override: override,
+      editMode: editMode,
+      musicRoot: musicRoot,
+    );
+
+    final resolved = _entityResolver.resolve(
+      file: discovered,
+      metadata: metadata,
+      strategy: strategy,
+    );
+
+    final trackForCover = ResolvedTrack(
+      id: resolved.id,
+      filePath: resolved.filePath,
+      title: resolved.title,
+      artistId: resolved.artistId,
+      artistName: resolved.artistName,
+      albumId: resolved.albumId,
+      albumTitle: resolved.albumTitle,
+      parentDir: resolved.parentDir,
+      durationMs: resolved.durationMs,
+      fileModifiedMs: stat.modified.millisecondsSinceEpoch,
+      albumArtistName: resolved.albumArtistName,
+      featuredArtists: resolved.featuredArtists,
+      trackNumber: resolved.trackNumber,
+      genre: resolved.genre,
+      format: resolved.format,
+      year: resolved.year,
+      discNumber: resolved.discNumber,
+      embeddedCoverBytes: resolved.embeddedCoverBytes,
+      embeddedCoverMimeType: resolved.embeddedCoverMimeType,
+      overrideCoverPath: resolved.overrideCoverPath,
+    );
+
+    final library = _coverArtResolver.resolve(
+      musicRoot: musicRoot,
+      tracks: [trackForCover],
+    );
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    for (final artist in library.artists) {
+      _libraryRepository.upsertArtist(
+        ArtistRecord(
+          id: artist.id,
+          name: artist.name,
+          coverPath: artist.coverPath,
+        ),
+      );
+    }
+    for (final album in library.albums) {
+      _libraryRepository.upsertAlbum(
+        AlbumRecord(
+          id: album.id,
+          title: album.title,
+          artistId: album.artistId,
+          year: album.year,
+          coverPath: album.coverPath,
+        ),
+      );
+    }
+
+    final item = library.tracks.first;
+    _libraryRepository.upsertTrack(
+      TrackRecord(
+        id: item.track.id,
+        filePath: item.track.filePath,
+        title: item.track.title,
+        artistId: item.track.artistId,
+        albumId: item.track.albumId,
+        durationMs: item.track.durationMs,
+        indexedAtMs: now,
+        trackNumber: item.track.trackNumber,
+        genre: item.track.genre,
+        format: item.track.format,
+        coverPath: item.coverPath,
+        fileModifiedMs: item.track.fileModifiedMs,
+        featuredArtists: item.track.featuredArtists,
+        albumArtist: item.track.albumArtistName,
+        discNumber: item.track.discNumber,
+      ),
+    );
+    _libraryRepository.deleteOrphanedArtistsAndAlbums();
+    return item.track.id;
   }
 
   RawTrackMetadata _applyOverrides({

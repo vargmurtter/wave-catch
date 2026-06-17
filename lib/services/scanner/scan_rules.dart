@@ -18,4 +18,4 @@ const kAudioExtensions = {
 };
 
 
-const kLibrarySchemaVersion = 2;
+const kLibrarySchemaVersion = 3;

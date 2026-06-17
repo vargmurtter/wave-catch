@@ -7,17 +7,23 @@ import 'package:music_player/l10n/app_locale.dart';
 import 'package:music_player/repositories/app_settings_repository.dart';
 import 'package:music_player/repositories/artist_info_cache_repository.dart';
 import 'package:music_player/repositories/library_repository.dart';
+import 'package:music_player/repositories/import_source_repository.dart';
 import 'package:music_player/repositories/metadata_file_writer.dart';
 import 'package:music_player/repositories/metadata_override_repository.dart';
 import 'package:music_player/repositories/musicbrainz_api_repository.dart';
 import 'package:music_player/repositories/wikipedia_api_repository.dart';
+import 'package:music_player/repositories/ytdlp_binary_resolver.dart';
+import 'package:music_player/repositories/ytdlp_repository.dart';
+import 'package:music_player/repositories/ytm_innertube_repository.dart';
 import 'package:music_player/services/artist_info_service.dart';
+import 'package:music_player/services/explore_service.dart';
 import 'package:music_player/services/library_scanner_service.dart';
 import 'package:music_player/services/library_service.dart';
 import 'package:music_player/services/metadata/metadata_edit_mode.dart';
 import 'package:music_player/services/metadata/metadata_edit_service.dart';
 import 'package:music_player/services/metadata/track_metadata_edit.dart';
 import 'package:music_player/services/player_service.dart';
+import 'package:music_player/services/track_import_service.dart';
 import 'package:music_player/services/scanner/album_grouping_strategy.dart';
 import 'package:music_player/services/scanner/cover_art_resolver.dart';
 import 'package:music_player/services/scanner/scan_job.dart';
@@ -25,6 +31,7 @@ import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/album.dart';
 import 'package:music_player/ui/models/artist.dart';
 import 'package:music_player/ui/models/artist_info.dart';
+import 'package:music_player/ui/models/explore_track.dart';
 import 'package:music_player/ui/models/home_sections.dart';
 import 'package:music_player/ui/models/library_route.dart';
 import 'package:music_player/ui/models/library_search_results.dart';
@@ -88,10 +95,120 @@ final libraryServiceProvider = Provider<LibraryService>((ref) {
 });
 
 final playerServiceProvider = Provider<PlayerService>((ref) {
-  final service = PlayerService(ref.watch(libraryServiceProvider));
+  final service = PlayerService(
+    ref.watch(libraryServiceProvider),
+    ytdlpRepository: ref.watch(ytdlpRepositoryProvider),
+  );
   ref.onDispose(() => service.dispose());
   return service;
 });
+
+final ytmInnerTubeRepositoryProvider = Provider<YtmInnerTubeRepository>(
+  (ref) => YtmInnerTubeRepository(),
+);
+
+final ytdlpBinaryResolverProvider = Provider<YtdlpBinaryResolver>(
+  (ref) => YtdlpBinaryResolver(),
+);
+
+final ytdlpRepositoryProvider = Provider<YtdlpRepository>((ref) {
+  return YtdlpRepository(
+    resolver: ref.watch(ytdlpBinaryResolverProvider),
+  );
+});
+
+final ytdlpAvailableProvider = FutureProvider<bool>((ref) async {
+  return ref.watch(ytdlpRepositoryProvider).isAvailable();
+});
+
+final ytdlpVersionProvider = FutureProvider<String?>((ref) async {
+  return ref.watch(ytdlpRepositoryProvider).getVersion();
+});
+
+ImportSourceRepository _importSourceRepository(Ref ref) {
+  final libraryRepository = ref.watch(libraryRepositoryProvider);
+  return libraryRepository.importSourceRepository;
+}
+
+final exploreServiceProvider = Provider<ExploreService>((ref) {
+  return ExploreService(
+    ytmRepository: ref.watch(ytmInnerTubeRepositoryProvider),
+    libraryService: ref.watch(libraryServiceProvider),
+    libraryRepository: ref.watch(libraryRepositoryProvider),
+    importSourceRepositoryFactory: () => _importSourceRepository(ref),
+  );
+});
+
+final trackImportServiceProvider = Provider<TrackImportService>((ref) {
+  return TrackImportService(
+    settingsService: ref.watch(settingsServiceProvider),
+    libraryRepository: ref.watch(libraryRepositoryProvider),
+    libraryScannerService: ref.watch(libraryScannerServiceProvider),
+    libraryService: ref.watch(libraryServiceProvider),
+    ytdlpRepository: ref.watch(ytdlpRepositoryProvider),
+    metadataFileWriter: ref.watch(metadataFileWriterProvider),
+    importSourceRepositoryFactory: () => _importSourceRepository(ref),
+  );
+});
+
+final exploreSavedVideoIdsProvider = Provider<Set<String>>((ref) {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(exploreServiceProvider).savedVideoIds();
+});
+
+final exploreRecommendationsProvider =
+    FutureProvider<ExploreRecommendations>((ref) async {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(exploreServiceProvider).getRecommendations();
+});
+
+final exploreSearchProvider =
+    FutureProvider.family<List<ExploreTrack>, String>((ref, query) async {
+  final trimmed = query.trim();
+  if (trimmed.isEmpty) return [];
+  return ref.watch(exploreServiceProvider).search(trimmed);
+});
+
+class ExploreSuggestionsState {
+  const ExploreSuggestionsState({this.textSuggestions = const []});
+
+  final List<String> textSuggestions;
+}
+
+final exploreSuggestionsProvider =
+    FutureProvider.family<ExploreSuggestionsState, String>((ref, query) async {
+  final trimmed = query.trim();
+  if (trimmed.isEmpty) return const ExploreSuggestionsState();
+  final result = await ref.watch(exploreServiceProvider).suggestions(trimmed);
+  return ExploreSuggestionsState(textSuggestions: result.textSuggestions);
+});
+
+class ExploreSaveNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  Future<void> save(ExploreTrack track) async {
+    state = track.videoId;
+    try {
+      final savedTrack =
+          await ref.read(trackImportServiceProvider).saveExploreTrack(track);
+      ref.read(libraryRefreshProvider.notifier).refresh();
+      final player = ref.read(playerServiceProvider);
+      if (player.currentExploreTrack?.videoId == track.videoId) {
+        await player.replaceCurrentExploreWithLocal(savedTrack);
+      }
+    } finally {
+      state = null;
+    }
+  }
+}
+
+final exploreSaveProvider =
+    NotifierProvider<ExploreSaveNotifier, String?>(ExploreSaveNotifier.new);
+
+final exploreSavingVideoIdProvider = Provider<String?>(
+  (ref) => ref.watch(exploreSaveProvider),
+);
 
 final musicBrainzApiRepositoryProvider = Provider<MusicBrainzApiRepository>(
   (ref) => MusicBrainzApiRepository(),
@@ -483,6 +600,12 @@ class PlayerUiStateNotifier extends Notifier<PlayerUiState> {
 
   Future<void> playTrackInAlbum(Track track) =>
       _service.playTrackInAlbum(track);
+
+  Future<void> playExploreTrack(ExploreTrack track) =>
+      _service.playExploreTrack(track);
+
+  Future<void> playExploreQueue(List<ExploreTrack> tracks, {int startIndex = 0}) =>
+      _service.playExploreQueue(tracks, startIndex: startIndex);
 
   Future<void> playArtist(String artistId, {Track? startTrack}) =>
       _service.playArtist(artistId, startTrack: startTrack);

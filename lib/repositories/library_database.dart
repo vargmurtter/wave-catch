@@ -87,6 +87,9 @@ class LibraryDatabase {
     if (version < 2) {
       _migrateToV2();
     }
+    if (version < 3) {
+      _migrateToV3();
+    }
 
     _setMeta('schema_version', kLibrarySchemaVersion.toString());
     _setMeta('root_path', musicRoot);
@@ -113,6 +116,19 @@ class LibraryDatabase {
         // Column may already exist.
       }
     }
+  }
+
+  void _migrateToV3() {
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS import_sources (
+        video_id TEXT PRIMARY KEY,
+        file_path TEXT NOT NULL UNIQUE,
+        saved_at_ms INTEGER NOT NULL
+      )
+    ''');
+    _db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_import_sources_path ON import_sources(file_path)',
+    );
   }
 
   void _setMeta(String key, String value) {

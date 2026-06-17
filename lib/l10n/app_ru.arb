@@ -128,5 +128,31 @@
 
   "unknownArtist": "Неизвестный исполнитель",
   "unknownAlbum": "Неизвестный альбом",
-  "variousArtists": "Разные исполнители"
+  "variousArtists": "Разные исполнители",
+
+  "navExplore": "Исследование",
+  "exploreTitle": "Исследование",
+  "exploreSearchHint": "Поиск в YouTube Music…",
+  "exploreRecommendations": "Рекомендации",
+  "exploreSimilar": "Похожие треки",
+  "exploreSearchResults": "Результаты поиска",
+  "explorePreview": "Превью",
+  "exploreSaveToLibrary": "Сохранить в библиотеку",
+  "exploreInLibrary": "В библиотеке",
+  "exploreSaving": "Сохранение…",
+  "exploreSaveFailed": "Не удалось сохранить трек",
+  "exploreYtdlpMissing": "Для стриминга и сохранения нужен yt-dlp. Установите через Homebrew (brew install yt-dlp) или запустите scripts/fetch_ytdlp.sh перед сборкой.",
+  "exploreLibraryEmptyHint": "Добавьте музыку в библиотеку, чтобы получать рекомендации.",
+  "exploreNoResults": "Треки не найдены",
+  "exploreOffline": "Нет подключения к сети",
+  "settingsYtdlpStatus": "yt-dlp",
+  "settingsYtdlpAvailable": "Доступен ({version})",
+  "@settingsYtdlpAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsYtdlpMissing": "Не найден"
 }

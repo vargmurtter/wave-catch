@@ -391,4 +391,62 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get variousArtists => 'Разные исполнители';
+
+  @override
+  String get navExplore => 'Исследование';
+
+  @override
+  String get exploreTitle => 'Исследование';
+
+  @override
+  String get exploreSearchHint => 'Поиск в YouTube Music…';
+
+  @override
+  String get exploreRecommendations => 'Рекомендации';
+
+  @override
+  String get exploreSimilar => 'Похожие треки';
+
+  @override
+  String get exploreSearchResults => 'Результаты поиска';
+
+  @override
+  String get explorePreview => 'Превью';
+
+  @override
+  String get exploreSaveToLibrary => 'Сохранить в библиотеку';
+
+  @override
+  String get exploreInLibrary => 'В библиотеке';
+
+  @override
+  String get exploreSaving => 'Сохранение…';
+
+  @override
+  String get exploreSaveFailed => 'Не удалось сохранить трек';
+
+  @override
+  String get exploreYtdlpMissing =>
+      'Для стриминга и сохранения нужен yt-dlp. Установите через Homebrew (brew install yt-dlp) или запустите scripts/fetch_ytdlp.sh перед сборкой.';
+
+  @override
+  String get exploreLibraryEmptyHint =>
+      'Добавьте музыку в библиотеку, чтобы получать рекомендации.';
+
+  @override
+  String get exploreNoResults => 'Треки не найдены';
+
+  @override
+  String get exploreOffline => 'Нет подключения к сети';
+
+  @override
+  String get settingsYtdlpStatus => 'yt-dlp';
+
+  @override
+  String settingsYtdlpAvailable(String version) {
+    return 'Доступен ($version)';
+  }
+
+  @override
+  String get settingsYtdlpMissing => 'Не найден';
 }

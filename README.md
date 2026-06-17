@@ -1,8 +1,8 @@
 # Wave Catch
 
-**A local-first desktop music player for your own library.**
+**A local-first desktop music player — your library on disk, with optional discovery from YouTube Music.**
 
-Wave Catch is a cross-platform desktop app for organizing and listening to music that lives on your machine. No accounts, no uploads, no streaming dependency — your files stay where you put them, and the player works with them directly.
+Wave Catch is a cross-platform desktop app for organizing and listening to music that lives on your machine. Your files stay where you put them; the player indexes and plays them directly. The **Explore** section lets you search YouTube Music, preview tracks, and save favorites into your library — nothing is uploaded to a cloud.
 
 > **Early development.** Features and APIs are evolving. Expect rough edges.
 
@@ -15,8 +15,8 @@ Wave Catch is a cross-platform desktop app for organizing and listening to music
 | **Your files, your disk** | Music is read from folders you choose. Nothing is uploaded to a cloud service. |
 | **Index beside the library** | A SQLite index (`.wave_catcher/library.db`) is stored next to your music, not on a remote server. |
 | **Metadata stays local** | Tag edits are written back to audio files. Overrides live in `.wave_catcher/` under your library root. |
-| **Offline by default** | Playback, browsing, and search work without a network connection. |
-| **Network is optional** | Artist bios and artwork can be fetched from public APIs (MusicBrainz, Wikipedia) and cached on disk — only when you ask for them. |
+| **Offline by default** | Playback, browsing, and local search work without a network connection. |
+| **Network when you want it** | **Explore** streams from YouTube Music (preview). Artist bios use public APIs. Saved tracks become local files. |
 
 Wave Catch is built for people who own their collection and want a player that respects that.
 
@@ -25,8 +25,9 @@ Wave Catch is built for people who own their collection and want a player that r
 ## Features
 
 - **Library scanning** — recursive scan of local folders; metadata and embedded artwork extraction
-- **Browse & search** — artists, albums, tracks; global search across the library
-- **Playback** — queue, shuffle, repeat; formats include MP3, FLAC, M4A, AAC, OGG, Opus, WAV, WMA
+- **Browse & search** — artists, albums, tracks; global search across the library (local only)
+- **Explore** — YouTube Music search, preview playback, recommendations from your library; explicit save to disk
+- **Playback** — queue, shuffle, repeat; local files and remote preview streams; formats include MP3, FLAC, M4A, AAC, OGG, Opus, WAV, WMA
 - **Metadata editing** — edit tags and write changes to files
 - **Artist info** — optional enrichment from MusicBrainz / Wikipedia with on-disk cache
 - **Album grouping strategies** — by album artist tags, folder layout, or album title
@@ -98,6 +99,16 @@ flutter run -d windows
 
 On first launch, choose the folder that contains your music. The app will scan it and build a local index.
 
+### Explore (optional)
+
+Preview and save from YouTube Music require **yt-dlp**. Either bundle binaries into the app:
+
+```bash
+./scripts/fetch_ytdlp.sh
+```
+
+or install system-wide (e.g. `brew install yt-dlp` on macOS). Without yt-dlp, local library features still work; Explore preview and save are disabled.
+
 ---
 
 ## Release builds
@@ -115,6 +126,8 @@ flutter build windows  # Windows
 ```
 lib/            Application source (UI, services, repositories)
 docs/           Architecture and feature documentation
+assets/bin/     yt-dlp binaries per OS (populated by scripts/fetch_ytdlp.sh)
+scripts/        Build helpers (fetch_ytdlp.sh)
 macos/          macOS runner
 linux/          Linux runner
 windows/        Windows runner
@@ -130,11 +143,13 @@ Layering: **UI → Services → Repositories → local files & SQLite**. Depende
 |-------|----------|
 | Architecture | [`docs/architecture.md`](docs/architecture.md) |
 | Library scanning | [`docs/features/library-scanning.md`](docs/features/library-scanning.md) |
+| Explore (YouTube Music) | [`docs/features/explore.md`](docs/features/explore.md) |
 | Player | [`docs/features/player.md`](docs/features/player.md) |
 | Search | [`docs/features/library-search.md`](docs/features/library-search.md) |
 | Metadata editing | [`docs/features/metadata-editing.md`](docs/features/metadata-editing.md) |
 | Artist info | [`docs/features/artist-info.md`](docs/features/artist-info.md) |
 | Localization | [`docs/features/localization.md`](docs/features/localization.md) |
+| UI shell | [`docs/features/ui-shell.md`](docs/features/ui-shell.md) |
 
 ---
 

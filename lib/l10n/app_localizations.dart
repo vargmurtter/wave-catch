@@ -799,6 +799,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Various artists'**
   String get variousArtists;
+
+  /// No description provided for @navExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get navExplore;
+
+  /// No description provided for @exploreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get exploreTitle;
+
+  /// No description provided for @exploreSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search YouTube Music…'**
+  String get exploreSearchHint;
+
+  /// No description provided for @exploreRecommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended for you'**
+  String get exploreRecommendations;
+
+  /// No description provided for @exploreSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar tracks'**
+  String get exploreSimilar;
+
+  /// No description provided for @exploreSearchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Search results'**
+  String get exploreSearchResults;
+
+  /// No description provided for @explorePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get explorePreview;
+
+  /// No description provided for @exploreSaveToLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to library'**
+  String get exploreSaveToLibrary;
+
+  /// No description provided for @exploreInLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'In library'**
+  String get exploreInLibrary;
+
+  /// No description provided for @exploreSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get exploreSaving;
+
+  /// No description provided for @exploreSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save track'**
+  String get exploreSaveFailed;
+
+  /// No description provided for @exploreYtdlpMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'yt-dlp is required for streaming and saving. Install it with Homebrew (brew install yt-dlp) or run scripts/fetch_ytdlp.sh before building.'**
+  String get exploreYtdlpMissing;
+
+  /// No description provided for @exploreLibraryEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add music to your library to get personalized recommendations.'**
+  String get exploreLibraryEmptyHint;
+
+  /// No description provided for @exploreNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No tracks found'**
+  String get exploreNoResults;
+
+  /// No description provided for @exploreOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Network is unavailable'**
+  String get exploreOffline;
+
+  /// No description provided for @settingsYtdlpStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'yt-dlp'**
+  String get settingsYtdlpStatus;
+
+  /// No description provided for @settingsYtdlpAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available ({version})'**
+  String settingsYtdlpAvailable(String version);
+
+  /// No description provided for @settingsYtdlpMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found'**
+  String get settingsYtdlpMissing;
 }
 
 class _AppLocalizationsDelegate

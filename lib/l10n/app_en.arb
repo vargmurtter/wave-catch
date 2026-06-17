@@ -176,5 +176,31 @@
 
   "unknownArtist": "Unknown artist",
   "unknownAlbum": "Unknown album",
-  "variousArtists": "Various artists"
+  "variousArtists": "Various artists",
+
+  "navExplore": "Explore",
+  "exploreTitle": "Explore",
+  "exploreSearchHint": "Search YouTube Music…",
+  "exploreRecommendations": "Recommended for you",
+  "exploreSimilar": "Similar tracks",
+  "exploreSearchResults": "Search results",
+  "explorePreview": "Preview",
+  "exploreSaveToLibrary": "Save to library",
+  "exploreInLibrary": "In library",
+  "exploreSaving": "Saving…",
+  "exploreSaveFailed": "Failed to save track",
+  "exploreYtdlpMissing": "yt-dlp is required for streaming and saving. Install it with Homebrew (brew install yt-dlp) or run scripts/fetch_ytdlp.sh before building.",
+  "exploreLibraryEmptyHint": "Add music to your library to get personalized recommendations.",
+  "exploreNoResults": "No tracks found",
+  "exploreOffline": "Network is unavailable",
+  "settingsYtdlpStatus": "yt-dlp",
+  "settingsYtdlpAvailable": "Available ({version})",
+  "@settingsYtdlpAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsYtdlpMissing": "Not found"
 }

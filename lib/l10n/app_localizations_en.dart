@@ -389,4 +389,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get variousArtists => 'Various artists';
+
+  @override
+  String get navExplore => 'Explore';
+
+  @override
+  String get exploreTitle => 'Explore';
+
+  @override
+  String get exploreSearchHint => 'Search YouTube Music…';
+
+  @override
+  String get exploreRecommendations => 'Recommended for you';
+
+  @override
+  String get exploreSimilar => 'Similar tracks';
+
+  @override
+  String get exploreSearchResults => 'Search results';
+
+  @override
+  String get explorePreview => 'Preview';
+
+  @override
+  String get exploreSaveToLibrary => 'Save to library';
+
+  @override
+  String get exploreInLibrary => 'In library';
+
+  @override
+  String get exploreSaving => 'Saving…';
+
+  @override
+  String get exploreSaveFailed => 'Failed to save track';
+
+  @override
+  String get exploreYtdlpMissing =>
+      'yt-dlp is required for streaming and saving. Install it with Homebrew (brew install yt-dlp) or run scripts/fetch_ytdlp.sh before building.';
+
+  @override
+  String get exploreLibraryEmptyHint =>
+      'Add music to your library to get personalized recommendations.';
+
+  @override
+  String get exploreNoResults => 'No tracks found';
+
+  @override
+  String get exploreOffline => 'Network is unavailable';
+
+  @override
+  String get settingsYtdlpStatus => 'yt-dlp';
+
+  @override
+  String settingsYtdlpAvailable(String version) {
+    return 'Available ($version)';
+  }
+
+  @override
+  String get settingsYtdlpMissing => 'Not found';
 }

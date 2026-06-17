@@ -20,7 +20,7 @@
 └──────────────────────────────────────────────────────────┘
 ```
 
-- **Сайдбар** — навигация: Главное, Исполнители, Альбомы, Плейлисты; поле глобального поиска
+- **Сайдбар** — навигация: Главное, **Исследование**, Исполнители, Альбомы, Плейлисты, Настройки; поле глобального поиска (только локальная библиотека)
 - **Контент** — экран выбранного раздела, детальный экран (исполнитель, альбом) или результаты поиска
 - **Плеер** — закреплён снизу на всю ширину
 - **Панель очереди** — выезжает справа при нажатии кнопки плейлиста в плеере
@@ -52,6 +52,7 @@ lib/ui/
     app_shell.dart          # корневой layout
   screens/
     home_screen.dart            # 4 секции главного экрана
+    explore_screen.dart         # YouTube Music: поиск, рекомендации, превью
     artists_screen.dart         # сетка исполнителей
     albums_screen.dart          # сетка альбомов
     playlists_screen.dart       # список плейлистов
@@ -63,10 +64,11 @@ lib/ui/
     sidebar/                # AppSidebar, SidebarNavItem
     search/                 # GlobalSearchField, SearchResultTile
     player/                 # PlayerBar, VolumeControl, QueuePanel
+    explore/                # ExploreTrackTile
     home/                   # карточки и секции
     track/                  # TrackListTile, TrackInfoPanel
     common/                 # CoverArt, DetailBackButton, FrostedPanel, PlayActionButton
-  models/                   # Track, Album, Artist, LibraryRoute, …
+  models/                   # Track, Album, Artist, ExploreTrack, PlayableItem, LibraryRoute, …
   mock/
     mock_data.dart          # тестовые данные
 ```
@@ -83,8 +85,11 @@ lib/ui/
 | `trackInfoPanelProvider` | `lib/di/providers.dart` | Плавающая панель информации о треке |
 | `searchQueryProvider` | `lib/di/providers.dart` | Текст глобального поиска |
 | `librarySearchResultsProvider` | `lib/di/providers.dart` | Результаты поиска по библиотеке |
+| `exploreServiceProvider` | `lib/di/providers.dart` | Поиск и рекомендации YouTube Music |
+| `ytdlpAvailableProvider` | `lib/di/providers.dart` | Доступность yt-dlp для Explore |
 
 Подробности поиска: [library-search.md](library-search.md).  
+Раздел «Исследование»: [explore.md](explore.md).  
 Подробности плеера: [player.md](player.md).
 
 Кнопки плеера и точки запуска вызывают `PlayerUiStateNotifier` → `PlayerService`. Данные библиотеки — через `LibraryService`.

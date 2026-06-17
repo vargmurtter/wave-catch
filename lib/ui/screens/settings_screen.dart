@@ -180,6 +180,64 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const SizedBox(height: 32),
                 Text(
+                  l10n.settingsYtdlpStatus,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ref.watch(ytdlpAvailableProvider).when(
+                  data: (available) {
+                    if (!available) {
+                      return Text(
+                        l10n.settingsYtdlpMissing,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      );
+                    }
+                    return ref.watch(ytdlpVersionProvider).when(
+                      data: (version) => Text(
+                        l10n.settingsYtdlpAvailable(version ?? ''),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      loading: () => Text(
+                        l10n.settingsYtdlpAvailable('…'),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      error: (_, __) => Text(
+                        l10n.settingsYtdlpAvailable(''),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  error: (_, __) => Text(
+                    l10n.settingsYtdlpMissing,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
                   l10n.musicFolder,
                   style: const TextStyle(
                     fontSize: 16,

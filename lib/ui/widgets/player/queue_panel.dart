@@ -4,7 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/l10n/app_localizations.dart';
-import 'package:music_player/ui/models/track.dart';
+import 'package:music_player/ui/models/playable_item.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
@@ -18,7 +18,7 @@ class QueuePanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final playerState = ref.watch(playerUiStateProvider);
-    final currentTrack = playerState.currentTrack;
+    final currentItem = playerState.currentItem;
 
     return FrostedPanel(
       color: AppColors.queueOverlay,
@@ -62,10 +62,10 @@ class QueuePanel extends ConsumerWidget {
                 itemCount: playerState.queue.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 2),
                 itemBuilder: (context, index) {
-                  final track = playerState.queue[index];
-                  final isCurrent = track.id == currentTrack?.id;
+                  final item = playerState.queue[index];
+                  final isCurrent = item.id == currentItem?.id;
                   return _QueueTrackTile(
-                    track: track,
+                    item: item,
                     isCurrent: isCurrent,
                     onTap: () => ref
                         .read(playerUiStateProvider.notifier)
@@ -83,12 +83,12 @@ class QueuePanel extends ConsumerWidget {
 
 class _QueueTrackTile extends StatefulWidget {
   const _QueueTrackTile({
-    required this.track,
+    required this.item,
     required this.isCurrent,
     required this.onTap,
   });
 
-  final Track track;
+  final PlayableItem item;
   final bool isCurrent;
   final VoidCallback onTap;
 
@@ -125,8 +125,9 @@ class _QueueTrackTileState extends State<_QueueTrackTile> {
                 ),
               CoverArt(
                 size: 40,
-                seed: widget.track.id,
-                imagePath: widget.track.albumArtUrl,
+                seed: widget.item.id,
+                imagePath: widget.item.libraryTrack?.albumArtUrl,
+                imageUrl: widget.item.thumbnailUrl,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -134,7 +135,7 @@ class _QueueTrackTileState extends State<_QueueTrackTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.track.title,
+                      widget.item.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -147,7 +148,7 @@ class _QueueTrackTileState extends State<_QueueTrackTile> {
                       ),
                     ),
                     Text(
-                      widget.track.artist,
+                      widget.item.artist,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

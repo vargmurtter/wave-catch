@@ -1,5 +1,5 @@
 name: music_player
-description: "Wave Catch — desktop music player."
+description: "Wave Catch — local-first desktop music player with optional YouTube Music discovery."
 publish_to: 'none'
 version: 0.1.0
 
@@ -47,3 +47,8 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/images/
+    - assets/bin/linux/
+    - assets/bin/macos/
+    - assets/bin/windows/

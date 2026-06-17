@@ -13,6 +13,7 @@ class CoverArt extends StatelessWidget {
     this.circular = false,
     this.seed,
     this.imagePath,
+    this.imageUrl,
   });
 
   final double size;
@@ -20,10 +21,34 @@ class CoverArt extends StatelessWidget {
   final bool circular;
   final String? seed;
   final String? imagePath;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    final imageFile = _resolveImageFile(imagePath);
+    final clip = circular
+        ? BorderRadius.circular(size / 2)
+        : BorderRadius.circular(borderRadius);
+    final networkUrl = _resolveNetworkUrl(imageUrl);
+    final imageFile = _resolveImageFile(imagePath) ?? _resolveImageFile(imageUrl);
+
+    if (networkUrl != null) {
+      return ClipRRect(
+        borderRadius: clip,
+        child: Image.network(
+          networkUrl,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _PlaceholderCover(
+            size: size,
+            borderRadius: borderRadius,
+            circular: circular,
+            seed: seed,
+          ),
+        ),
+      );
+    }
+
     if (imageFile != null) {
       return ClipRRect(
         borderRadius: circular
@@ -50,6 +75,14 @@ class CoverArt extends StatelessWidget {
       circular: circular,
       seed: seed,
     );
+  }
+
+  String? _resolveNetworkUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return null;
+    if (uri.scheme != 'http' && uri.scheme != 'https') return null;
+    return url;
   }
 
   File? _resolveImageFile(String? path) {

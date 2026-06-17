@@ -1,6 +1,8 @@
+import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
 import 'package:music_player/repositories/entities/library_entities.dart';
+import 'package:music_player/repositories/import_source_repository.dart';
 import 'package:music_player/repositories/library_database.dart';
 import 'package:music_player/services/metadata/track_metadata_override.dart';
 
@@ -12,8 +14,13 @@ class LibraryRepository {
   String? get musicRoot => _database?.musicRoot;
 
   void open(String musicRoot) {
+    final normalized = p.normalize(musicRoot);
+    if (_database != null &&
+        p.normalize(_database!.musicRoot) == normalized) {
+      return;
+    }
     close();
-    _database = LibraryDatabase.open(musicRoot);
+    _database = LibraryDatabase.open(normalized);
   }
 
   void close() {
@@ -34,6 +41,11 @@ class LibraryRepository {
     track_number, genre, format, bitrate, cover_path,
     file_modified_ms, indexed_at_ms, featured_artists, album_artist, disc_number
   ''';
+
+  LibraryDatabase get requireDatabase => _db;
+
+  ImportSourceRepository get importSourceRepository =>
+      ImportSourceRepository(this);
 
   List<ArtistRecord> getArtists() {
     final rows = _db.db.select('SELECT id, name, cover_path FROM artists ORDER BY name');
@@ -108,6 +120,15 @@ class LibraryRepository {
       [artistId],
     );
     return rows.map(_mapAlbum).toList();
+  }
+
+  TrackRecord? getTrackByFilePath(String filePath) {
+    final rows = _db.db.select(
+      'SELECT $_trackColumns FROM tracks WHERE file_path = ?',
+      [filePath],
+    );
+    if (rows.isEmpty) return null;
+    return _mapTrack(rows.first);
   }
 
   List<TrackRecord> getAllTracks() {
@@ -247,6 +268,53 @@ class LibraryRepository {
         track.albumArtist,
         track.discNumber,
         track.id,
+      ],
+    );
+  }
+
+  void upsertTrack(TrackRecord track) {
+    _db.db.execute(
+      '''
+      INSERT INTO tracks (
+        id, file_path, title, artist_id, album_id, duration_ms,
+        track_number, genre, format, bitrate, cover_path,
+        file_modified_ms, indexed_at_ms, featured_artists, album_artist,
+        disc_number
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        file_path = excluded.file_path,
+        title = excluded.title,
+        artist_id = excluded.artist_id,
+        album_id = excluded.album_id,
+        duration_ms = excluded.duration_ms,
+        track_number = excluded.track_number,
+        genre = excluded.genre,
+        format = excluded.format,
+        bitrate = excluded.bitrate,
+        cover_path = excluded.cover_path,
+        file_modified_ms = excluded.file_modified_ms,
+        indexed_at_ms = excluded.indexed_at_ms,
+        featured_artists = excluded.featured_artists,
+        album_artist = excluded.album_artist,
+        disc_number = excluded.disc_number
+      ''',
+      [
+        track.id,
+        track.filePath,
+        track.title,
+        track.artistId,
+        track.albumId,
+        track.durationMs,
+        track.trackNumber,
+        track.genre,
+        track.format,
+        track.bitrate,
+        track.coverPath,
+        track.fileModifiedMs,
+        track.indexedAtMs,
+        encodeFeaturedArtists(track.featuredArtists),
+        track.albumArtist,
+        track.discNumber,
       ],
     );
   }

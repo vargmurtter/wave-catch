@@ -1,9 +1,11 @@
+import 'package:music_player/ui/models/playable_item.dart';
+import 'package:music_player/ui/models/playback_mode.dart';
 import 'package:music_player/ui/models/repeat_mode.dart';
 import 'package:music_player/ui/models/track.dart';
 
 class PlayerUiState {
   const PlayerUiState({
-    this.currentTrack,
+    this.currentItem,
     this.queue = const [],
     this.queueIndex = 0,
     this.isPlaying = false,
@@ -17,8 +19,8 @@ class PlayerUiState {
 
   static const empty = PlayerUiState();
 
-  final Track? currentTrack;
-  final List<Track> queue;
+  final PlayableItem? currentItem;
+  final List<PlayableItem> queue;
   final int queueIndex;
   final bool isPlaying;
   final bool shuffleEnabled;
@@ -28,14 +30,21 @@ class PlayerUiState {
   final Duration position;
   final Duration duration;
 
+  PlaybackMode get playbackMode =>
+      currentItem?.playbackMode ?? PlaybackMode.library;
+
+  bool get isExplorePlayback => playbackMode == PlaybackMode.explore;
+
+  Track? get currentTrack => currentItem?.libraryTrack;
+
   double get progress {
     if (duration.inMilliseconds <= 0) return 0;
     return (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
   }
 
   PlayerUiState copyWith({
-    Track? currentTrack,
-    List<Track>? queue,
+    PlayableItem? currentItem,
+    List<PlayableItem>? queue,
     int? queueIndex,
     bool? isPlaying,
     bool? shuffleEnabled,
@@ -44,11 +53,11 @@ class PlayerUiState {
     bool? isQueueOpen,
     Duration? position,
     Duration? duration,
-    bool clearCurrentTrack = false,
+    bool clearCurrentItem = false,
   }) {
     return PlayerUiState(
-      currentTrack:
-          clearCurrentTrack ? null : (currentTrack ?? this.currentTrack),
+      currentItem:
+          clearCurrentItem ? null : (currentItem ?? this.currentItem),
       queue: queue ?? this.queue,
       queueIndex: queueIndex ?? this.queueIndex,
       isPlaying: isPlaying ?? this.isPlaying,

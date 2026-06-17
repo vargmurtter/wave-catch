@@ -9,6 +9,7 @@ import 'package:music_player/ui/screens/albums_screen.dart';
 import 'package:music_player/ui/screens/artist_detail_screen.dart';
 import 'package:music_player/ui/screens/artist_tracks_screen.dart';
 import 'package:music_player/ui/screens/artists_screen.dart';
+import 'package:music_player/ui/screens/explore_screen.dart';
 import 'package:music_player/ui/screens/home_screen.dart';
 import 'package:music_player/ui/screens/playlists_screen.dart';
 import 'package:music_player/ui/screens/search_screen.dart';
@@ -83,6 +84,7 @@ class _ContentArea extends ConsumerWidget {
           index: selectedNav.index,
           children: const [
             HomeScreen(),
+            ExploreScreen(),
             ArtistsScreen(),
             AlbumsScreen(),
             PlaylistsScreen(),

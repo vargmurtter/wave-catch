@@ -4,8 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:music_player/di/providers.dart';
 import 'package:music_player/l10n/app_localizations.dart';
+import 'package:music_player/ui/models/playable_item.dart';
 import 'package:music_player/ui/models/repeat_mode.dart';
-import 'package:music_player/ui/models/track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/common/cover_art.dart';
 import 'package:music_player/ui/widgets/common/frosted_panel.dart';
@@ -20,7 +20,11 @@ class PlayerBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final playerState = ref.watch(playerUiStateProvider);
     final notifier = ref.read(playerUiStateProvider.notifier);
-    final track = playerState.currentTrack;
+    final item = playerState.currentItem;
+    final isExplore = playerState.isExplorePlayback;
+    final exploreTrack = item?.exploreTrack;
+    final isSaved = exploreTrack != null &&
+        ref.watch(exploreSavedVideoIdsProvider).contains(exploreTrack.videoId);
 
     return FrostedPanel(
       color: AppColors.playerOverlay,
@@ -35,7 +39,7 @@ class PlayerBar extends ConsumerWidget {
             _ProgressBar(
               progress: playerState.progress,
               duration: playerState.duration,
-              enabled: track != null,
+              enabled: item != null,
               onSeek: notifier.seek,
             ),
             Expanded(
@@ -45,8 +49,8 @@ class PlayerBar extends ConsumerWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: track != null
-                          ? _TrackInfo(track: track)
+                      child: item != null
+                          ? _TrackInfo(item: item, isExplore: isExplore)
                           : const _EmptyTrackInfo(),
                     ),
                     Expanded(
@@ -55,7 +59,7 @@ class PlayerBar extends ConsumerWidget {
                         isPlaying: playerState.isPlaying,
                         shuffleEnabled: playerState.shuffleEnabled,
                         repeatMode: playerState.repeatMode,
-                        enabled: track != null,
+                        enabled: item != null,
                         onTogglePlayPause: notifier.togglePlayPause,
                         onToggleShuffle: notifier.toggleShuffle,
                         onCycleRepeat: notifier.cycleRepeatMode,
@@ -65,10 +69,25 @@ class PlayerBar extends ConsumerWidget {
                     ),
                     Expanded(
                       flex: 3,
-                      child: _RightControls(
-                        volume: playerState.volume,
-                        onVolumeChanged: notifier.setVolume,
-                        onToggleQueue: notifier.toggleQueue,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (isExplore && exploreTrack != null && !isSaved)
+                            TextButton.icon(
+                              onPressed: () => ref
+                                  .read(exploreSaveProvider.notifier)
+                                  .save(exploreTrack),
+                              icon: const Icon(LucideIcons.download, size: 16),
+                              label: Text(
+                                AppLocalizations.of(context).exploreSaveToLibrary,
+                              ),
+                            ),
+                          _RightControls(
+                            volume: playerState.volume,
+                            onVolumeChanged: notifier.setVolume,
+                            onToggleQueue: notifier.toggleQueue,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -180,34 +199,69 @@ class _EmptyTrackInfo extends StatelessWidget {
 }
 
 class _TrackInfo extends StatelessWidget {
-  const _TrackInfo({required this.track});
+  const _TrackInfo({required this.item, required this.isExplore});
 
-  final Track track;
+  final PlayableItem item;
+  final bool isExplore;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final libraryTrack = item.libraryTrack;
+
     return Row(
       children: [
-        CoverArt(size: 56, seed: track.id, imagePath: track.albumArtUrl),
+        CoverArt(
+          size: 56,
+          seed: item.id,
+          imagePath: libraryTrack?.albumArtUrl,
+          imageUrl: item.thumbnailUrl,
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                track.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+              Row(
+                children: [
+                  if (isExplore)
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        l10n.explorePreview,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.accent,
+                        ),
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 4),
               Text(
-                track.artist,
+                item.artist,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
