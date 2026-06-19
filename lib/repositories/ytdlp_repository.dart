@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:music_player/repositories/ytdlp_auth_settings.dart';
 import 'package:music_player/repositories/ytdlp_binary_resolver.dart';
+import 'package:path/path.dart' as p;
 
 class YtdlpException implements Exception {
   YtdlpException(this.message);
@@ -27,6 +28,8 @@ class YtdlpRepository {
   })  : _resolver = resolver ?? YtdlpBinaryResolver(),
         _authSettings = authSettings ?? (() => const YtdlpAuthSettings());
 
+  static const _audioFormat = 'ba*[acodec!=none]/ba[acodec!=none]/b/w';
+
   final YtdlpBinaryResolver _resolver;
   final YtdlpAuthSettings Function() _authSettings;
   final Map<String, _CacheEntry> _streamCache = {};
@@ -42,7 +45,7 @@ class YtdlpRepository {
   Future<String> getStreamUrl(String watchUrl, {String quality = 'bestaudio'}) async {
     final fmt = quality == 'worstaudio'
         ? 'worstaudio/worstaudio*/worst'
-        : 'bestaudio/bestaudio*/best';
+        : _audioFormat;
     final cacheKey = 'audio:$watchUrl:$fmt';
     final cached = _getCached(cacheKey);
     if (cached != null) return cached;
@@ -52,6 +55,7 @@ class YtdlpRepository {
       binary.path,
       [
         ..._buildAuthArgs(),
+        ..._buildFfmpegArgs(),
         '-f',
         fmt,
         '--get-url',
@@ -60,6 +64,7 @@ class YtdlpRepository {
         '--no-check-certificates',
         watchUrl,
       ],
+      environment: _processEnvironment(),
       runInShell: Platform.isWindows,
     ).timeout(const Duration(seconds: 30));
 
@@ -94,8 +99,9 @@ class YtdlpRepository {
       binary.path,
       [
         ..._buildAuthArgs(),
+        ..._buildFfmpegArgs(),
         '-f',
-        'bestaudio/bestaudio*/best',
+        _audioFormat,
         '-x',
         '--audio-format',
         'mp3',
@@ -109,6 +115,7 @@ class YtdlpRepository {
         outputTemplate,
         watchUrl,
       ],
+      environment: _processEnvironment(),
       runInShell: Platform.isWindows,
     );
 
@@ -211,5 +218,37 @@ class YtdlpRepository {
         if (browser.isEmpty) return const [];
         return ['--cookies-from-browser', browser];
     }
+  }
+
+  List<String> _buildFfmpegArgs() {
+    const candidates = [
+      '/opt/homebrew/bin',
+      '/usr/local/bin',
+      '/usr/bin',
+    ];
+    for (final dir in candidates) {
+      if (File(p.join(dir, 'ffmpeg')).existsSync()) {
+        return ['--ffmpeg-location', dir];
+      }
+    }
+    return const [];
+  }
+
+  Map<String, String> _processEnvironment() {
+    final env = Map<String, String>.from(Platform.environment);
+    final extras = <String>[
+      if (Platform.isMacOS) ...['/opt/homebrew/bin', '/usr/local/bin'],
+      if (Platform.isLinux) '/usr/local/bin',
+      if (env['HOME'] != null) p.join(env['HOME']!, '.local', 'bin'),
+    ];
+    final segments = <String>{
+      for (final segment in [
+        ...extras,
+        ...(env['PATH'] ?? '').split(Platform.pathSeparator),
+      ])
+        if (segment.trim().isNotEmpty) segment.trim(),
+    };
+    env['PATH'] = segments.join(Platform.pathSeparator);
+    return env;
   }
 }

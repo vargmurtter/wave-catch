@@ -141,7 +141,7 @@
   "exploreInLibrary": "В библиотеке",
   "exploreSaving": "Сохранение…",
   "exploreSaveFailed": "Не удалось сохранить трек",
-  "exploreYtdlpMissing": "Для стриминга и сохранения нужен yt-dlp. Установите через Homebrew (brew install yt-dlp) или запустите scripts/fetch_ytdlp.sh перед сборкой.",
+  "exploreYtdlpMissing": "Для превью и сохранения треков нужен yt-dlp. Переустановите приложение или установите yt-dlp в систему: brew install yt-dlp",
   "exploreLibraryEmptyHint": "Добавьте музыку в библиотеку, чтобы получать рекомендации.",
   "exploreNoResults": "Треки не найдены",
   "exploreOffline": "Нет подключения к сети",

@@ -869,7 +869,7 @@ abstract class AppLocalizations {
   /// No description provided for @exploreYtdlpMissing.
   ///
   /// In en, this message translates to:
-  /// **'yt-dlp is required for streaming and saving. Install it with Homebrew (brew install yt-dlp) or run scripts/fetch_ytdlp.sh before building.'**
+  /// **'yt-dlp is required for preview and saving tracks. Reinstall the app or install yt-dlp system-wide: brew install yt-dlp'**
   String get exploreYtdlpMissing;
 
   /// No description provided for @exploreLibraryEmptyHint.

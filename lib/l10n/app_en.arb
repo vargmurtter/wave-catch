@@ -189,7 +189,7 @@
   "exploreInLibrary": "In library",
   "exploreSaving": "Saving…",
   "exploreSaveFailed": "Failed to save track",
-  "exploreYtdlpMissing": "yt-dlp is required for streaming and saving. Install it with Homebrew (brew install yt-dlp) or run scripts/fetch_ytdlp.sh before building.",
+  "exploreYtdlpMissing": "yt-dlp is required for preview and saving tracks. Reinstall the app or install yt-dlp system-wide: brew install yt-dlp",
   "exploreLibraryEmptyHint": "Add music to your library to get personalized recommendations.",
   "exploreNoResults": "No tracks found",
   "exploreOffline": "Network is unavailable",

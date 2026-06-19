@@ -425,7 +425,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exploreYtdlpMissing =>
-      'yt-dlp is required for streaming and saving. Install it with Homebrew (brew install yt-dlp) or run scripts/fetch_ytdlp.sh before building.';
+      'yt-dlp is required for preview and saving tracks. Reinstall the app or install yt-dlp system-wide: brew install yt-dlp';
 
   @override
   String get exploreLibraryEmptyHint =>

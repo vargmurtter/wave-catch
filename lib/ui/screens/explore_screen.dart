@@ -30,7 +30,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ytdlpAvailable = ref.watch(ytdlpAvailableProvider).value ?? false;
+    final ytdlpAvailability = ref.watch(ytdlpAvailableProvider);
     final recommendations = ref.watch(exploreRecommendationsProvider);
     final query = _searchController.text.trim();
     final searchResults = query.isEmpty
@@ -57,14 +57,26 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
             ),
           ),
-          if (!ytdlpAvailable)
-            Padding(
+          ytdlpAvailability.when(
+            data: (available) {
+              if (available) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: _InfoBanner(
+                  icon: LucideIcons.circleAlert,
+                  message: l10n.exploreYtdlpMissing,
+                ),
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: _InfoBanner(
                 icon: LucideIcons.circleAlert,
                 message: l10n.exploreYtdlpMissing,
               ),
             ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(32, 8, 32, 16),
             child: TextField(

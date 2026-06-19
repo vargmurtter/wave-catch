@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="$ROOT_DIR/assets/bin"
-VERSION="${YTDLP_VERSION:-2025.12.08}"
+VERSION="${YTDLP_VERSION:-2026.06.09}"
 
 mkdir -p "$BIN_DIR/linux" "$BIN_DIR/macos" "$BIN_DIR/windows"
 

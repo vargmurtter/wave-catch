@@ -123,7 +123,7 @@ docs/             # документация (этот файл и др.)
 | `LastFmApiRepository` | Repository | *(неактивно)* HTTP-запросы к Last.fm API |
 | `YtmInnerTubeRepository` | Repository | YouTube Music: поиск, подсказки, Up Next, топ артиста (InnerTube) |
 | `YtdlpRepository` | Repository | stream URL и скачивание аудио через yt-dlp |
-| `YtdlpBinaryResolver` | Repository | поиск бинарника: bundle → Application Support → PATH |
+| `YtdlpBinaryResolver` | Repository | поиск бинарника: bundle (in-place) → Linux fallback → PATH |
 | `ImportSourceRepository` | Repository | связь `video_id` ↔ локальный файл (`import_sources`) |
 | `ExploreService` | Service | поиск и рекомендации в разделе «Исследование» |
 | `TrackImportService` | Service | сохранение трека из Explore в `{musicRoot}/Imports/` |

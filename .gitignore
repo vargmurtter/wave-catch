@@ -58,6 +58,9 @@ app.*.map.json
 # --- Local runtime data (cache, dev DB, downloaded assets) ---
 .local/
 
+# --- yt-dlp binaries (fetched via scripts/fetch_ytdlp.sh before release builds) ---
+assets/bin/
+
 # --- Miscellaneous build artifacts ---
 *.class
 *.log

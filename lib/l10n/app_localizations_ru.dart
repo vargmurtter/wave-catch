@@ -427,7 +427,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get exploreYtdlpMissing =>
-      'Для стриминга и сохранения нужен yt-dlp. Установите через Homebrew (brew install yt-dlp) или запустите scripts/fetch_ytdlp.sh перед сборкой.';
+      'Для превью и сохранения треков нужен yt-dlp. Переустановите приложение или установите yt-dlp в систему: brew install yt-dlp';
 
   @override
   String get exploreLibraryEmptyHint =>

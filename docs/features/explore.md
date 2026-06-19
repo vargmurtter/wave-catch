@@ -68,9 +68,9 @@ ImportSourceRepository.upsert → LibraryService.refresh
 
 Порядок поиска:
 
-1. Кэш в Application Support (`.wave_catcher/bin/`)
-2. Бандл из `assets/bin/{linux,macos,windows}/` — копируется при первом запуске
-3. Системный PATH / Homebrew (`yt-dlp`)
+1. Вшитый бинарник в bundle приложения (`flutter_assets/assets/bin/{macos,linux,windows}/`) — запускается напрямую, без копирования
+2. Linux fallback: если файл в bundle не исполняемый — `chmod +x` или однократная копия в `.wave_catcher/bin/`
+3. Системный PATH / Homebrew (`yt-dlp`) — только если вшитого бинарника нет в сборке
 
 Подготовка бандла для разработки и релиза:
 
