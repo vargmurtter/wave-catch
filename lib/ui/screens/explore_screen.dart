@@ -9,10 +9,16 @@ import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/explore/explore_track_card.dart';
 import 'package:music_player/ui/widgets/explore/explore_track_tile.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
-import 'package:music_player/ui/widgets/home/horizontal_card_list.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
+
+  static const _gridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 180,
+    mainAxisSpacing: 16,
+    crossAxisSpacing: 16,
+    mainAxisExtent: 240,
+  );
 
   @override
   ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
@@ -161,8 +167,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 }
                 return ContentSection(
                   title: l10n.exploreYouMightLike,
-                  fullBleedChild: true,
-                  child: HorizontalCardList(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: ExploreScreen._gridDelegate,
                     itemCount: data.youMightLike.length,
                     itemBuilder: (context, index) {
                       return ExploreTrackCard(track: data.youMightLike[index]);

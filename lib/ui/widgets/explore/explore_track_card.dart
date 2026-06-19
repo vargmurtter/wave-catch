@@ -36,42 +36,50 @@ class _ExploreTrackCardState extends ConsumerState<ExploreTrackCard> {
                 .read(playerUiStateProvider.notifier)
                 .playExploreTrack(widget.track)
             : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: _isHovered
-                ? AppColors.surfaceElevated.withValues(alpha: 0.65)
-                : AppColors.surface.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ExploreTrackCover(track: widget.track, size: 136),
-              const SizedBox(height: 12),
-              Text(
-                widget.track.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final coverSize = constraints.maxWidth.isFinite
+                ? constraints.maxWidth - 24
+                : 136.0;
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _isHovered
+                    ? AppColors.surfaceElevated.withValues(alpha: 0.65)
+                    : AppColors.surface.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(8),
               ),
-              const SizedBox(height: 4),
-              Text(
-                widget.track.artist,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ExploreTrackCover(track: widget.track, size: coverSize),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.track.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.track.artist,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

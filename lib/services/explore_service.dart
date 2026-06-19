@@ -28,7 +28,7 @@ class ExploreService {
         _importSourceRepositoryFactory = importSourceRepositoryFactory;
 
   static const _maxSeeds = 5;
-  static const _maxResults = 24;
+  static const _maxResults = 30;
 
   final YtmInnerTubeRepository _ytmRepository;
   final LibraryService _libraryService;
