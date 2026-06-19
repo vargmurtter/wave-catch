@@ -1004,6 +1004,12 @@ abstract class AppLocalizations {
   /// **'Favorites'**
   String get favorites;
 
+  /// No description provided for @savedFromExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedFromExplore;
+
   /// No description provided for @addedToPlaylist.
   ///
   /// In en, this message translates to:

@@ -500,6 +500,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favorites => 'Favorites';
 
   @override
+  String get savedFromExplore => 'Saved';
+
+  @override
   String get addedToPlaylist => 'Added to playlist';
 
   @override

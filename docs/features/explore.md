@@ -11,7 +11,7 @@
 | Поиск | Запрос к YouTube Music, подсказки при вводе |
 | Результаты | Список треков с обложкой, исполнителем, длительностью |
 | Play | Превью-поток через yt-dlp; в плеере бейдж **«Превью»** |
-| Сохранить | Скачивание MP3 в библиотеку, теги, индексация |
+| Сохранить | Скачивание MP3 в библиотеку, теги, индексация; трек автоматически добавляется в системный плейлист **«Сохранённые»** |
 | В библиотеке | Трек уже сохранён — кнопка неактивна |
 | Рекомендации | «Вам может понравиться» — сетка карточек (до 30 треков); до 5 последних импортов из Explore → `getUpNexts` по каждому |
 | yt-dlp отсутствует | Подсказка установить бинарник; превью и сохранение недоступны |
@@ -36,7 +36,7 @@ TrackImportService
     ↓
 YtdlpRepository.downloadAudio → MetadataFileWriter → LibraryScannerService.scanSingleFile
     ↓
-ImportSourceRepository.upsert → LibraryService.refresh
+ImportSourceRepository.upsert → PlaylistRepository.addTrack(Saved) → LibraryService.refresh
 ```
 
 ### Воспроизведение
@@ -58,8 +58,9 @@ ImportSourceRepository.upsert → LibraryService.refresh
 2. Запись тегов (`title`, `artist`, `album`, `albumArtist`, `year`, обложка с thumbnail URL).
 3. Инкрементальная индексация одного файла — `LibraryScannerService.scanSingleFile`.
 4. Запись связи `video_id` → `file_path` в таблицу `import_sources` (схема БД v3).
+5. Добавление трека в системный плейлист **«Сохранённые»** (`__saved_from_explore__`, схема БД v5).
 
-Повторное сохранение того же `video_id` возвращает уже проиндексированный трек.
+Повторное сохранение того же `video_id` возвращает уже проиндексированный трек и при необходимости снова добавляет его в «Сохранённые».
 
 ## yt-dlp
 

@@ -93,6 +93,9 @@ class LibraryDatabase {
     if (version < 4) {
       _migrateToV4();
     }
+    if (version < 5) {
+      _migrateToV5();
+    }
 
     _setMeta('schema_version', kLibrarySchemaVersion.toString());
     _setMeta('root_path', musicRoot);
@@ -160,6 +163,26 @@ class LibraryDatabase {
       VALUES (?, 'Favorites', 1, ?)
       ''',
       [kFavoritesPlaylistId, DateTime.now().millisecondsSinceEpoch],
+    );
+  }
+
+  void _migrateToV5() {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _db.execute(
+      '''
+      INSERT OR IGNORE INTO playlists (id, name, is_system, created_at_ms)
+      VALUES (?, 'Saved', 1, ?)
+      ''',
+      [kSavedFromExplorePlaylistId, now],
+    );
+    _db.execute(
+      '''
+      INSERT OR IGNORE INTO playlist_tracks (playlist_id, track_id, added_at_ms)
+      SELECT ?, t.id, i.saved_at_ms
+      FROM import_sources i
+      JOIN tracks t ON t.file_path = i.file_path
+      ''',
+      [kSavedFromExplorePlaylistId],
     );
   }
 

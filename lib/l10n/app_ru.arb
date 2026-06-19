@@ -172,6 +172,7 @@
   "removeFromPlaylist": "Удалить из плейлиста",
   "deletePlaylist": "Удалить плейлист",
   "favorites": "Избранное",
+  "savedFromExplore": "Сохранённые",
   "addedToPlaylist": "Добавлено в плейлист",
   "removedFromPlaylist": "Удалено из плейлиста",
   "playlistEmpty": "Плейлист пуст",

@@ -220,6 +220,7 @@
   "removeFromPlaylist": "Remove from playlist",
   "deletePlaylist": "Delete playlist",
   "favorites": "Favorites",
+  "savedFromExplore": "Saved",
   "addedToPlaylist": "Added to playlist",
   "removedFromPlaylist": "Removed from playlist",
   "playlistEmpty": "This playlist is empty",

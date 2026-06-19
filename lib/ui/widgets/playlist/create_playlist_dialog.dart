@@ -11,6 +11,9 @@ String playlistDisplayName(AppLocalizations l10n, Playlist playlist) {
   if (playlist.id == kFavoritesPlaylistId) {
     return l10n.favorites;
   }
+  if (playlist.id == kSavedFromExplorePlaylistId) {
+    return l10n.savedFromExplore;
+  }
   return playlist.name;
 }
 

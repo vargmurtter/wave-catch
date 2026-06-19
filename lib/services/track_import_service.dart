@@ -10,6 +10,7 @@ import 'package:music_player/repositories/ytdlp_repository.dart';
 import 'package:music_player/services/library_scanner_service.dart';
 import 'package:music_player/services/library_service.dart';
 import 'package:music_player/services/metadata/track_metadata_edit.dart';
+import 'package:music_player/services/scanner/scan_rules.dart';
 import 'package:music_player/services/settings_service.dart';
 import 'package:music_player/ui/models/explore_track.dart';
 import 'package:music_player/ui/models/track.dart';
@@ -57,6 +58,10 @@ class TrackImportService {
     if (existing != null) {
       final record = _libraryRepository.getTrackByFilePath(existing.filePath);
       if (record != null) {
+        _libraryRepository.playlistRepository.addTrack(
+          kSavedFromExplorePlaylistId,
+          record.id,
+        );
         return _libraryService.getTrackById(record.id)!;
       }
     }
@@ -114,6 +119,11 @@ class TrackImportService {
         filePath: downloadedPath,
         savedAtMs: DateTime.now().millisecondsSinceEpoch,
       ),
+    );
+
+    _libraryRepository.playlistRepository.addTrack(
+      kSavedFromExplorePlaylistId,
+      trackId,
     );
 
     _libraryService.refreshOverrides();

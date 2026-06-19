@@ -502,6 +502,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get favorites => 'Избранное';
 
   @override
+  String get savedFromExplore => 'Сохранённые';
+
+  @override
   String get addedToPlaylist => 'Добавлено в плейлист';
 
   @override
