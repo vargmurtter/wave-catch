@@ -20,6 +20,7 @@ class LibraryDatabase {
       dbDir.createSync(recursive: true);
     }
     final db = sqlite3.open(dbPath);
+    db.execute('PRAGMA foreign_keys = ON');
     final instance = LibraryDatabase(db, musicRoot);
     instance._migrate();
     return instance;

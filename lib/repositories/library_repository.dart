@@ -347,7 +347,7 @@ class LibraryRepository {
     ''');
   }
 
-  void replaceLibrary({
+  void syncLibrary({
     required List<ArtistRecord> artists,
     required List<AlbumRecord> albums,
     required List<TrackRecord> tracks,
@@ -357,57 +357,29 @@ class LibraryRepository {
     db.execute('BEGIN IMMEDIATE');
 
     try {
-      db.execute('DELETE FROM tracks');
-      db.execute('DELETE FROM albums');
-      db.execute('DELETE FROM artists');
-
       for (final artist in artists) {
-        db.execute(
-          'INSERT INTO artists (id, name, cover_path) VALUES (?, ?, ?)',
-          [artist.id, artist.name, artist.coverPath],
-        );
+        upsertArtist(artist);
       }
 
       for (final album in albums) {
-        db.execute(
-          '''
-          INSERT INTO albums (id, title, artist_id, year, cover_path)
-          VALUES (?, ?, ?, ?, ?)
-          ''',
-          [album.id, album.title, album.artistId, album.year, album.coverPath],
-        );
+        upsertAlbum(album);
       }
 
       for (final track in tracks) {
-        db.execute(
-          '''
-          INSERT INTO tracks (
-            id, file_path, title, artist_id, album_id, duration_ms,
-            track_number, genre, format, bitrate, cover_path,
-            file_modified_ms, indexed_at_ms, featured_artists, album_artist,
-            disc_number
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ''',
-          [
-            track.id,
-            track.filePath,
-            track.title,
-            track.artistId,
-            track.albumId,
-            track.durationMs,
-            track.trackNumber,
-            track.genre,
-            track.format,
-            track.bitrate,
-            track.coverPath,
-            track.fileModifiedMs,
-            track.indexedAtMs,
-            encodeFeaturedArtists(track.featuredArtists),
-            track.albumArtist,
-            track.discNumber,
-          ],
-        );
+        upsertTrack(track);
       }
+
+      final existingRows = db.select('SELECT id, file_path FROM tracks');
+      for (final row in existingRows) {
+        final filePath = row['file_path'] as String;
+        if (!scannedFilePaths.contains(filePath)) {
+          db.execute('DELETE FROM tracks WHERE id = ?', [row['id'] as String]);
+        }
+      }
+
+      deleteOrphanedArtistsAndAlbums();
+      _deleteOrphanPlaylistTracks();
+      _deleteOrphanImportSources();
 
       _db.setLastScanAt(DateTime.now());
       db.execute('COMMIT');
@@ -415,6 +387,20 @@ class LibraryRepository {
       db.execute('ROLLBACK');
       rethrow;
     }
+  }
+
+  void _deleteOrphanPlaylistTracks() {
+    _db.db.execute('''
+      DELETE FROM playlist_tracks
+      WHERE track_id NOT IN (SELECT id FROM tracks)
+    ''');
+  }
+
+  void _deleteOrphanImportSources() {
+    _db.db.execute('''
+      DELETE FROM import_sources
+      WHERE file_path NOT IN (SELECT file_path FROM tracks)
+    ''');
   }
 
   static String _normalizeQueryInput(String query) {

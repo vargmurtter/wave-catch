@@ -54,7 +54,7 @@ class LibraryPersister {
         )
         .toList();
 
-    _libraryRepository.replaceLibrary(
+    _libraryRepository.syncLibrary(
       artists: artists,
       albums: albums,
       tracks: tracks,

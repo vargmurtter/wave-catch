@@ -103,7 +103,7 @@ ScanJob → FileDiscovery → MetadataExtractor → TagTextFixer → EntityResol
 | `album_grouping.dart` | расчёт `albumId` и исполнителя альбома |
 | `album_grouping_strategy.dart` | enum стратегий, тексты для UI |
 | `cover_art_resolver.dart` | обложки треков и альбомов |
-| `library_persister.dart` | запись в SQLite |
+| `library_persister.dart` | sync индекса в SQLite (`syncLibrary`) |
 | `library_scanner_service.dart` | оркестратор, прогресс, `scanSingleFile` |
 
 ## Инкрементальная индексация одного файла
@@ -116,6 +116,30 @@ ScanJob → FileDiscovery → MetadataExtractor → TagTextFixer → EntityResol
 4. после записи в `import_sources` — `LibraryService.refreshOverrides()`
 
 Подробности импорта: [explore.md](explore.md).
+
+## Пересканирование (rescan)
+
+Полный rescan (**Настройки → Пересканировать**) синхронизирует индекс с диском, а не пересоздаёт базу с нуля.
+
+`LibraryPersister` вызывает `LibraryRepository.syncLibrary`:
+
+1. **Upsert** всех найденных `artists`, `albums`, `tracks` (как `scanSingleFile`).
+2. **Удаление** из индекса треков, чьих `file_path` нет среди результатов сканирования.
+3. **`deleteOrphanedArtistsAndAlbums()`** — очистка альбомов/исполнителей без треков (например, после смены стратегии группировки).
+4. Очистка orphan-записей в `playlist_tracks` и `import_sources` для удалённых треков.
+
+| Данные | Поведение при rescan |
+|--------|----------------------|
+| Файлы на диске | Перечитываются; метаданные и обложки обновляются |
+| `trackId` | Стабилен, пока путь файла не менялся (`hash(filePath)`) |
+| Плейлисты, «Избранное», «Сохранённые» | **Сохраняются** для треков, файлы которых на месте |
+| Треки с удалёнными файлами | Убираются из индекса и из плейлистов |
+| `import_sources` (Explore) | Orphan-записи для отсутствующих файлов удаляются |
+| `indexed_at_ms` | Обновляется для всех просканированных треков |
+
+При открытии `library.db` включён `PRAGMA foreign_keys = ON` — каскадное удаление связей плейлиста при удалении трека работает предсказуемо.
+
+Папка `Imports/` (треки из Explore) сканируется наравне с остальной библиотекой.
 
 ## Слои
 
@@ -154,9 +178,8 @@ flutter run -d macos
 
 ## Вне scope
 
-- Плейлисты (остаются на моках)
 - Полный инкрементальный rescan по `file_modified_ms` (только точечный `scanSingleFile`)
-- «Недавно проигранные» / избранное
+- «Недавно проигранные»
 
 Воспроизведение реализовано отдельно: [player.md](player.md).  
 Импорт из YouTube Music: [explore.md](explore.md).
