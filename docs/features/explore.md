@@ -13,9 +13,10 @@
 | Play | Превью-поток через yt-dlp; в плеере бейдж **«Превью»** |
 | Сохранить | Скачивание MP3 в библиотеку, теги, индексация |
 | В библиотеке | Трек уже сохранён — кнопка неактивна |
-| Рекомендации | Топ-исполнители из библиотеки → Up Next / топ треков артиста |
+| Рекомендации | «Вам может понравиться» — горизонтальный ряд карточек; до 5 последних импортов из Explore → `getUpNexts` по каждому |
 | yt-dlp отсутствует | Подсказка установить бинарник; превью и сохранение недоступны |
 | Пустая библиотека | Подсказка добавить музыку для рекомендаций |
+| Нет импортов из Explore | Подсказка сохранить треки из поиска |
 
 ## Архитектура
 
@@ -25,7 +26,7 @@ ExploreScreen (UI)
 exploreServiceProvider, ytdlpAvailableProvider
     ↓
 ExploreService ──────────────► YtmInnerTubeRepository (InnerTube API)
-    │                              search, suggestions, Up Next, artist top
+    │                              search, suggestions, Up Next
     ├── LibraryService / LibraryRepository (savedVideoIds, рекомендации)
     └── ImportSourceRepository (video_id ↔ file_path)
 
@@ -98,12 +99,11 @@ ImportSourceRepository.upsert → LibraryService.refresh
 
 ## YouTube Music API
 
-`YtmInnerTubeRepository` — прямые запросы к InnerTube (как в Snowify), без официального YouTube Data API:
+`YtmInnerTubeRepository` — прямые запросы к InnerTube, без официального YouTube Data API:
 
 - `searchSongs` — поиск треков
 - `searchSuggestions` — подсказки
-- `getUpNexts` — похожие / Up Next
-- `getArtistTopSongs` — топ треков исполнителя
+- `getUpNexts` — похожие / Up Next (радио от seed-трека)
 
 Модель UI: `ExploreTrack` (`videoId`, `watchUrl`, `thumbnailUrl`, `title`, `artist`, `album`, `duration`, …).
 
@@ -124,7 +124,8 @@ ImportSourceRepository.upsert → LibraryService.refresh
 | Файл | Назначение |
 |------|------------|
 | `lib/ui/screens/explore_screen.dart` | Экран раздела |
-| `lib/ui/widgets/explore/explore_track_tile.dart` | Строка трека |
+| `lib/ui/widgets/explore/explore_track_tile.dart` | Строка трека (поиск) |
+| `lib/ui/widgets/explore/explore_track_card.dart` | Карточка трека (рекомендации) |
 | `lib/ui/models/explore_track.dart` | Модель трека YouTube Music |
 | `lib/ui/models/playable_item.dart` | `LocalPlayableItem` / `RemotePlayableItem` |
 | `lib/ui/models/playback_mode.dart` | `library` / `explore` |
@@ -151,7 +152,7 @@ ImportSourceRepository.upsert → LibraryService.refresh
 ## Ограничения (MVP)
 
 - Только поиск треков; альбомы и плейлисты YouTube Music не реализованы.
-- Рекомендации: топ-3 исполнителя из библиотеки + Up Next; без Charts/Moods.
+- Рекомендации: 5 последних импортов из Explore → `getUpNexts` → round-robin merge (до 24 треков); без Charts/Moods.
 - Нет обогащения MusicBrainz при импорте.
 - Нет codesign yt-dlp на macOS — при блокировке Gatekeeper использовать Homebrew или разрешить вручную.
 - Превью требует сеть; локальная библиотека работает офлайн.

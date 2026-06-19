@@ -818,17 +818,17 @@ abstract class AppLocalizations {
   /// **'Search YouTube Music…'**
   String get exploreSearchHint;
 
-  /// No description provided for @exploreRecommendations.
+  /// No description provided for @exploreYouMightLike.
   ///
   /// In en, this message translates to:
-  /// **'Recommended for you'**
-  String get exploreRecommendations;
+  /// **'You might like'**
+  String get exploreYouMightLike;
 
-  /// No description provided for @exploreSimilar.
+  /// No description provided for @exploreNoImportsHint.
   ///
   /// In en, this message translates to:
-  /// **'Similar tracks'**
-  String get exploreSimilar;
+  /// **'Save tracks from search to get recommendations'**
+  String get exploreNoImportsHint;
 
   /// No description provided for @exploreSearchResults.
   ///
@@ -859,6 +859,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saving…'**
   String get exploreSaving;
+
+  /// No description provided for @exploreLoadingPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading preview…'**
+  String get exploreLoadingPreview;
 
   /// No description provided for @exploreSaveFailed.
   ///

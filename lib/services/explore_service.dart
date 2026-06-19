@@ -3,18 +3,17 @@ import 'package:music_player/repositories/library_repository.dart';
 import 'package:music_player/repositories/ytm_innertube_repository.dart';
 import 'package:music_player/services/library_service.dart';
 import 'package:music_player/ui/models/explore_track.dart';
-import 'package:music_player/ui/models/track.dart';
 
 class ExploreRecommendations {
   const ExploreRecommendations({
-    this.recommended = const [],
-    this.similar = const [],
+    this.youMightLike = const [],
     this.libraryEmpty = false,
+    this.noExploreImports = false,
   });
 
-  final List<ExploreTrack> recommended;
-  final List<ExploreTrack> similar;
+  final List<ExploreTrack> youMightLike;
   final bool libraryEmpty;
+  final bool noExploreImports;
 }
 
 class ExploreService {
@@ -27,6 +26,9 @@ class ExploreService {
         _libraryService = libraryService,
         _libraryRepository = libraryRepository,
         _importSourceRepositoryFactory = importSourceRepositoryFactory;
+
+  static const _maxSeeds = 5;
+  static const _maxResults = 24;
 
   final YtmInnerTubeRepository _ytmRepository;
   final LibraryService _libraryService;
@@ -57,64 +59,61 @@ class ExploreService {
       return const ExploreRecommendations(libraryEmpty: true);
     }
 
+    if (!_libraryRepository.isOpen) {
+      return const ExploreRecommendations(noExploreImports: true);
+    }
+
+    final seedVideoIds = _importSourceRepositoryFactory()
+        .getAll()
+        .take(_maxSeeds)
+        .map((record) => record.videoId)
+        .toList();
+
+    if (seedVideoIds.isEmpty) {
+      return const ExploreRecommendations(noExploreImports: true);
+    }
+
     final savedIds = savedVideoIds();
-    final artistCounts = <String, ({String name, int count})>{};
-    for (final track in tracks) {
-      final entry = artistCounts[track.artistId];
-      if (entry == null) {
-        artistCounts[track.artistId] = (name: track.artist, count: 1);
-      } else {
-        artistCounts[track.artistId] = (
-          name: entry.name,
-          count: entry.count + 1,
-        );
-      }
-    }
-
-    final topArtists = artistCounts.entries.toList()
-      ..sort((a, b) => b.value.count.compareTo(a.value.count));
-
-    final recommended = <ExploreTrack>[];
-    final knownVideoIds = <String>{...savedIds};
-
-    for (final entry in topArtists.take(3)) {
-      final topSongs = await _ytmRepository.getArtistTopSongs(entry.key);
-      for (final song in topSongs) {
-        if (knownVideoIds.contains(song.videoId)) continue;
-        recommended.add(song);
-        knownVideoIds.add(song.videoId);
-        if (recommended.length >= 8) break;
-      }
-      if (recommended.length >= 8) break;
-    }
-
-    final seedVideoId = await _resolveSeedVideoId(tracks, savedIds);
-    final similar = seedVideoId != null
-        ? (await _ytmRepository.getUpNexts(seedVideoId))
-            .where((t) => !savedIds.contains(t.videoId))
-            .take(12)
-            .toList()
-        : <ExploreTrack>[];
-
-    return ExploreRecommendations(
-      recommended: recommended,
-      similar: similar,
+    final excludeIds = {...savedIds, ...seedVideoIds};
+    final upNextLists = await Future.wait(
+      seedVideoIds.map(_ytmRepository.getUpNexts),
     );
+
+    final youMightLike = _mergeUpNexts(
+      upNextLists: upNextLists,
+      excludeIds: excludeIds,
+      maxResults: _maxResults,
+    );
+
+    return ExploreRecommendations(youMightLike: youMightLike);
   }
 
-  Future<String?> _resolveSeedVideoId(
-    List<Track> tracks,
-    Set<String> savedIds,
-  ) async {
-    if (!_libraryRepository.isOpen) return null;
-    final importRepo = _importSourceRepositoryFactory();
-    for (final record in importRepo.getAll()) {
-      return record.videoId;
+  List<ExploreTrack> _mergeUpNexts({
+    required List<List<ExploreTrack>> upNextLists,
+    required Set<String> excludeIds,
+    required int maxResults,
+  }) {
+    final results = <ExploreTrack>[];
+    final seen = Set<String>.from(excludeIds);
+    final indices = List<int>.filled(upNextLists.length, 0);
+    var hasMore = true;
+
+    while (hasMore && results.length < maxResults) {
+      hasMore = false;
+      for (var i = 0; i < upNextLists.length; i++) {
+        final list = upNextLists[i];
+        while (indices[i] < list.length) {
+          final track = list[indices[i]++];
+          if (seen.add(track.videoId)) {
+            results.add(track);
+            if (results.length >= maxResults) return results;
+            break;
+          }
+        }
+        if (indices[i] < list.length) hasMore = true;
+      }
     }
 
-    final seed = tracks.first;
-    final results = await _ytmRepository.searchSongs('${seed.artist} ${seed.title}');
-    if (results.isEmpty) return null;
-    return results.first.videoId;
+    return results;
   }
 }

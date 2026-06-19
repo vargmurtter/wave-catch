@@ -54,6 +54,7 @@ class PlayerService {
     List<PlayableItem>? queue,
     int? queueIndex,
     bool? isPlaying,
+    bool? isLoading,
     bool? shuffleEnabled,
     RepeatMode? repeatMode,
     double? volume,
@@ -68,6 +69,7 @@ class PlayerService {
         queue: queue,
         queueIndex: queueIndex,
         isPlaying: isPlaying,
+        isLoading: isLoading,
         shuffleEnabled: shuffleEnabled,
         repeatMode: repeatMode,
         volume: volume,
@@ -186,11 +188,13 @@ class PlayerService {
     if (index < 0 || index >= activeQueue.length) return;
 
     final item = activeQueue[index];
+    final isRemote = item is RemotePlayableItem;
     _patch(
       currentItem: item,
       queue: activeQueue,
       queueIndex: index,
-      isPlaying: true,
+      isPlaying: false,
+      isLoading: isRemote,
       position: Duration.zero,
       duration: item.duration,
     );
@@ -199,6 +203,7 @@ class PlayerService {
       final media = await _resolveMedia(item);
       await _player.open(media);
       await _player.play();
+      _patch(isLoading: false, isPlaying: true);
     } on Object {
       if (item is RemotePlayableItem) {
         _streamUrlByVideoId.remove(item.track.videoId);
@@ -207,12 +212,13 @@ class PlayerService {
           final media = await _resolveMedia(item, forceRefresh: true);
           await _player.open(media);
           await _player.play();
+          _patch(isLoading: false, isPlaying: true);
           return;
         } on Object {
-          _patch(isPlaying: false);
+          _patch(isLoading: false, isPlaying: false);
         }
       } else {
-        _patch(isPlaying: false);
+        _patch(isLoading: false, isPlaying: false);
       }
     }
   }
@@ -436,6 +442,7 @@ class PlayerService {
       currentItem: LocalPlayableItem(track),
       queue: queue,
       duration: track.duration,
+      isLoading: false,
     );
 
     await _player.open(Media(track.filePath));

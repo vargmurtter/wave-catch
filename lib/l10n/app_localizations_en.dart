@@ -400,10 +400,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exploreSearchHint => 'Search YouTube Music…';
 
   @override
-  String get exploreRecommendations => 'Recommended for you';
+  String get exploreYouMightLike => 'You might like';
 
   @override
-  String get exploreSimilar => 'Similar tracks';
+  String get exploreNoImportsHint =>
+      'Save tracks from search to get recommendations';
 
   @override
   String get exploreSearchResults => 'Search results';
@@ -419,6 +420,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exploreSaving => 'Saving…';
+
+  @override
+  String get exploreLoadingPreview => 'Loading preview…';
 
   @override
   String get exploreSaveFailed => 'Failed to save track';

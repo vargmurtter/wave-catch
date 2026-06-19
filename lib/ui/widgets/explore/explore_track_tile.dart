@@ -6,7 +6,7 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/explore_track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
-import 'package:music_player/ui/widgets/common/cover_art.dart';
+import 'package:music_player/ui/widgets/explore/explore_track_cover.dart';
 
 class ExploreTrackTile extends ConsumerWidget {
   const ExploreTrackTile({super.key, required this.track});
@@ -26,6 +26,9 @@ class ExploreTrackTile extends ConsumerWidget {
     final isSaved = ref.watch(exploreSavedVideoIdsProvider).contains(track.videoId);
     final savingVideoId = ref.watch(exploreSavingVideoIdProvider);
     final isSaving = savingVideoId == track.videoId;
+    final loadingVideoId = ref.watch(exploreLoadingVideoIdProvider);
+    final isLoading = loadingVideoId == track.videoId;
+    final canPlay = ytdlpAvailable && !isSaving && !isLoading;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
@@ -33,7 +36,7 @@ class ExploreTrackTile extends ConsumerWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: ytdlpAvailable && !isSaving
+          onTap: canPlay
               ? () => ref
                   .read(playerUiStateProvider.notifier)
                   .playExploreTrack(track)
@@ -42,11 +45,7 @@ class ExploreTrackTile extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
               children: [
-                CoverArt(
-                  size: 48,
-                  seed: track.videoId,
-                  imageUrl: track.thumbnailUrl,
-                ),
+                ExploreTrackCover(track: track, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -128,13 +127,19 @@ class ExploreTrackTile extends ConsumerWidget {
                     ),
                   ),
                 IconButton(
-                  onPressed: ytdlpAvailable && !isSaving
+                  onPressed: canPlay
                       ? () => ref
                           .read(playerUiStateProvider.notifier)
                           .playExploreTrack(track)
                       : null,
-                  icon: const Icon(LucideIcons.play, size: 18),
-                  tooltip: l10n.play,
+                  icon: isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(LucideIcons.play, size: 18),
+                  tooltip: isLoading ? l10n.exploreLoadingPreview : l10n.play,
                   color: AppColors.textSecondary,
                 ),
               ],

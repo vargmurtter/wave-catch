@@ -731,6 +731,12 @@ class PlayerUiStateNotifier extends Notifier<PlayerUiState> {
   Future<void> jumpToIndex(int index) => _service.jumpToIndex(index);
 }
 
+final exploreLoadingVideoIdProvider = Provider<String?>((ref) {
+  final state = ref.watch(playerUiStateProvider);
+  if (!state.isLoading || !state.isExplorePlayback) return null;
+  return state.currentItem?.exploreTrack?.videoId;
+});
+
 final libraryRouteProvider =
     NotifierProvider<LibraryRouteNotifier, List<LibraryRoute>>(
   LibraryRouteNotifier.new,

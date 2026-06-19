@@ -6,8 +6,10 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/l10n/app_localizations.dart';
 import 'package:music_player/ui/models/explore_track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
+import 'package:music_player/ui/widgets/explore/explore_track_card.dart';
 import 'package:music_player/ui/widgets/explore/explore_track_tile.dart';
 import 'package:music_player/ui/widgets/home/content_section.dart';
+import 'package:music_player/ui/widgets/home/horizontal_card_list.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -145,35 +147,27 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     ),
                   );
                 }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (data.recommended.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
-                        child: Text(
-                          l10n.exploreRecommendations,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ),
-                      ...data.recommended.map(
-                        (track) => ExploreTrackTile(track: track),
-                      ),
-                    ],
-                    if (data.similar.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
-                        child: Text(
-                          l10n.exploreSimilar,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ),
-                      ...data.similar.map(
-                        (track) => ExploreTrackTile(track: track),
-                      ),
-                    ],
-                  ],
+                if (data.noExploreImports) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: _InfoBanner(
+                      icon: LucideIcons.info,
+                      message: l10n.exploreNoImportsHint,
+                    ),
+                  );
+                }
+                if (data.youMightLike.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return ContentSection(
+                  title: l10n.exploreYouMightLike,
+                  fullBleedChild: true,
+                  child: HorizontalCardList(
+                    itemCount: data.youMightLike.length,
+                    itemBuilder: (context, index) {
+                      return ExploreTrackCard(track: data.youMightLike[index]);
+                    },
+                  ),
                 );
               },
               loading: () => const Padding(

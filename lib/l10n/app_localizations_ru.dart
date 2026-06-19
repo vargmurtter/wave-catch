@@ -402,10 +402,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get exploreSearchHint => 'Поиск в YouTube Music…';
 
   @override
-  String get exploreRecommendations => 'Рекомендации';
+  String get exploreYouMightLike => 'Вам может понравиться';
 
   @override
-  String get exploreSimilar => 'Похожие треки';
+  String get exploreNoImportsHint =>
+      'Сохраните треки из поиска, чтобы получать рекомендации';
 
   @override
   String get exploreSearchResults => 'Результаты поиска';
@@ -421,6 +422,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get exploreSaving => 'Сохранение…';
+
+  @override
+  String get exploreLoadingPreview => 'Загрузка превью…';
 
   @override
   String get exploreSaveFailed => 'Не удалось сохранить трек';

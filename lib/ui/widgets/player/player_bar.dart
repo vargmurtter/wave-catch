@@ -25,6 +25,9 @@ class PlayerBar extends ConsumerWidget {
     final exploreTrack = item?.exploreTrack;
     final isSaved = exploreTrack != null &&
         ref.watch(exploreSavedVideoIdsProvider).contains(exploreTrack.videoId);
+    final savingVideoId = ref.watch(exploreSavingVideoIdProvider);
+    final isSaving =
+        exploreTrack != null && savingVideoId == exploreTrack.videoId;
 
     return FrostedPanel(
       color: AppColors.playerOverlay,
@@ -57,6 +60,7 @@ class PlayerBar extends ConsumerWidget {
                       flex: 4,
                       child: _PlaybackControls(
                         isPlaying: playerState.isPlaying,
+                        isLoading: playerState.isLoading,
                         shuffleEnabled: playerState.shuffleEnabled,
                         repeatMode: playerState.repeatMode,
                         enabled: item != null,
@@ -74,25 +78,45 @@ class PlayerBar extends ConsumerWidget {
                         children: [
                           if (isExplore && exploreTrack != null && !isSaved)
                             TextButton.icon(
-                              onPressed: () async {
-                                final error = await ref
-                                    .read(exploreSaveProvider.notifier)
-                                    .save(exploreTrack);
-                                if (error != null && context.mounted) {
-                                  final l10n = AppLocalizations.of(context);
-                                  final message = error == 'age_restricted'
-                                      ? l10n.exploreSaveAgeRestricted
-                                      : (error.isNotEmpty
-                                          ? error
-                                          : l10n.exploreSaveFailed);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(message)),
-                                  );
-                                }
-                              },
-                              icon: const Icon(LucideIcons.download, size: 16),
+                              onPressed: isSaving || playerState.isLoading
+                                  ? null
+                                  : () async {
+                                      final error = await ref
+                                          .read(exploreSaveProvider.notifier)
+                                          .save(exploreTrack);
+                                      if (error != null && context.mounted) {
+                                        final l10n =
+                                            AppLocalizations.of(context);
+                                        final message =
+                                            error == 'age_restricted'
+                                                ? l10n.exploreSaveAgeRestricted
+                                                : (error.isNotEmpty
+                                                    ? error
+                                                    : l10n.exploreSaveFailed);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(content: Text(message)),
+                                        );
+                                      }
+                                    },
+                              icon: isSaving
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      LucideIcons.download,
+                                      size: 16,
+                                    ),
                               label: Text(
-                                AppLocalizations.of(context).exploreSaveToLibrary,
+                                isSaving
+                                    ? AppLocalizations.of(context)
+                                        .exploreSaving
+                                    : AppLocalizations.of(context)
+                                        .exploreSaveToLibrary,
                               ),
                             ),
                           _RightControls(
@@ -293,6 +317,7 @@ class _TrackInfo extends StatelessWidget {
 class _PlaybackControls extends StatelessWidget {
   const _PlaybackControls({
     required this.isPlaying,
+    required this.isLoading,
     required this.shuffleEnabled,
     required this.repeatMode,
     required this.enabled,
@@ -304,6 +329,7 @@ class _PlaybackControls extends StatelessWidget {
   });
 
   final bool isPlaying;
+  final bool isLoading;
   final bool shuffleEnabled;
   final RepeatMode repeatMode;
   final bool enabled;
@@ -335,7 +361,8 @@ class _PlaybackControls extends StatelessWidget {
         const SizedBox(width: 8),
         _PlayPauseButton(
           isPlaying: isPlaying,
-          enabled: enabled,
+          isLoading: isLoading,
+          enabled: enabled && !isLoading,
           onPressed: onTogglePlayPause,
         ),
         const SizedBox(width: 8),
@@ -441,11 +468,13 @@ class _ControlButtonState extends State<_ControlButton> {
 class _PlayPauseButton extends StatefulWidget {
   const _PlayPauseButton({
     required this.isPlaying,
+    required this.isLoading,
     required this.enabled,
     required this.onPressed,
   });
 
   final bool isPlaying;
+  final bool isLoading;
   final bool enabled;
   final VoidCallback onPressed;
 
@@ -465,13 +494,26 @@ class _PlayPauseButtonState extends State<_PlayPauseButton> {
           widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: IconButton(
         onPressed: widget.enabled ? widget.onPressed : null,
-        tooltip: widget.isPlaying
-            ? AppLocalizations.of(context).pause
-            : AppLocalizations.of(context).play,
-        icon: Icon(
-          widget.isPlaying ? LucideIcons.pause : LucideIcons.play,
-          size: 22,
-        ),
+        tooltip: widget.isLoading
+            ? AppLocalizations.of(context).exploreLoadingPreview
+            : widget.isPlaying
+                ? AppLocalizations.of(context).pause
+                : AppLocalizations.of(context).play,
+        icon: widget.isLoading
+            ? SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: widget.enabled
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
+                ),
+              )
+            : Icon(
+                widget.isPlaying ? LucideIcons.pause : LucideIcons.play,
+                size: 22,
+              ),
         style: IconButton.styleFrom(
           backgroundColor: widget.enabled
               ? (_isHovered

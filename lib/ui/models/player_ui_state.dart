@@ -9,6 +9,7 @@ class PlayerUiState {
     this.queue = const [],
     this.queueIndex = 0,
     this.isPlaying = false,
+    this.isLoading = false,
     this.shuffleEnabled = false,
     this.repeatMode = RepeatMode.off,
     this.volume = 0.7,
@@ -23,6 +24,7 @@ class PlayerUiState {
   final List<PlayableItem> queue;
   final int queueIndex;
   final bool isPlaying;
+  final bool isLoading;
   final bool shuffleEnabled;
   final RepeatMode repeatMode;
   final double volume;
@@ -47,6 +49,7 @@ class PlayerUiState {
     List<PlayableItem>? queue,
     int? queueIndex,
     bool? isPlaying,
+    bool? isLoading,
     bool? shuffleEnabled,
     RepeatMode? repeatMode,
     double? volume,
@@ -61,6 +64,7 @@ class PlayerUiState {
       queue: queue ?? this.queue,
       queueIndex: queueIndex ?? this.queueIndex,
       isPlaying: isPlaying ?? this.isPlaying,
+      isLoading: isLoading ?? this.isLoading,
       shuffleEnabled: shuffleEnabled ?? this.shuffleEnabled,
       repeatMode: repeatMode ?? this.repeatMode,
       volume: volume ?? this.volume,
