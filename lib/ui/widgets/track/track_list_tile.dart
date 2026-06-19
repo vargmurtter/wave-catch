@@ -16,6 +16,7 @@ class TrackListTile extends ConsumerStatefulWidget {
     this.showTrackNumber = false,
     this.showArtist = true,
     this.showAlbum = false,
+    this.onPlay,
     this.onRemove,
   });
 
@@ -23,6 +24,7 @@ class TrackListTile extends ConsumerStatefulWidget {
   final bool showTrackNumber;
   final bool showArtist;
   final bool showAlbum;
+  final VoidCallback? onPlay;
   final VoidCallback? onRemove;
 
   @override
@@ -82,9 +84,10 @@ class _TrackListTileState extends ConsumerState<TrackListTile> {
               _CoverWithPlayOverlay(
                 track: widget.track,
                 isHovered: _isHovered,
-                onPlay: () => ref
-                    .read(playerUiStateProvider.notifier)
-                    .playTrackInAlbum(widget.track),
+                onPlay: widget.onPlay ??
+                    () => ref
+                        .read(playerUiStateProvider.notifier)
+                        .playTrackInAlbum(widget.track),
               ),
               const SizedBox(width: 12),
               Expanded(

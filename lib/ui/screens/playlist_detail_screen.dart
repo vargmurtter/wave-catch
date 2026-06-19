@@ -196,6 +196,10 @@ class PlaylistDetailScreen extends ConsumerWidget {
                   for (final track in tracks)
                     TrackListTile(
                       track: track,
+                      onPlay: () => playerNotifier.playPlaylist(
+                        tracks,
+                        startTrack: track,
+                      ),
                       onRemove: () {
                         actions.removeTrackFromPlaylist(playlistId, track.id);
                         ScaffoldMessenger.of(context).showSnackBar(

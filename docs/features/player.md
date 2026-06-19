@@ -95,7 +95,9 @@ LibraryRepository
 
 | Место | Метод |
 |-------|-------|
-| Hover play в `TrackListTile` | `playTrackInAlbum` |
+| Hover play в `TrackListTile` (по умолчанию) | `playTrackInAlbum` |
+| Hover play в `TrackListTile` на экране ПП | `playPlaylist` (с `startTrack`) |
+| Кнопка Play на экране ПП | `playPlaylist` |
 | Кнопка Play на альбоме | `playAlbum` |
 | Кнопка Play на исполнителе / «Все треки» | `playArtist` |
 | «Играть всё» на главном | `playAllShuffled` |
