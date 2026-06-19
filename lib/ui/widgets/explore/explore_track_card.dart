@@ -5,6 +5,7 @@ import 'package:music_player/di/providers.dart';
 import 'package:music_player/ui/models/explore_track.dart';
 import 'package:music_player/ui/theme/app_colors.dart';
 import 'package:music_player/ui/widgets/explore/explore_track_cover.dart';
+import 'package:music_player/ui/widgets/explore/explore_track_save_icon_button.dart';
 
 class ExploreTrackCard extends ConsumerStatefulWidget {
   const ExploreTrackCard({super.key, required this.track});
@@ -21,17 +22,18 @@ class _ExploreTrackCardState extends ConsumerState<ExploreTrackCard> {
   @override
   Widget build(BuildContext context) {
     final ytdlpAvailable = ref.watch(ytdlpAvailableProvider).value ?? false;
+    final savingVideoId = ref.watch(exploreSavingVideoIdProvider);
+    final isSaving = savingVideoId == widget.track.videoId;
     final loadingVideoId = ref.watch(exploreLoadingVideoIdProvider);
     final isLoading = loadingVideoId == widget.track.videoId;
+    final canPlay = ytdlpAvailable && !isSaving && !isLoading;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      cursor: ytdlpAvailable && !isLoading
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: canPlay ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
-        onTap: ytdlpAvailable && !isLoading
+        onTap: canPlay
             ? () => ref
                 .read(playerUiStateProvider.notifier)
                 .playExploreTrack(widget.track)
@@ -54,7 +56,18 @@ class _ExploreTrackCardState extends ConsumerState<ExploreTrackCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ExploreTrackCover(track: widget.track, size: coverSize),
+                  Stack(
+                    children: [
+                      ExploreTrackCover(track: widget.track, size: coverSize),
+                      Positioned(
+                        right: 4,
+                        bottom: 4,
+                        child: ExploreTrackSaveIconButton(
+                          track: widget.track,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     widget.track.title,
