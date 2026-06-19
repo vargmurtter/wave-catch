@@ -1,6 +1,7 @@
 import 'package:music_player/repositories/library_database.dart';
 import 'package:music_player/repositories/library_repository.dart';
 import 'package:music_player/services/scanner/id_generator.dart';
+import 'package:music_player/ui/models/playlist_sort_order.dart';
 
 class PlaylistRecord {
   const PlaylistRecord({
@@ -8,12 +9,14 @@ class PlaylistRecord {
     required this.name,
     required this.isSystem,
     required this.createdAtMs,
+    required this.sortOrder,
   });
 
   final String id;
   final String name;
   final bool isSystem;
   final int createdAtMs;
+  final PlaylistSortOrder sortOrder;
 }
 
 class PlaylistRepository {
@@ -26,7 +29,7 @@ class PlaylistRepository {
   List<PlaylistRecord> getPlaylists() {
     final rows = _database.db.select(
       '''
-      SELECT p.id, p.name, p.is_system, p.created_at_ms,
+      SELECT p.id, p.name, p.is_system, p.created_at_ms, p.added_at_sort_asc,
              (SELECT COUNT(*) FROM playlist_tracks pt WHERE pt.playlist_id = p.id) AS track_count
       FROM playlists p
       ORDER BY p.is_system DESC, p.created_at_ms ASC
@@ -38,7 +41,7 @@ class PlaylistRepository {
   PlaylistRecord? getPlaylistById(String id) {
     final rows = _database.db.select(
       '''
-      SELECT id, name, is_system, created_at_ms
+      SELECT id, name, is_system, created_at_ms, added_at_sort_asc
       FROM playlists WHERE id = ?
       ''',
       [id],
@@ -56,8 +59,8 @@ class PlaylistRepository {
     final now = DateTime.now().millisecondsSinceEpoch;
     _database.db.execute(
       '''
-      INSERT INTO playlists (id, name, is_system, created_at_ms)
-      VALUES (?, ?, 0, ?)
+      INSERT INTO playlists (id, name, is_system, created_at_ms, added_at_sort_asc)
+      VALUES (?, ?, 0, ?, 1)
       ''',
       [id, trimmed, now],
     );
@@ -66,6 +69,7 @@ class PlaylistRepository {
       name: trimmed,
       isSystem: false,
       createdAtMs: now,
+      sortOrder: PlaylistSortOrder.asc,
     );
   }
 
@@ -77,15 +81,28 @@ class PlaylistRepository {
   }
 
   List<String> getTrackIdsForPlaylist(String playlistId) {
+    final sortOrder = getPlaylistById(playlistId)?.sortOrder ?? PlaylistSortOrder.asc;
+    final sqlOrder = sortOrder == PlaylistSortOrder.asc ? 'ASC' : 'DESC';
     final rows = _database.db.select(
       '''
       SELECT track_id FROM playlist_tracks
       WHERE playlist_id = ?
-      ORDER BY added_at_ms ASC
+      ORDER BY added_at_ms $sqlOrder
       ''',
       [playlistId],
     );
     return rows.map((row) => row['track_id'] as String).toList();
+  }
+
+  void setSortOrder(String playlistId, PlaylistSortOrder sortOrder) {
+    _database.db.execute(
+      '''
+      UPDATE playlists
+      SET added_at_sort_asc = ?
+      WHERE id = ?
+      ''',
+      [sortOrder.isAscending ? 1 : 0, playlistId],
+    );
   }
 
   int getTrackCount(String playlistId) {
@@ -138,6 +155,9 @@ class PlaylistRepository {
       name: row['name'] as String,
       isSystem: (row['is_system'] as int) != 0,
       createdAtMs: row['created_at_ms'] as int,
+      sortOrder: PlaylistSortOrderStorage.fromAscending(
+        (row['added_at_sort_asc'] as int? ?? 1) != 0,
+      ),
     );
   }
 }

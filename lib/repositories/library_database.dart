@@ -96,6 +96,9 @@ class LibraryDatabase {
     if (version < 5) {
       _migrateToV5();
     }
+    if (version < 6) {
+      _migrateToV6();
+    }
 
     _setMeta('schema_version', kLibrarySchemaVersion.toString());
     _setMeta('root_path', musicRoot);
@@ -184,6 +187,19 @@ class LibraryDatabase {
       ''',
       [kSavedFromExplorePlaylistId],
     );
+  }
+
+  void _migrateToV6() {
+    try {
+      _db.execute(
+        '''
+        ALTER TABLE playlists
+        ADD COLUMN added_at_sort_asc INTEGER NOT NULL DEFAULT 1
+        ''',
+      );
+    } catch (_) {
+      // Column may already exist.
+    }
   }
 
   void _setMeta(String key, String value) {

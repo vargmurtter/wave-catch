@@ -3,6 +3,7 @@ import 'package:music_player/repositories/playlist_repository.dart';
 import 'package:music_player/services/library_service.dart';
 import 'package:music_player/services/scanner/scan_rules.dart';
 import 'package:music_player/ui/models/playlist.dart';
+import 'package:music_player/ui/models/playlist_sort_order.dart';
 import 'package:music_player/ui/models/track.dart';
 
 class PlaylistService {
@@ -70,6 +71,12 @@ class PlaylistService {
     _playlistRepository.removeTrack(playlistId, trackId);
   }
 
+  void setPlaylistSortOrder(String playlistId, PlaylistSortOrder sortOrder) {
+    ensureOpen();
+    if (!_libraryRepository.isOpen) return;
+    _playlistRepository.setSortOrder(playlistId, sortOrder);
+  }
+
   bool isTrackInPlaylist(String playlistId, String trackId) {
     ensureOpen();
     if (!_libraryRepository.isOpen) return false;
@@ -103,6 +110,7 @@ class PlaylistService {
       name: record.name,
       trackCount: _playlistRepository.getTrackCount(record.id),
       isSystem: record.isSystem,
+      sortOrder: record.sortOrder,
     );
   }
 }

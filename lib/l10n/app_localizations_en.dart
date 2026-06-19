@@ -524,4 +524,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inPlaylist => 'In playlist';
+
+  @override
+  String get playlistSortByAddedDate => 'Sort by date added';
+
+  @override
+  String get playlistSortOldestFirst => 'Oldest first';
+
+  @override
+  String get playlistSortNewestFirst => 'Newest first';
 }

@@ -18,7 +18,7 @@ const kAudioExtensions = {
 };
 
 
-const kLibrarySchemaVersion = 5;
+const kLibrarySchemaVersion = 6;
 
 const kFavoritesPlaylistId = '__favorites__';
 const kSavedFromExplorePlaylistId = '__saved_from_explore__';

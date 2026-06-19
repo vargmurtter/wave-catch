@@ -526,4 +526,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get inPlaylist => 'В плейлисте';
+
+  @override
+  String get playlistSortByAddedDate => 'Сортировка по дате добавления';
+
+  @override
+  String get playlistSortOldestFirst => 'Сначала старые';
+
+  @override
+  String get playlistSortNewestFirst => 'Сначала новые';
 }

@@ -1051,6 +1051,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In playlist'**
   String get inPlaylist;
+
+  /// No description provided for @playlistSortByAddedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by date added'**
+  String get playlistSortByAddedDate;
+
+  /// No description provided for @playlistSortOldestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first'**
+  String get playlistSortOldestFirst;
+
+  /// No description provided for @playlistSortNewestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first'**
+  String get playlistSortNewestFirst;
 }
 
 class _AppLocalizationsDelegate

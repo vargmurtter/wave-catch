@@ -234,5 +234,8 @@
   },
   "playlistNotFound": "Playlist not found",
   "playlistNameRequired": "Enter a playlist name",
-  "inPlaylist": "In playlist"
+  "inPlaylist": "In playlist",
+  "playlistSortByAddedDate": "Sort by date added",
+  "playlistSortOldestFirst": "Oldest first",
+  "playlistSortNewestFirst": "Newest first"
 }

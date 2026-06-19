@@ -186,5 +186,8 @@
   },
   "playlistNotFound": "Плейлист не найден",
   "playlistNameRequired": "Введите название плейлиста",
-  "inPlaylist": "В плейлисте"
+  "inPlaylist": "В плейлисте",
+  "playlistSortByAddedDate": "Сортировка по дате добавления",
+  "playlistSortOldestFirst": "Сначала старые",
+  "playlistSortNewestFirst": "Сначала новые"
 }

@@ -40,6 +40,7 @@ import 'package:music_player/ui/models/library_search_results.dart';
 import 'package:music_player/ui/models/nav_item.dart';
 import 'package:music_player/ui/models/player_ui_state.dart';
 import 'package:music_player/ui/models/playlist.dart';
+import 'package:music_player/ui/models/playlist_sort_order.dart';
 import 'package:music_player/ui/models/track.dart';
 
 // --- Repositories & Services ---
@@ -506,6 +507,11 @@ class PlaylistActions {
 
   void removeTrackFromPlaylist(String playlistId, String trackId) {
     _service.removeTrackFromPlaylist(playlistId, trackId);
+    _refresh();
+  }
+
+  void setPlaylistSortOrder(String playlistId, PlaylistSortOrder sortOrder) {
+    _service.setPlaylistSortOrder(playlistId, sortOrder);
     _refresh();
   }
 
