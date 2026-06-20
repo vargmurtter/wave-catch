@@ -59,7 +59,7 @@ Path: `{musicRoot}/Imports/{Artist}/{Title}.mp3`
 2. Write tags (`title`, `artist`, `album`, `albumArtist`, `year`, cover from thumbnail URL).
 3. Single-file incremental indexing — `LibraryScannerService.scanSingleFile`.
 4. Write `video_id` → `file_path` mapping to `import_sources` (DB schema v3).
-5. Add track to system **Saved** playlist (`__saved_from_explore__`, DB schema v5).
+5. Add track to system **Saved** playlist (`__saved_from_explore__`, DB schema v5). See [playlists.md](playlists.md).
 
 Re-saving the same `video_id` returns the already indexed track and re-adds it to **Saved** if needed.
 
@@ -169,5 +169,6 @@ Repository: `ImportSourceRepository` — always through current `LibraryReposito
 ## Related documents
 
 - [player.md](player.md) — queue, `PlayableItem`, preview stream
+- [playlists.md](playlists.md) — Saved system playlist
 - [library-scanning.md](library-scanning.md) — `scanSingleFile`, DB schema
 - [library-search.md](library-search.md) — local search (separate from Explore)

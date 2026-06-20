@@ -70,7 +70,7 @@ lib/
   app.dart        # root app widget
   di/
     providers.dart  # Riverpod providers
-  repositories/   # MusicRepository, PlaylistRepository, …
+  repositories/   # LibraryRepository, PlaylistRepository, …
     app_settings_repository.dart
     artist_info_cache_repository.dart
     musicbrainz_api_repository.dart
@@ -78,6 +78,7 @@ lib/
     lastfm_api_repository.dart
     library_repository.dart
     library_database.dart
+    playlist_repository.dart
     import_source_repository.dart
     metadata_override_repository.dart
     metadata_file_writer.dart
@@ -93,6 +94,7 @@ lib/
     player_service.dart
     explore_service.dart
     track_import_service.dart
+    playlist_service.dart
     metadata/
       metadata_edit_service.dart
     scanner/        # scanner pipeline phases
@@ -112,6 +114,8 @@ docs/             # documentation (this file and others)
 | `SettingsService` | Service | folder selection, configuration checks |
 | `LibraryScannerService` | Service | scan orchestration |
 | `LibraryService` | Service | library reads for UI, global search |
+| `PlaylistRepository` | Repository | CRUD for playlists and membership in `library.db` |
+| `PlaylistService` | Service | user playlists, favorites, track membership |
 | `PlayerService` | Service | playback, queue, repeat/shuffle |
 | `MetadataOverrideRepository` | Repository | metadata override config in `.wave_catcher/` |
 | `MetadataFileWriter` | Repository | write tags to audio files via `metadata_god` |
@@ -132,6 +136,8 @@ Library scanning details: [features/library-scanning.md](features/library-scanni
 Search details: [features/library-search.md](features/library-search.md).  
 Explore: [features/explore.md](features/explore.md).  
 Player details: [features/player.md](features/player.md).  
+Playlists: [features/playlists.md](features/playlists.md).  
+Settings overview: [features/settings.md](features/settings.md).  
 Metadata editing: [features/metadata-editing.md](features/metadata-editing.md).  
 Artist information: [features/artist-info.md](features/artist-info.md).  
 Localization: [features/localization.md](features/localization.md).

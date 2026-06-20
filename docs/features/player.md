@@ -106,6 +106,8 @@ Previews are not saved to disk automatically.
 | Play in `ExploreScreen` / `ExploreTrackTile` | `playExploreTrack` |
 | Click in `QueuePanel` | `jumpToIndex` |
 
+Playlist playback from playlist detail: `playPlaylist` — see [playlists.md](playlists.md).
+
 ## PlayerBar (Explore)
 
 When `isExplorePlayback`:
@@ -125,9 +127,10 @@ The `media_kit_libs_audio` package bundles native libmpv binaries for macOS, Win
 
 Previews additionally depend on yt-dlp (see [explore.md](explore.md)).
 
+Playlist playback: [playlists.md](playlists.md).
+
 ## Out of scope
 
-- User playlists (still mock)
-- "Recently played" history
+- "Recently played" history (Home section exists but data is not populated)
 - System media keys / OS integration
 - Auto-save preview to library

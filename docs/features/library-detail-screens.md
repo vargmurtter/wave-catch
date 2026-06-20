@@ -33,6 +33,18 @@ File: `lib/ui/screens/album_detail_screen.dart`
 - Numbered track list
 - Other albums section — horizontal list of albums by the same artist
 
+### Playlist (`PlaylistDetailScreen`)
+
+File: `lib/ui/screens/playlist_detail_screen.dart`
+
+- Back button + list icon placeholder (200 px) + localized playlist name
+- Track count
+- Play all button when non-empty
+- Sort menu (oldest / newest first by date added)
+- Track list with `TrackListTile`; hover play uses `playPlaylist`
+
+Details: [playlists.md](playlists.md).
+
 ## Navigation
 
 Detail screens are not added to the sidebar. Route stack via `libraryRouteProvider` (`List<LibraryRoute>`):
@@ -43,8 +55,9 @@ Detail screens are not added to the sidebar. Route stack via `libraryRouteProvid
 | `ArtistDetailRoute` | Click on `ArtistCard` |
 | `ArtistTracksRoute` | "Show all" on artist screen |
 | `AlbumDetailRoute` | Click on `AlbumCard` or link in track panel |
+| `PlaylistDetailRoute` | Click on playlist in Playlists list |
 
-`LibraryRouteNotifier` methods: `openArtist`, `openArtistTracks`, `openAlbum`, `goBack`, `reset`.
+`LibraryRouteNotifier` methods: `openArtist`, `openArtistTracks`, `openAlbum`, `openPlaylist`, `goBack`, `reset`.
 
 `_ContentArea` in `app_shell.dart` renders the screen at the top of the stack.
 
@@ -69,7 +82,8 @@ Content:
 File: `lib/ui/widgets/track/track_list_tile.dart`
 
 - Row click → `trackInfoPanelProvider.open(track)`
-- Hover play button → `playTrackInAlbum(track)` — queue = album, start at selected track
+- Hover play button → `playTrackInAlbum(track)` — queue = album, start at selected track; on playlist detail → `playPlaylist`
+- Heart / add to playlist buttons on track rows and track info panel
 - Play button on album / artist header → `playAlbum` / `playArtist`
 - Parameters: `showTrackNumber`, `showArtist`, `showAlbum`
 

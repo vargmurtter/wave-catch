@@ -4,12 +4,15 @@
 
 Lazy-loads artist description and photo from Last.fm when opening the detail screen. Data is cached on disk; on error the UI is unchanged.
 
-## Setup
+## Historical / re-enablement
+
+This integration is **not active** in the current app. `ArtistInfoService` uses MusicBrainz + Wikipedia instead ([artist-info.md](artist-info.md)).
+
+To re-enable in the future:
 
 1. Get an API key at [last.fm/api/account/create](https://www.last.fm/api/account/create).
-2. Enter the key in **Settings → Last.fm**.
-
-Without a key, integration is inactive — the artist screen works as before.
+2. Wire `LastFmApiRepository` back into `ArtistInfoService`.
+3. Restore a Settings UI — `AppSettingsRepository` still has `getLastFmApiKey` / `setLastFmApiKey`, but **no Settings screen field exists today** ([settings.md](settings.md)).
 
 ## UI behavior
 

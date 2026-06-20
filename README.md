@@ -31,6 +31,9 @@ Wave Catch is built for people who own their collection and want a player that r
 - **Metadata editing** — edit tags and write changes to files
 - **Artist info** — optional enrichment from MusicBrainz / Wikipedia with on-disk cache
 - **Album grouping strategies** — by album artist tags, folder layout, or album title
+- **Playlists** — create and delete user playlists; add/remove tracks; sort by date added
+- **Favorites** — system playlist toggled from track rows and the track info panel
+- **Saved** — system playlist for tracks imported from Explore
 - **Localization** — English and Russian UI
 - **Desktop-native UI** — sidebar navigation, player bar, queue panel
 
@@ -74,8 +77,8 @@ flutter doctor
 **1. Clone and enter the project**
 
 ```bash
-git clone <repository-url>
-cd music_player
+git clone https://github.com/vargmurtter/wave-catch.git
+cd wave-catch
 ```
 
 **2. Install dependencies**
@@ -111,6 +114,23 @@ or install system-wide (e.g. `brew install yt-dlp` on macOS). Without yt-dlp, lo
 
 ---
 
+## Tests
+
+```bash
+flutter test
+```
+
+Unit tests live in `test/`:
+
+- `album_grouping_test.dart` — album grouping strategies
+- `library_sync_test.dart` — rescan sync and orphan cleanup
+- `player_refresh_test.dart` — player state after library refresh
+- `ytdlp_binary_resolver_test.dart` — yt-dlp binary lookup
+
+There is no CI workflow configured yet.
+
+---
+
 ## Release builds
 
 ```bash
@@ -142,14 +162,19 @@ Layering: **UI → Services → Repositories → local files & SQLite**. Depende
 | Topic | Document |
 |-------|----------|
 | Architecture | [`docs/architecture.md`](docs/architecture.md) |
+| Design requirements | [`docs/design-requirements.md`](docs/design-requirements.md) |
 | Library scanning | [`docs/features/library-scanning.md`](docs/features/library-scanning.md) |
 | Explore (YouTube Music) | [`docs/features/explore.md`](docs/features/explore.md) |
 | Player | [`docs/features/player.md`](docs/features/player.md) |
+| Playlists | [`docs/features/playlists.md`](docs/features/playlists.md) |
 | Search | [`docs/features/library-search.md`](docs/features/library-search.md) |
 | Metadata editing | [`docs/features/metadata-editing.md`](docs/features/metadata-editing.md) |
 | Artist info | [`docs/features/artist-info.md`](docs/features/artist-info.md) |
+| Last.fm (inactive) | [`docs/features/lastfm-artist-info.md`](docs/features/lastfm-artist-info.md) |
 | Localization | [`docs/features/localization.md`](docs/features/localization.md) |
+| Settings | [`docs/features/settings.md`](docs/features/settings.md) |
 | UI shell | [`docs/features/ui-shell.md`](docs/features/ui-shell.md) |
+| Library detail screens | [`docs/features/library-detail-screens.md`](docs/features/library-detail-screens.md) |
 
 ---
 

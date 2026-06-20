@@ -13,11 +13,25 @@ Recursive scan of the music folder, metadata and cover extraction, index stored 
 | Explore imports | `{musicRoot}/Imports/{Artist}/{Title}.mp3` |
 | Override config | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
 | Embedded covers | `{musicRoot}/.wave_catcher/covers/` |
+| Playlists | `playlists`, `playlist_tracks` tables in `library.db` (schema v4+) — see [playlists.md](playlists.md) |
+
+## Database schema versions
+
+Migrations run in `library_database.dart` when opening `library.db`:
+
+| Version | Change |
+|---------|--------|
+| v3 | `import_sources` (Explore video → file) |
+| v4 | `playlists`, `playlist_tracks`; Favorites system playlist |
+| v5 | Saved system playlist; backfill from `import_sources` |
+| v6 | `added_at_sort_asc` on playlists (sort by date added) |
+
+Playlists: [playlists.md](playlists.md).
 
 ## First launch and settings
 
 - On first launch, if no path is saved, `OnboardingScreen` is shown with folder selection via the system dialog (`file_picker`).
-- **Settings** in the sidebar: current path, change folder, rescan, **album grouping**.
+- **Settings** in the sidebar: current path, change folder, rescan, **album grouping**. Full index: [settings.md](settings.md).
 
 ## Album grouping
 

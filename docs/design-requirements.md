@@ -68,14 +68,16 @@ Root widget: `AppShell` (`lib/ui/shell/app_shell.dart`).
 
 ## Navigation (sidebar)
 
-Four items, Lucide icons:
+Six items, Lucide icons:
 
 | Item | Icon |
 |------|------|
 | Home | `LucideIcons.house` |
+| Explore | `LucideIcons.compass` |
 | Artists | `LucideIcons.users` |
 | Albums | `LucideIcons.disc3` |
 | Playlists | `LucideIcons.listMusic` |
+| Settings | `LucideIcons.settings` |
 
 States:
 - **Active:** red icon, bold text, `surfaceElevated` background with transparency.
@@ -83,12 +85,14 @@ States:
 
 ## Home screen
 
-Four sections, each with a title + horizontal card scroll:
+Up to four sections, each with a title + horizontal card scroll when data is present:
 
-1. Recently played — compact track cards (`RecentTrackTile`)
-2. Recently added — `AlbumCard`
-3. Favorite albums — `AlbumCard`
-4. Favorite artists — `ArtistCard` (round avatars)
+1. **Recently played** — compact track cards (`RecentTrackTile`). *UI exists; playback history is not implemented — section stays hidden.*
+2. **Recently added** — last indexed tracks as `RecentTrackTile`
+3. **Favorite albums** — *label only*; currently lists all albums from the library (not the Favorites playlist)
+4. **Favorite artists** — *label only*; currently lists all artists from the library
+
+When implementing real favorites or recently played, update `LibraryService.getHomeSections()` and these labels.
 
 ## Player (PlayerBar)
 
