@@ -1,30 +1,30 @@
-# Редактирование метаданных
+# Metadata editing
 
-Пользователь может редактировать метаданные треков из панели «О треке» (кнопка карандаша).
+Users can edit track metadata from the track info panel (pencil button).
 
-## Режимы сохранения
+## Save modes
 
-Настраиваются в **Настройки → Редактирование метаданных**.
+Configured in **Settings → Metadata editing**.
 
-| Режим | Куда пишутся изменения |
-|-------|------------------------|
-| **Запись в файлы треков** | Теги аудиофайла через `metadata_god` |
-| **Override-конфиг** | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
+| Mode | Where changes are written |
+|------|---------------------------|
+| **Write to track files** | Audio file tags via `metadata_god` |
+| **Override config** | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
 
-### Override-конфиг
+### Override config
 
-Файл хранится в папке библиотеки и переносится вместе с музыкой.
+File lives in the library folder and moves with the music.
 
 ```json
 {
   "version": 1,
   "tracks": {
     "<trackId>": {
-      "title": "Название",
-      "artist": "Исполнитель",
+      "title": "Title",
+      "artist": "Artist",
       "featuredArtists": ["Guest 1", "Guest 2"],
       "albumArtist": "Album Artist",
-      "album": "Альбом",
+      "album": "Album",
       "year": 2020,
       "genre": "Rock",
       "trackNumber": 3,
@@ -36,40 +36,40 @@
 }
 ```
 
-Ключ — SHA-256 хеш пути к файлу (`trackIdFor(filePath)`).
+Key is SHA-256 hash of file path (`trackIdFor(filePath)`).
 
-## Редактируемые поля
+## Editable fields
 
-- Название трека
-- Исполнитель
-- Приглашённые исполнители
+- Track title
+- Artist
+- Featured artists
 - Album Artist
-- Альбом
-- Год
-- Жанр
-- Номер трека / номер диска
-- Обложка (jpg, jpeg, png, webp)
+- Album
+- Year
+- Genre
+- Track number / disc number
+- Cover art (jpg, jpeg, png, webp)
 
-## Поведение при rescan
+## Behavior on rescan
 
-- **Override-режим:** override-записи накладываются поверх тегов файлов при сканировании.
-- **Режим записи в файл:** теги читаются из файлов; из override подтягиваются только приглашённые исполнители (стандартные теги их не поддерживают).
+- **Override mode:** override entries are applied on top of file tags during scanning.
+- **Write-to-file mode:** tags are read from files; only featured artists are pulled from override (standard tags do not support them).
 
-После редактирования индекс в `library.db` обновляется сразу, без полного rescan.
+After editing, the index in `library.db` updates immediately, without a full rescan.
 
-## Ограничения
+## Limitations
 
-- Файлы только для чтения нельзя изменить в режиме «Запись в файлы» — переключитесь на override.
-- Приглашённые исполнители в режиме записи в файл сохраняются в override-конфиг, а не в теги.
-- WAV и другие форматы с ограниченной поддержкой тегов могут не поддерживать запись — используйте override.
+- Read-only files cannot be changed in "Write to track files" mode — switch to override.
+- Featured artists in write-to-file mode are saved in override config, not in tags.
+- WAV and other formats with limited tag support may not support writing — use override.
 
-## Архитектура
+## Architecture
 
 ```
 TrackInfoPanel → MetadataEditService
   → MetadataFileWriter (inFile)
   → MetadataOverrideRepository (override)
-  → LibraryRepository (инкрементальное обновление БД)
+  → LibraryRepository (incremental DB update)
 ```
 
-Сканирование: `MetadataOverrideApplier` накладывает override после `MetadataExtractor`.
+During scanning: `MetadataOverrideApplier` applies overrides after `MetadataExtractor`.

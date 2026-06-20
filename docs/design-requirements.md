@@ -1,199 +1,199 @@
-# Дизайн-требования
+# Design requirements
 
-Нормативный документ для вёрстки UI waveCatcher. При любой новой верстке или правке интерфейса сверяйтесь с этим файлом.
+Normative document for waveCatcher UI layout. For any new layout or interface change, consult this file.
 
-Текущая реализация оболочки описана отдельно: [features/ui-shell.md](features/ui-shell.md).
+The current shell implementation is described separately: [features/ui-shell.md](features/ui-shell.md).
 
-## Концепция
+## Concept
 
-- **Платформа:** десктопное приложение (macOS, Windows, Linux).
-- **Референс:** Spotify — layout, плотность, тёмная тема, горизонтальные секции с карточками.
-- **Отличие от Spotify:** акцентный цвет — красный, не зелёный.
-- **Состояние UI:** визуальные решения не зависят от наличия реальных данных; mock-допустим, но вёрстка должна быть production-ready.
+- **Platform:** desktop app (macOS, Windows, Linux).
+- **Reference:** Spotify — layout, density, dark theme, horizontal sections with cards.
+- **Difference from Spotify:** accent color is red, not green.
+- **UI state:** visual decisions do not depend on real data being present; mocks are acceptable, but layout must be production-ready.
 
-## Цветовая палитра
+## Color palette
 
-Все цвета — через `AppColors` в `lib/ui/theme/app_colors.dart`. Не хардкодить hex в виджетах.
+All colors go through `AppColors` in `lib/ui/theme/app_colors.dart`. Do not hardcode hex values in widgets.
 
-| Токен | Значение | Назначение |
-|-------|----------|------------|
-| `background` | `#121212` | Фон контентной области |
-| `sidebar` | `#000000` | Базовый цвет сайдбара |
-| `surface` | `#181818` | Карточки, фоны элементов |
-| `surfaceElevated` | `#282828` | Hover, выделение |
-| `accent` | `#FF4848` (RGB 255, 72, 72) | Акцент: активные иконки, кнопка play, прогресс |
-| `sidebarOverlay` | `#D9000000` | Сайдбар с blur |
-| `surfaceOverlay` | `#CC181818` | Всплывающие панели с blur |
-| `playerOverlay` | `#D9181818` | Плеер с blur |
-| `queueOverlay` | `#E6181818` | Панель очереди с blur |
-| `textPrimary` | `#FFFFFF` | Заголовки, названия |
-| `textSecondary` | `#B3B3B3` | Исполнители, подписи |
-| `divider` | `#3E3E3E` | Разделители, границы панелей |
-| `hover` | `#33FFFFFF` | Подсветка hover (полупрозрачный белый) |
+| Token | Value | Purpose |
+|-------|-------|---------|
+| `background` | `#121212` | Content area background |
+| `sidebar` | `#000000` | Sidebar base color |
+| `surface` | `#181818` | Cards, element backgrounds |
+| `surfaceElevated` | `#282828` | Hover, selection |
+| `accent` | `#FF4848` (RGB 255, 72, 72) | Accent: active icons, play button, progress |
+| `sidebarOverlay` | `#D9000000` | Sidebar with blur |
+| `surfaceOverlay` | `#CC181818` | Pop-up panels with blur |
+| `playerOverlay` | `#D9181818` | Player with blur |
+| `queueOverlay` | `#E6181818` | Queue panel with blur |
+| `textPrimary` | `#FFFFFF` | Headings, titles |
+| `textSecondary` | `#B3B3B3` | Artists, captions |
+| `divider` | `#3E3E3E` | Dividers, panel borders |
+| `hover` | `#33FFFFFF` | Hover highlight (semi-transparent white) |
 
-Тема: `AppTheme.dark` в `lib/ui/theme/app_theme.dart`.
+Theme: `AppTheme.dark` in `lib/ui/theme/app_theme.dart`.
 
-## Типографика
+## Typography
 
-| Элемент | Стиль | Размер / вес |
-|---------|-------|--------------|
-| Заголовок экрана | `headlineMedium` | 24px, w700 |
-| Заголовок секции | `titleLarge` | 20px, w700 |
-| Название карточки / трека | custom | 14px, w600 |
-| Исполнитель / подпись | `bodyMedium` / custom | 13–14px, w400, `textSecondary` |
-| Мелкий текст | `bodySmall` | 12px |
+| Element | Style | Size / weight |
+|---------|-------|---------------|
+| Screen title | `headlineMedium` | 24px, w700 |
+| Section title | `titleLarge` | 20px, w700 |
+| Card / track title | custom | 14px, w600 |
+| Artist / caption | `bodyMedium` / custom | 13–14px, w400, `textSecondary` |
+| Small text | `bodySmall` | 12px |
 
-## Layout оболочки
+## Shell layout
 
-Три зоны, плеер всегда виден:
+Three zones; the player is always visible:
 
 ```
 ┌──────────┬─────────────────────────────────────┬──────────┐
 │ Sidebar  │         Content Area                │  Queue   │
-│  240px   │         (активный экран)            │ (опц.)   │
+│  240px   │         (active screen)             │ (opt.)   │
 │          │                                     │  350px   │
 ├──────────┴─────────────────────────────────────┴──────────┤
 │                      PlayerBar  96px                      │
 └───────────────────────────────────────────────────────────┘
 ```
 
-| Зона | Ширина / высота | Поведение |
-|------|-----------------|-----------|
-| Сайдбар | 240px | Фиксированная ширина, навигация |
-| Контент | `Expanded` | Вертикальный скролл, смена экранов |
-| Панель очереди | 350px | Появляется справа по кнопке в плеере |
-| Плеер | 96px высота | На всю ширину, поверх контента не заходит |
+| Zone | Width / height | Behavior |
+|------|----------------|----------|
+| Sidebar | 240px | Fixed width, navigation |
+| Content | `Expanded` | Vertical scroll, screen switching |
+| Queue panel | 350px | Appears on the right via player button |
+| Player | 96px height | Full width, does not overlap content |
 
-Корневой виджет: `AppShell` (`lib/ui/shell/app_shell.dart`).
+Root widget: `AppShell` (`lib/ui/shell/app_shell.dart`).
 
-## Навигация (сайдбар)
+## Navigation (sidebar)
 
-Четыре пункта, Lucide-иконки:
+Four items, Lucide icons:
 
-| Пункт | Иконка |
-|-------|--------|
-| Главное | `LucideIcons.house` |
-| Исполнители | `LucideIcons.users` |
-| Альбомы | `LucideIcons.disc3` |
-| Плейлисты | `LucideIcons.listMusic` |
+| Item | Icon |
+|------|------|
+| Home | `LucideIcons.house` |
+| Artists | `LucideIcons.users` |
+| Albums | `LucideIcons.disc3` |
+| Playlists | `LucideIcons.listMusic` |
 
-Состояния:
-- **Активный:** красная иконка, жирный текст, фон `surfaceElevated` с прозрачностью.
-- **Hover:** лёгкая подсветка (`AppColors.hover`), `MouseRegion` + `SystemMouseCursors.click`.
+States:
+- **Active:** red icon, bold text, `surfaceElevated` background with transparency.
+- **Hover:** light highlight (`AppColors.hover`), `MouseRegion` + `SystemMouseCursors.click`.
 
-## Главный экран
+## Home screen
 
-Четыре секции, каждая — заголовок + горизонтальный скролл карточек:
+Four sections, each with a title + horizontal card scroll:
 
-1. Последнее прослушанное — компактные карточки треков (`RecentTrackTile`)
-2. Последнее добавленное — `AlbumCard`
-3. Любимые альбомы — `AlbumCard`
-4. Любимые исполнители — `ArtistCard` (круглые аватары)
+1. Recently played — compact track cards (`RecentTrackTile`)
+2. Recently added — `AlbumCard`
+3. Favorite albums — `AlbumCard`
+4. Favorite artists — `ArtistCard` (round avatars)
 
-## Плеер (PlayerBar)
+## Player (PlayerBar)
 
-Три колонки, как у Spotify:
+Three columns, Spotify-style:
 
-**Левая:** обложка 56px + название трека + исполнитель.
+**Left:** 56px cover art + track title + artist.
 
-**Центр:** shuffle · prev · play/pause · next · repeat.
+**Center:** shuffle · prev · play/pause · next · repeat.
 
-**Правая:** кнопка очереди (`listMusic`) · громкость (popup-слайдер).
+**Right:** queue button (`listMusic`) · volume (popup slider).
 
-Дополнительно:
-- Полоска прогресса 2px над контролами, цвет `accent`.
-- Shuffle / repeat подсвечиваются `accent` в активном состоянии.
-- Repeat: цикл off → all → one (`repeat` / `repeat1`).
-- Кнопка play — красный круглый фон (`accent`).
+Additionally:
+- 2px progress bar above controls, `accent` color.
+- Shuffle / repeat highlighted with `accent` when active.
+- Repeat cycle: off → all → one (`repeat` / `repeat1`).
+- Play button — red circular background (`accent`).
 
-## Визуальные эффекты (blur и прозрачность)
+## Visual effects (blur and transparency)
 
-Использовать виджет `FrostedPanel` (`lib/ui/widgets/common/frosted_panel.dart`):
-- `BackdropFilter` + полупрозрачный `color` из overlay-токенов.
-- Применять к: сайдбар, плеер, панель очереди, popup громкости.
+Use the `FrostedPanel` widget (`lib/ui/widgets/common/frosted_panel.dart`):
+- `BackdropFilter` + semi-transparent `color` from overlay tokens.
+- Apply to: sidebar, player, queue panel, volume popup.
 
-**Это не glassmorphism:** без стеклянных рамок, бликов, градиентных border. Только мягкий blur и приглушённая прозрачность.
+**This is not glassmorphism:** no glass borders, highlights, or gradient borders. Only soft blur and muted transparency.
 
-Hover на карточках: лёгкий `AnimatedScale` (1.03) и тень — **только в горизонтальных списках**, не в сетках.
+Hover on cards: light `AnimatedScale` (1.03) and shadow — **only in horizontal lists**, not in grids.
 
-## Иконки
+## Icons
 
-- Пакет: `lucide_icons_flutter`.
-- Все иконки интерфейса — Lucide. Material Icons не использовать (кроме внутренних механизмов Flutter).
+- Package: `lucide_icons_flutter`.
+- All UI icons are Lucide. Do not use Material Icons (except Flutter's internal mechanisms).
 
-## Скролл и отступы
+## Scroll and spacing
 
-### Вертикальный скролл экрана
+### Vertical screen scroll
 
-- `SingleChildScrollView` / `ScreenScrollView` — **без внешних padding**.
-- Внутренние отступы — только у контента внутри:
-  - заголовок экрана: `top 24`, горизонтально `32`;
-  - заголовки секций и сетки: горизонтально `32`;
-  - нижний отступ списка: `32`.
+- `SingleChildScrollView` / `ScreenScrollView` — **no outer padding**.
+- Inner padding only on content inside:
+  - screen title: `top 24`, horizontal `32`;
+  - section titles and grids: horizontal `32`;
+  - list bottom padding: `32`.
 
-### Горизонтальные списки
+### Horizontal lists
 
-- Секция: `ContentSection(fullBleedChild: true)` — заголовок с padding, список на всю ширину.
-- Padding горизонтальный — внутри `ListView` (`horizontalPadding: 32`).
-- Обязателен видимый `Scrollbar` (`thumbVisibility: true`, `interactive: true`).
+- Section: `ContentSection(fullBleedChild: true)` — title with padding, list full width.
+- Horizontal padding — inside `ListView` (`horizontalPadding: 32`).
+- Visible `Scrollbar` required (`thumbVisibility: true`, `interactive: true`).
 
-## Адаптивность и окно
+## Responsiveness and window
 
-- **Минимальный размер окна:** 900×640 px (`window_manager` в `lib/main.dart`).
-- Карточки в сетках: `LayoutBuilder`, размер обложки = ширина ячейки.
-- Сетки: `SliverGridDelegateWithMaxCrossAxisExtent` + `mainAxisExtent` (не `childAspectRatio`).
-  - Альбомы: `mainAxisExtent: 250`
-  - Исполнители: `mainAxisExtent: 220`
-- В сетках: `enableHoverScale: false` на `AlbumCard` / `ArtistCard` — избегать overflow.
+- **Minimum window size:** 900×640 px (`window_manager` in `lib/main.dart`).
+- Grid cards: `LayoutBuilder`, cover size = cell width.
+- Grids: `SliverGridDelegateWithMaxCrossAxisExtent` + `mainAxisExtent` (not `childAspectRatio`).
+  - Albums: `mainAxisExtent: 250`
+  - Artists: `mainAxisExtent: 220`
+- In grids: `enableHoverScale: false` on `AlbumCard` / `ArtistCard` — avoid overflow.
 
-## Паттерны кода
+## Code patterns
 
-| Задача | Виджет / файл |
-|--------|---------------|
-| Экран со скроллом | `ScreenScrollView` |
-| Секция с full-bleed списком | `ContentSection(fullBleedChild: true)` |
-| Горизонтальный список | `HorizontalCardList` |
-| Placeholder обложки | `CoverArt` (градиент по `seed`) |
-| Blur-панель | `FrostedPanel` |
-| Цвета и тема | `AppColors`, `AppTheme` |
+| Task | Widget / file |
+|------|----------------|
+| Scrollable screen | `ScreenScrollView` |
+| Section with full-bleed list | `ContentSection(fullBleedChild: true)` |
+| Horizontal list | `HorizontalCardList` |
+| Cover placeholder | `CoverArt` (gradient by `seed`) |
+| Blur panel | `FrostedPanel` |
+| Colors and theme | `AppColors`, `AppTheme` |
 
-Структура каталогов: `lib/ui/screens/`, `lib/ui/widgets/`, `lib/ui/theme/`, `lib/ui/shell/`.
+Directory structure: `lib/ui/screens/`, `lib/ui/widgets/`, `lib/ui/theme/`, `lib/ui/shell/`.
 
-## Антипаттерны
+## Anti-patterns
 
-| Нельзя | Почему | Как правильно |
-|--------|--------|---------------|
-| `Padding` вокруг `SingleChildScrollView` | Контент «исчезает в пустоту» при скролле | Padding внутри child, `ScreenScrollView` |
-| Фиксированная обложка 160px в сетке | `bottom overflowed` | `LayoutBuilder`, обложка = ширина ячейки |
-| `childAspectRatio` без учёта текста | Overflow под обложкой | `mainAxisExtent` с запасом под 2 строки текста |
-| `AnimatedScale` в GridView | Масштаб выходит за ячейку | `enableHoverScale: false` |
-| Material Icons в UI | Нарушение дизайн-системы | Lucide Icons |
-| Непрозрачный фон у сайдбара/плеера | Разрыв с установленным стилем | `FrostedPanel` + overlay-токены |
-| Glassmorphism (рамки, блики) | Явный запрет пользователя | Только blur + opacity |
-| Хардкод цветов в виджетах | Рассинхрон с темой | `AppColors.*` |
-| Горизонтальный список без Scrollbar | Контент скрывается при узком окне | `Scrollbar` + min window size |
+| Don't | Why | Do instead |
+|-------|-----|------------|
+| `Padding` around `SingleChildScrollView` | Content "vanishes into empty space" when scrolling | Padding inside child, `ScreenScrollView` |
+| Fixed 160px cover in grid | `bottom overflowed` | `LayoutBuilder`, cover = cell width |
+| `childAspectRatio` without text allowance | Overflow below cover | `mainAxisExtent` with room for 2 text lines |
+| `AnimatedScale` in GridView | Scale exceeds cell bounds | `enableHoverScale: false` |
+| Material Icons in UI | Breaks design system | Lucide Icons |
+| Opaque sidebar/player background | Breaks established style | `FrostedPanel` + overlay tokens |
+| Glassmorphism (borders, highlights) | Explicit user ban | Blur + opacity only |
+| Hardcoded colors in widgets | Drifts from theme | `AppColors.*` |
+| Horizontal list without Scrollbar | Content hidden in narrow window | `Scrollbar` + min window size |
 
-## Примеры
+## Examples
 
-### Скролл экрана
+### Screen scroll
 
 ```dart
-// ❌ Плохо — внешний padding у scroll area
+// ❌ Bad — outer padding on scroll area
 Padding(
   padding: EdgeInsets.all(32),
   child: SingleChildScrollView(...),
 )
 
-// ✅ Хорошо — нулевые отступы у scroll, padding у контента
+// ✅ Good — zero scroll padding, padding on content
 ScreenScrollView(
   child: Column(
     children: [
       Padding(
         padding: EdgeInsets.only(top: 24),
-        child: ScreenHeader(title: 'Главное'),
+        child: ScreenHeader(title: 'Home'),
       ),
       ContentSection(
-        title: 'Любимые альбомы',
+        title: 'Favorite albums',
         fullBleedChild: true,
         child: HorizontalCardList(...),
       ),
@@ -202,23 +202,23 @@ ScreenScrollView(
 )
 ```
 
-### Карточка в сетке
+### Grid card
 
 ```dart
-// ❌ Плохо — фиксированный размер, hover-scale
+// ❌ Bad — fixed size, hover scale
 AlbumCard(album: album)
 
-// ✅ Хорошо — адаптивная вёрстка, без scale
+// ✅ Good — adaptive layout, no scale
 AlbumCard(album: album, enableHoverScale: false)
 ```
 
-### Панель с blur
+### Blur panel
 
 ```dart
-// ❌ Плохо — непрозрачный Container
+// ❌ Bad — opaque Container
 Container(color: AppColors.surface, child: player)
 
-// ✅ Хорошо
+// ✅ Good
 FrostedPanel(
   color: AppColors.playerOverlay,
   blurSigma: 24,

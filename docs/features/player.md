@@ -1,133 +1,133 @@
-# Воспроизведение (PlayerService)
+# Playback (PlayerService)
 
-Воспроизведение локальных аудиофайлов и превью-потоков из YouTube Music через [media_kit](https://pub.dev/packages/media_kit) (libmpv). UI плеера читает состояние из `playerUiStateProvider`, который делегирует в `PlayerService`.
+Playback of local audio files and preview streams from YouTube Music via [media_kit](https://pub.dev/packages/media_kit) (libmpv). The player UI reads state from `playerUiStateProvider`, which delegates to `PlayerService`.
 
-## Форматы (локальная библиотека)
+## Formats (local library)
 
-Поддерживаются те же расширения, что и при сканировании библиотеки:
+Supported extensions match library scanning:
 
 `mp3`, `flac`, `m4a`, `aac`, `ogg`, `opus`, `wav`, `wma`
 
-Источник списка: `kAudioExtensions` в `lib/services/scanner/scan_rules.dart`.
+Source list: `kAudioExtensions` in `lib/services/scanner/scan_rules.dart`.
 
-Превью из **Исследования** — HTTP-поток, URL получается через yt-dlp (см. [explore.md](explore.md)).
+Previews from **Explore** are HTTP streams; the URL is obtained via yt-dlp (see [explore.md](explore.md)).
 
-## Архитектура
+## Architecture
 
 ```
 UI (PlayerBar, QueuePanel, ExploreScreen, TrackListTile, …)
     ↓ playerUiStateProvider
 PlayerService
     ↓                    ↓                    ↓
-LibraryService      media_kit Player      YtdlpRepository (опц.)
+LibraryService      media_kit Player      YtdlpRepository (opt.)
     ↓
 LibraryRepository
 ```
 
-- **`PlayerService`** (`lib/services/player_service.dart`) — очередь, repeat/shuffle, локальные и remote-источники.
-- **`playerServiceProvider`** — создаёт сервис, вызывает `dispose()` при уничтожении.
-- **`PlayerUiStateNotifier`** — подписывается на `stateStream` сервиса, проксирует действия UI.
+- **`PlayerService`** (`lib/services/player_service.dart`) — queue, repeat/shuffle, local and remote sources.
+- **`playerServiceProvider`** — creates the service, calls `dispose()` on teardown.
+- **`PlayerUiStateNotifier`** — subscribes to the service `stateStream`, proxies UI actions.
 
-Инициализация: `MediaKit.ensureInitialized()` в `lib/main.dart`.
+Initialization: `MediaKit.ensureInitialized()` in `lib/main.dart`.
 
-## Элементы очереди (`PlayableItem`)
+## Queue items (`PlayableItem`)
 
-Очередь и текущий трек описываются sealed-классом `PlayableItem`, а не только `Track`:
+The queue and current track are described by the sealed class `PlayableItem`, not only `Track`:
 
-| Тип | Модель | `playbackMode` | Источник для media_kit |
-|-----|--------|----------------|------------------------|
-| `LocalPlayableItem` | `Track` | `library` | `file://` — путь к файлу |
-| `RemotePlayableItem` | `ExploreTrack` | `explore` | HTTP URL от `YtdlpRepository.getStreamUrl` |
+| Type | Model | `playbackMode` | Source for media_kit |
+|------|-------|----------------|------------------------|
+| `LocalPlayableItem` | `Track` | `library` | `file://` — path to file |
+| `RemotePlayableItem` | `ExploreTrack` | `explore` | HTTP URL from `YtdlpRepository.getStreamUrl` |
 
-Обложка в плеере: локальные треки — `imagePath` (файл на диске); превью — `imageUrl` (thumbnail YouTube Music). Виджет `CoverArt` использует `Image.network` только для `http://` / `https://`.
+Cover art in the player: local tracks — `imagePath` (file on disk); previews — `imageUrl` (YouTube Music thumbnail). The `CoverArt` widget uses `Image.network` only for `http://` / `https://`.
 
-## Состояние плеера (`PlayerUiState`)
+## Player state (`PlayerUiState`)
 
-| Поле | Описание |
-|------|----------|
-| `currentItem` | Текущий `PlayableItem` или `null` (плеер пустой) |
-| `currentTrack` | `Track?` — только для локального элемента (удобный getter) |
-| `playbackMode` | `library` / `explore` — из `currentItem` |
-| `isExplorePlayback` | `true` при превью из Исследования |
-| `queue` | Текущая очередь (`List<PlayableItem>`) |
-| `queueIndex` | Индекс текущего элемента в очереди |
-| `isPlaying` | Воспроизведение / пауза |
-| `shuffleEnabled` | Случайный порядок |
+| Field | Description |
+|-------|-------------|
+| `currentItem` | Current `PlayableItem` or `null` (empty player) |
+| `currentTrack` | `Track?` — local item only (convenience getter) |
+| `playbackMode` | `library` / `explore` — from `currentItem` |
+| `isExplorePlayback` | `true` for Explore preview |
+| `queue` | Current queue (`List<PlayableItem>`) |
+| `queueIndex` | Index of current item in queue |
+| `isPlaying` | Playing / paused |
+| `shuffleEnabled` | Random order |
 | `repeatMode` | `off` / `all` / `one` |
 | `volume` | 0.0–1.0 |
-| `position`, `duration` | Прогресс (из media_kit) |
-| `progress` | Вычисляемое: `position / duration` |
-| `isQueueOpen` | Видимость панели очереди |
+| `position`, `duration` | Progress (from media_kit) |
+| `progress` | Computed: `position / duration` |
+| `isQueueOpen` | Queue panel visibility |
 
-## Правила очереди (библиотека)
+## Queue rules (library)
 
-| Действие | Очередь | Старт |
-|----------|---------|-------|
-| Play альбом | Треки альбома (`track_number`, `title`) | С первого |
-| Play трек в альбоме | Треки альбома | С выбранного |
-| Play исполнитель | Все треки исполнителя (`title`) | С первого (или с выбранного) |
-| «Играть всё» (главное) | Все треки библиотеки, **перемешаны** | С первого; `shuffleEnabled = true` |
+| Action | Queue | Start |
+|--------|-------|-------|
+| Play album | Album tracks (`track_number`, `title`) | First track |
+| Play track in album | Album tracks | Selected track |
+| Play artist | All artist tracks (`title`) | First (or selected) |
+| Play all (Home) | All library tracks, **shuffled** | First track; `shuffleEnabled = true` |
 
-При включённом shuffle до запуска альбома/исполнителя текущий стартовый трек остаётся первым, остальные перемешиваются.
+When shuffle is enabled before starting an album/artist, the starting track stays first; the rest are shuffled.
 
-## Очередь Explore
+## Explore queue
 
-| Действие | Метод | Очередь |
-|----------|-------|---------|
-| Play в Исследовании | `playExploreTrack` | Один трек или список `ExploreTrack` |
-| Сохранить из плеера | `TrackImportService` + `replaceCurrentExploreWithLocal` | Текущий remote-элемент заменяется на `LocalPlayableItem` |
+| Action | Method | Queue |
+|--------|--------|-------|
+| Play in Explore | `playExploreTrack` | One track or list of `ExploreTrack` |
+| Save from player | `TrackImportService` + `replaceCurrentExploreWithLocal` | Current remote item replaced with `LocalPlayableItem` |
 
-Превью не сохраняется на диск автоматически.
+Previews are not saved to disk automatically.
 
-## Repeat и shuffle
+## Repeat and shuffle
 
-- **Repeat off** — после последнего трека остановка.
-- **Repeat all** — после последнего → первый трек.
-- **Repeat one** — зацикливание текущего трека.
-- **Shuffle toggle** — перемешивает элементы **после** текущего; при выключении восстанавливает порядок из базовой очереди.
+- **Repeat off** — stop after the last track.
+- **Repeat all** — after the last track → first track.
+- **Repeat one** — loop current track.
+- **Shuffle toggle** — shuffles items **after** the current one; when disabled, restores order from the base queue.
 
 ## Prev / Next
 
-- **Next** — следующий элемент с учётом repeat; при `repeat one` — перемотка в начало.
-- **Previous** — если проиграно > 3 с, перемотка в начало; иначе предыдущий трек (или последний при `repeat all` на первом).
+- **Next** — next item respecting repeat; with `repeat one` — seek to start.
+- **Previous** — if played > 3 s, seek to start; otherwise previous track (or last with `repeat all` on first track).
 
-## Точки запуска в UI
+## UI entry points
 
-| Место | Метод |
-|-------|-------|
-| Hover play в `TrackListTile` (по умолчанию) | `playTrackInAlbum` |
-| Hover play в `TrackListTile` на экране ПП | `playPlaylist` (с `startTrack`) |
-| Кнопка Play на экране ПП | `playPlaylist` |
-| Кнопка Play на альбоме | `playAlbum` |
-| Кнопка Play на исполнителе / «Все треки» | `playArtist` |
-| «Играть всё» на главном | `playAllShuffled` |
-| Клик по треку в поиске | `playTrackInAlbum` |
-| Кнопка Play в `TrackInfoPanel` | `playTrackInAlbum` |
-| Play в `ExploreScreen` / `ExploreTrackTile` | `playExploreTrack` |
-| Клик в `QueuePanel` | `jumpToIndex` |
+| Location | Method |
+|----------|--------|
+| Hover play in `TrackListTile` (default) | `playTrackInAlbum` |
+| Hover play in `TrackListTile` on playlist screen | `playPlaylist` (with `startTrack`) |
+| Play button on playlist screen | `playPlaylist` |
+| Play button on album | `playAlbum` |
+| Play button on artist / "All tracks" | `playArtist` |
+| Play all on Home | `playAllShuffled` |
+| Track click in search | `playTrackInAlbum` |
+| Play button in `TrackInfoPanel` | `playTrackInAlbum` |
+| Play in `ExploreScreen` / `ExploreTrackTile` | `playExploreTrack` |
+| Click in `QueuePanel` | `jumpToIndex` |
 
 ## PlayerBar (Explore)
 
-При `isExplorePlayback`:
+When `isExplorePlayback`:
 
-- бейдж **«Превью»**;
-- кнопка **«Сохранить в библиотеку»** (если yt-dlp доступен и трек ещё не сохранён);
-- состояние **«В библиотеке»** для уже импортированных `video_id`.
+- **Preview** badge;
+- **Save to library** button (if yt-dlp is available and track not yet saved);
+- **In library** state for already imported `video_id`.
 
-## Зависимости
+## Dependencies
 
 ```yaml
 media_kit: ^1.2.6
 media_kit_libs_audio: ^1.0.7
 ```
 
-Пакет `media_kit_libs_audio` подтягивает нативные libmpv-бинарники для macOS, Windows и Linux.
+The `media_kit_libs_audio` package bundles native libmpv binaries for macOS, Windows, and Linux.
 
-Превью дополнительно зависит от yt-dlp (см. [explore.md](explore.md)).
+Previews additionally depend on yt-dlp (see [explore.md](explore.md)).
 
-## Вне scope
+## Out of scope
 
-- Пользовательские плейлисты (остаются mock)
-- История «недавно проигранных»
-- Системные медиа-клавиши / интеграция с ОС
-- Автосохранение превью в библиотеку
+- User playlists (still mock)
+- "Recently played" history
+- System media keys / OS integration
+- Auto-save preview to library

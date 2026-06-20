@@ -1,10 +1,10 @@
-# UI-оболочка
+# UI shell
 
-Подробные дизайн-требования: [design-requirements.md](../design-requirements.md)
+Detailed design requirements: [design-requirements.md](../design-requirements.md)
 
-Десктопная UI-оболочка в стиле Spotify с красным акцентом. Библиотека и воспроизведение подключены через `LibraryService` и `PlayerService`.
+Desktop UI shell in Spotify style with a red accent. Library and playback are wired through `LibraryService` and `PlayerService`.
 
-> Этот документ описывает **текущую реализацию** оболочки. Нормативные требования для любой будущей вёрстки — в [design-requirements.md](../design-requirements.md).
+> This document describes the **current shell implementation**. Normative requirements for any future layout work are in [design-requirements.md](../design-requirements.md).
 
 ## Layout
 
@@ -12,101 +12,101 @@
 ┌──────────┬─────────────────────────────────────┬──────────┐
 │          │                              ┌──────┤ Track  │
 │ Sidebar  │         Content Area         │Queue │ Info   │
-│  240px   │  (раздел или детальный       │Panel │(overlay│
-│          │   экран)                     │(опц.)│ опц.)  │
+│  240px   │  (section or detail          │Panel │(overlay│
+│          │   screen)                    │(opt.)│ opt.)  │
 │          │                              │350px │ 350px  │
 ├──────────┴──────────────────────────────┴──────┴────────┤
 │                      PlayerBar  96px                     │
 └──────────────────────────────────────────────────────────┘
 ```
 
-- **Сайдбар** — навигация: Главное, **Исследование**, Исполнители, Альбомы, Плейлисты, Настройки; поле глобального поиска (только локальная библиотека)
-- **Контент** — экран выбранного раздела, детальный экран (исполнитель, альбом) или результаты поиска
-- **Плеер** — закреплён снизу на всю ширину
-- **Панель очереди** — выезжает справа при нажатии кнопки плейлиста в плеере
-- **Панель трека** — плавающий overlay справа при клике по треку (не по play)
+- **Sidebar** — navigation: Home, **Explore**, Artists, Albums, Playlists, Settings; global search field (local library only)
+- **Content** — selected section screen, detail screen (artist, album), or search results
+- **Player** — pinned at bottom, full width
+- **Queue panel** — slides in from the right when the playlist button in the player is pressed
+- **Track panel** — floating overlay on the right when clicking a track (not play)
 
-Детальные экраны: [library-detail-screens.md](library-detail-screens.md).
+Detail screens: [library-detail-screens.md](library-detail-screens.md).
 
-## Цветовая схема
+## Color scheme
 
-| Токен | Значение | Назначение |
-|-------|----------|------------|
-| `background` | `#121212` | Фон контента |
-| `sidebar` | `#000000` | Фон сайдбара |
-| `surface` | `#181818` | Карточки, плеер |
-| `surfaceElevated` | `#282828` | Hover, активные элементы |
-| `accent` | `#FF4848` (RGB 255, 72, 72) | Акцент (вместо зелёного Spotify) |
-| `sidebarOverlay` | `#D9000000` | Полупрозрачный сайдбар с blur |
-| `playerOverlay` | `#D9181818` | Полупрозрачный плеер с blur |
-| `textPrimary` | `#FFFFFF` | Основной текст |
-| `textSecondary` | `#B3B3B3` | Вторичный текст |
+| Token | Value | Purpose |
+|-------|-------|---------|
+| `background` | `#121212` | Content background |
+| `sidebar` | `#000000` | Sidebar background |
+| `surface` | `#181818` | Cards, player |
+| `surfaceElevated` | `#282828` | Hover, active elements |
+| `accent` | `#FF4848` (RGB 255, 72, 72) | Accent (instead of Spotify green) |
+| `sidebarOverlay` | `#D9000000` | Semi-transparent sidebar with blur |
+| `playerOverlay` | `#D9181818` | Semi-transparent player with blur |
+| `textPrimary` | `#FFFFFF` | Primary text |
+| `textSecondary` | `#B3B3B3` | Secondary text |
 
-Файлы темы: `lib/ui/theme/app_colors.dart`, `lib/ui/theme/app_theme.dart`.
+Theme files: `lib/ui/theme/app_colors.dart`, `lib/ui/theme/app_theme.dart`.
 
-## Структура виджетов
+## Widget structure
 
 ```
 lib/ui/
   shell/
-    app_shell.dart          # корневой layout
+    app_shell.dart          # root layout
   screens/
-    home_screen.dart            # 4 секции главного экрана
-    explore_screen.dart         # YouTube Music: поиск, рекомендации, превью
-    artists_screen.dart         # сетка исполнителей
-    albums_screen.dart          # сетка альбомов
-    playlists_screen.dart       # список плейлистов
-    artist_detail_screen.dart   # детальный экран исполнителя
-    artist_tracks_screen.dart   # все треки исполнителя
-    album_detail_screen.dart    # детальный экран альбома
-    search_screen.dart          # результаты глобального поиска
+    home_screen.dart            # 4 Home screen sections
+    explore_screen.dart         # YouTube Music: search, recommendations, preview
+    artists_screen.dart         # artist grid
+    albums_screen.dart          # album grid
+    playlists_screen.dart       # playlist list
+    artist_detail_screen.dart   # artist detail screen
+    artist_tracks_screen.dart   # all artist tracks
+    album_detail_screen.dart    # album detail screen
+    search_screen.dart          # global search results
   widgets/
     sidebar/                # AppSidebar, SidebarNavItem
     search/                 # GlobalSearchField, SearchResultTile
     player/                 # PlayerBar, VolumeControl, QueuePanel
     explore/                # ExploreTrackTile
-    home/                   # карточки и секции
+    home/                   # cards and sections
     track/                  # TrackListTile, TrackInfoPanel
     common/                 # CoverArt, DetailBackButton, FrostedPanel, PlayActionButton
   models/                   # Track, Album, Artist, ExploreTrack, PlayableItem, LibraryRoute, …
   mock/
-    mock_data.dart          # тестовые данные
+    mock_data.dart          # test data
 ```
 
-## Провайдеры (Riverpod)
+## Providers (Riverpod)
 
-| Provider | Файл | Назначение |
-|----------|------|------------|
-| `selectedNavItemProvider` | `lib/di/providers.dart` | Активный пункт сайдбара |
-| `playerUiStateProvider` | `lib/di/providers.dart` | Состояние плеера (прокси `PlayerService`) |
-| `playerServiceProvider` | `lib/di/providers.dart` | Сервис воспроизведения |
-| `homeSectionsProvider` | `lib/di/providers.dart` | Данные секций главного экрана |
-| `libraryRouteProvider` | `lib/di/providers.dart` | Стек детальных маршрутов |
-| `trackInfoPanelProvider` | `lib/di/providers.dart` | Плавающая панель информации о треке |
-| `searchQueryProvider` | `lib/di/providers.dart` | Текст глобального поиска |
-| `librarySearchResultsProvider` | `lib/di/providers.dart` | Результаты поиска по библиотеке |
-| `exploreServiceProvider` | `lib/di/providers.dart` | Поиск и рекомендации YouTube Music |
-| `ytdlpAvailableProvider` | `lib/di/providers.dart` | Доступность yt-dlp для Explore |
+| Provider | File | Purpose |
+|----------|------|---------|
+| `selectedNavItemProvider` | `lib/di/providers.dart` | Active sidebar item |
+| `playerUiStateProvider` | `lib/di/providers.dart` | Player state (proxies `PlayerService`) |
+| `playerServiceProvider` | `lib/di/providers.dart` | Playback service |
+| `homeSectionsProvider` | `lib/di/providers.dart` | Home screen section data |
+| `libraryRouteProvider` | `lib/di/providers.dart` | Detail route stack |
+| `trackInfoPanelProvider` | `lib/di/providers.dart` | Floating track info panel |
+| `searchQueryProvider` | `lib/di/providers.dart` | Global search text |
+| `librarySearchResultsProvider` | `lib/di/providers.dart` | Library search results |
+| `exploreServiceProvider` | `lib/di/providers.dart` | YouTube Music search and recommendations |
+| `ytdlpAvailableProvider` | `lib/di/providers.dart` | yt-dlp availability for Explore |
 
-Подробности поиска: [library-search.md](library-search.md).  
-Раздел «Исследование»: [explore.md](explore.md).  
-Подробности плеера: [player.md](player.md).
+Search details: [library-search.md](library-search.md).  
+Explore: [explore.md](explore.md).  
+Player details: [player.md](player.md).
 
-Кнопки плеера и точки запуска вызывают `PlayerUiStateNotifier` → `PlayerService`. Данные библиотеки — через `LibraryService`.
+Player buttons and launch points call `PlayerUiStateNotifier` → `PlayerService`. Library data goes through `LibraryService`.
 
-## Минимальный размер окна
+## Minimum window size
 
-900×640 px (через `window_manager` в `lib/main.dart`). Горизонтальные списки на главном экране имеют видимый `Scrollbar`.
+900×640 px (via `window_manager` in `lib/main.dart`). Horizontal lists on the Home screen have a visible `Scrollbar`.
 
-## Скролл главного экрана
+## Home screen scroll
 
-Область вертикального скролла без внешних отступов. Внутренние отступы (32 px) применяются к заголовкам и сеткам; горизонтальные списки прокручиваются на всю ширину с padding внутри `ListView`.
+Vertical scroll area has no outer padding. Inner padding (32 px) applies to titles and grids; horizontal lists scroll full width with padding inside `ListView`.
 
-## Иконки
+## Icons
 
-Используется пакет `lucide_icons_flutter`. Все иконки интерфейса — из набора Lucide.
+Uses the `lucide_icons_flutter` package. All UI icons are from the Lucide set.
 
-## Что остаётся mock
+## Still mock
 
-- Плейлисты (`playlists_screen.dart`)
-- Обложки без файла (градиентные placeholder'ы по `CoverArt`)
+- Playlists (`playlists_screen.dart`)
+- Covers without a file (gradient placeholders via `CoverArt`)

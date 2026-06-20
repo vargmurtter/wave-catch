@@ -1,25 +1,25 @@
-# Исследование (YouTube Music)
+# Explore (YouTube Music)
 
-Раздел **«Исследование»** (`NavItem.explore`) — поиск и превью треков из YouTube Music без автоматического сохранения. Пользователь явно сохраняет понравившееся в локальную библиотеку.
+The **Explore** section (`NavItem.explore`) — search and preview tracks from YouTube Music without automatic saving. The user explicitly saves favorites to the local library.
 
-Глобальный поиск в сайдбаре по-прежнему работает **только по локальной библиотеке**. Поиск YouTube Music доступен только на экране «Исследование».
+Global search in the sidebar still works **only on the local library**. YouTube Music search is available only on the Explore screen.
 
 ## UX
 
-| Элемент | Поведение |
-|---------|-----------|
-| Поиск | Запрос к YouTube Music, подсказки при вводе |
-| Результаты | Список треков с обложкой, исполнителем, длительностью |
-| Play | Превью-поток через yt-dlp; в плеере бейдж **«Превью»** |
-| Сохранить | Скачивание MP3 в библиотеку, теги, индексация; трек автоматически добавляется в системный плейлист **«Сохранённые»** |
-| В библиотеке | Трек уже сохранён — кнопка неактивна |
-| Рекомендации | «Вам может понравиться» — сетка карточек (до 30 треков); до 5 последних импортов из Explore → `getUpNexts` по каждому |
-| yt-dlp отсутствует | Подсказка установить бинарник; превью и сохранение недоступны |
-| Пустая библиотека | Подсказка добавить музыку для рекомендаций |
-| Нет импортов из Explore | Подсказка сохранить треки из поиска |
-| Пересканирование библиотеки | «Сохранённые» и статус «сохранено» в Explore сохраняются, пока MP3 на диске; при удалении файла трек исчезает из индекса, плейлиста и `import_sources` |
+| Element | Behavior |
+|---------|----------|
+| Search | Query YouTube Music, suggestions while typing |
+| Results | Track list with cover, artist, duration |
+| Play | Preview stream via yt-dlp; **Preview** badge in player |
+| Save | Download MP3 to library, write tags, index; track is automatically added to the system **Saved** playlist |
+| In library | Track already saved — button disabled |
+| Recommendations | "You might like" — card grid (up to 30 tracks); up to 5 latest Explore imports → `getUpNexts` for each |
+| yt-dlp missing | Prompt to install binary; preview and save unavailable |
+| Empty library | Hint to add music for recommendations |
+| No Explore imports | Hint to save tracks from search |
+| Library rescan | **Saved** and "saved" status in Explore persist while MP3 is on disk; when file is deleted, track disappears from index, playlist, and `import_sources` |
 
-## Архитектура
+## Architecture
 
 ```
 ExploreScreen (UI)
@@ -28,10 +28,10 @@ exploreServiceProvider, ytdlpAvailableProvider
     ↓
 ExploreService ──────────────► YtmInnerTubeRepository (InnerTube API)
     │                              search, suggestions, Up Next
-    ├── LibraryService / LibraryRepository (savedVideoIds, рекомендации)
+    ├── LibraryService / LibraryRepository (savedVideoIds, recommendations)
     └── ImportSourceRepository (video_id ↔ file_path)
 
-PlayerBar «Сохранить»
+PlayerBar "Save"
     ↓
 TrackImportService
     ↓
@@ -40,134 +40,134 @@ YtdlpRepository.downloadAudio → MetadataFileWriter → LibraryScannerService.s
 ImportSourceRepository.upsert → PlaylistRepository.addTrack(Saved) → LibraryService.refresh
 ```
 
-### Воспроизведение
+### Playback
 
-`PlayerService` поддерживает два типа элементов очереди — `PlayableItem`:
+`PlayerService` supports two queue item types — `PlayableItem`:
 
-| Тип | Источник | Воспроизведение |
-|-----|----------|-----------------|
-| `LocalPlayableItem` | `Track` из библиотеки | `media_kit` → локальный файл |
-| `RemotePlayableItem` | `ExploreTrack` | `YtdlpRepository.getStreamUrl` → `media_kit` → HTTP-поток |
+| Type | Source | Playback |
+|------|--------|----------|
+| `LocalPlayableItem` | `Track` from library | `media_kit` → local file |
+| `RemotePlayableItem` | `ExploreTrack` | `YtdlpRepository.getStreamUrl` → `media_kit` → HTTP stream |
 
-Кэш stream URL в `PlayerService` (TTL ~4 ч, см. `YtdlpRepository`).
+Stream URL cache in `PlayerService` (TTL ~4 h, see `YtdlpRepository`).
 
-## Сохранение в библиотеку
+## Save to library
 
-Путь: `{musicRoot}/Imports/{Artist}/{Title}.mp3`
+Path: `{musicRoot}/Imports/{Artist}/{Title}.mp3`
 
-1. Скачивание аудио через yt-dlp (`bestaudio`, конвертация в MP3).
-2. Запись тегов (`title`, `artist`, `album`, `albumArtist`, `year`, обложка с thumbnail URL).
-3. Инкрементальная индексация одного файла — `LibraryScannerService.scanSingleFile`.
-4. Запись связи `video_id` → `file_path` в таблицу `import_sources` (схема БД v3).
-5. Добавление трека в системный плейлист **«Сохранённые»** (`__saved_from_explore__`, схема БД v5).
+1. Download audio via yt-dlp (`bestaudio`, convert to MP3).
+2. Write tags (`title`, `artist`, `album`, `albumArtist`, `year`, cover from thumbnail URL).
+3. Single-file incremental indexing — `LibraryScannerService.scanSingleFile`.
+4. Write `video_id` → `file_path` mapping to `import_sources` (DB schema v3).
+5. Add track to system **Saved** playlist (`__saved_from_explore__`, DB schema v5).
 
-Повторное сохранение того же `video_id` возвращает уже проиндексированный трек и при необходимости снова добавляет его в «Сохранённые».
+Re-saving the same `video_id` returns the already indexed track and re-adds it to **Saved** if needed.
 
-### После пересканирования
+### After rescan
 
-Rescan синхронизирует индекс с диском через `syncLibrary` (см. [library-scanning.md](library-scanning.md)):
+Rescan syncs the index with disk via `syncLibrary` (see [library-scanning.md](library-scanning.md)):
 
-- MP3 в `{musicRoot}/Imports/` остаются в библиотеке; плейлист **«Сохранённые»** и иконка «сохранено» в Explore не сбрасываются.
-- Если файл удалён с диска, rescan уберёт трек из индекса, плейлиста и таблицы `import_sources`.
+- MP3 files in `{musicRoot}/Imports/` remain in the library; **Saved** playlist and "saved" icon in Explore are not reset.
+- If the file is deleted from disk, rescan removes the track from the index, playlist, and `import_sources` table.
 
 ## yt-dlp
 
-Для превью и сохранения нужен бинарник [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+Preview and save require the [yt-dlp](https://github.com/yt-dlp/yt-dlp) binary.
 
-### Разрешение бинарника (`YtdlpBinaryResolver`)
+### Binary resolution (`YtdlpBinaryResolver`)
 
-Порядок поиска:
+Lookup order:
 
-1. Вшитый бинарник в bundle приложения (`flutter_assets/assets/bin/{macos,linux,windows}/`) — запускается напрямую, без копирования
-2. Linux fallback: если файл в bundle не исполняемый — `chmod +x` или однократная копия в `.wave_catcher/bin/`
-3. Системный PATH / Homebrew (`yt-dlp`) — только если вшитого бинарника нет в сборке
+1. Bundled binary in app bundle (`flutter_assets/assets/bin/{macos,linux,windows}/`) — run in place, no copy
+2. Linux fallback: if bundle file is not executable — `chmod +x` or one-time copy to `.wave_catcher/bin/`
+3. System PATH / Homebrew (`yt-dlp`) — only when no bundled binary in the build
 
-Подготовка бандла для разработки и релиза:
+Prepare bundle for development and release:
 
 ```bash
 ./scripts/fetch_ytdlp.sh
 ```
 
-Альтернатива: `brew install yt-dlp` (macOS) или установка в PATH на Linux/Windows.
+Alternative: `brew install yt-dlp` (macOS) or install to PATH on Linux/Windows.
 
 ### YouTube cookies (age-restricted)
 
-Поиск через InnerTube работает без авторизации, но **превью и сохранение** age-restricted видео требуют cookies YouTube-аккаунта с подтверждённым возрастом.
+Search via InnerTube works without auth, but **preview and save** of age-restricted videos require cookies from a YouTube account with verified age.
 
-В **Настройки → yt-dlp → Авторизация YouTube** доступны режимы:
+In **Settings → yt-dlp → YouTube authorization**, modes:
 
-| Режим | Флаг yt-dlp | Описание |
-|-------|-------------|----------|
-| Без cookies | — | По умолчанию; age-restricted треки недоступны |
-| Из файла | `--cookies path/to/cookies.txt` | Netscape-формат (экспорт расширением или `yt-dlp --cookies-from-browser … --cookies cookies.txt`) |
-| Из браузера | `--cookies-from-browser chrome` | Cookies из установленного браузера; нужен вход в YouTube |
+| Mode | yt-dlp flag | Description |
+|------|-------------|-------------|
+| No cookies | — | Default; age-restricted tracks unavailable |
+| From file | `--cookies path/to/cookies.txt` | Netscape format (browser extension export or `yt-dlp --cookies-from-browser … --cookies cookies.txt`) |
+| From browser | `--cookies-from-browser chrome` | Cookies from installed browser; YouTube login required |
 
-Настройки хранятся в `app_config.json` (`ytdlpCookieSource`, `ytdlpCookiesFilePath`, `ytdlpBrowser`). При смене режима кэш stream URL сбрасывается.
+Settings stored in `app_config.json` (`ytdlpCookieSource`, `ytdlpCookiesFilePath`, `ytdlpBrowser`). Changing mode clears stream URL cache.
 
-Модель: `YtdlpAuthSettings` в `lib/repositories/ytdlp_auth_settings.dart`.
+Model: `YtdlpAuthSettings` in `lib/repositories/ytdlp_auth_settings.dart`.
 
 ## YouTube Music API
 
-`YtmInnerTubeRepository` — прямые запросы к InnerTube, без официального YouTube Data API:
+`YtmInnerTubeRepository` — direct InnerTube requests, no official YouTube Data API:
 
-- `searchSongs` — поиск треков
-- `searchSuggestions` — подсказки
-- `getUpNexts` — похожие / Up Next (радио от seed-трека)
+- `searchSongs` — track search
+- `searchSuggestions` — suggestions
+- `getUpNexts` — similar / Up Next (radio from seed track)
 
-Модель UI: `ExploreTrack` (`videoId`, `watchUrl`, `thumbnailUrl`, `title`, `artist`, `album`, `duration`, …).
+UI model: `ExploreTrack` (`videoId`, `watchUrl`, `thumbnailUrl`, `title`, `artist`, `album`, `duration`, …).
 
-## База данных
+## Database
 
-Таблица `import_sources` (миграция v3 в `library_database.dart`):
+`import_sources` table (v3 migration in `library_database.dart`):
 
-| Колонка | Описание |
-|---------|----------|
+| Column | Description |
+|--------|-------------|
 | `video_id` | YouTube video ID (PK) |
-| `file_path` | Абсолютный путь к сохранённому файлу (UNIQUE) |
-| `saved_at_ms` | Время сохранения |
+| `file_path` | Absolute path to saved file (UNIQUE) |
+| `saved_at_ms` | Save timestamp |
 
-Репозиторий: `ImportSourceRepository` — всегда через актуальный `LibraryRepository`, не кэширует закрытое соединение SQLite.
+Repository: `ImportSourceRepository` — always through current `LibraryRepository`, does not cache a closed SQLite connection.
 
-## Файлы
+## Files
 
-| Файл | Назначение |
-|------|------------|
-| `lib/ui/screens/explore_screen.dart` | Экран раздела |
-| `lib/ui/widgets/explore/explore_track_tile.dart` | Строка трека (поиск) |
-| `lib/ui/widgets/explore/explore_track_card.dart` | Карточка трека (рекомендации) |
-| `lib/ui/models/explore_track.dart` | Модель трека YouTube Music |
+| File | Purpose |
+|------|---------|
+| `lib/ui/screens/explore_screen.dart` | Section screen |
+| `lib/ui/widgets/explore/explore_track_tile.dart` | Track row (search) |
+| `lib/ui/widgets/explore/explore_track_card.dart` | Track card (recommendations) |
+| `lib/ui/models/explore_track.dart` | YouTube Music track model |
 | `lib/ui/models/playable_item.dart` | `LocalPlayableItem` / `RemotePlayableItem` |
 | `lib/ui/models/playback_mode.dart` | `library` / `explore` |
-| `lib/services/explore_service.dart` | Поиск, рекомендации, `isAlreadySaved` |
-| `lib/services/track_import_service.dart` | Сохранение в библиотеку |
-| `lib/repositories/ytm_innertube_repository.dart` | InnerTube-клиент |
-| `lib/repositories/ytdlp_repository.dart` | stream URL, download, кэш |
-| `lib/repositories/ytdlp_auth_settings.dart` | Настройки cookies для yt-dlp |
-| `lib/repositories/ytdlp_binary_resolver.dart` | Поиск бинарника |
-| `lib/repositories/import_source_repository.dart` | CRUD `import_sources` |
-| `scripts/fetch_ytdlp.sh` | Загрузка standalone-бинарников в assets |
+| `lib/services/explore_service.dart` | Search, recommendations, `isAlreadySaved` |
+| `lib/services/track_import_service.dart` | Save to library |
+| `lib/repositories/ytm_innertube_repository.dart` | InnerTube client |
+| `lib/repositories/ytdlp_repository.dart` | stream URL, download, cache |
+| `lib/repositories/ytdlp_auth_settings.dart` | yt-dlp cookie settings |
+| `lib/repositories/ytdlp_binary_resolver.dart` | Binary lookup |
+| `lib/repositories/import_source_repository.dart` | CRUD for `import_sources` |
+| `scripts/fetch_ytdlp.sh` | Download standalone binaries to assets |
 
-## Провайдеры
+## Providers
 
-| Provider | Назначение |
-|----------|------------|
-| `exploreServiceProvider` | Поиск и рекомендации |
-| `trackImportServiceProvider` | Сохранение трека |
-| `ytmInnerTubeRepositoryProvider` | InnerTube-клиент |
-| `ytdlpRepositoryProvider` | yt-dlp операции |
-| `ytdlpAvailableProvider` | Доступность бинарника |
-| `ytdlpVersionProvider` | Версия yt-dlp |
+| Provider | Purpose |
+|----------|---------|
+| `exploreServiceProvider` | Search and recommendations |
+| `trackImportServiceProvider` | Save track |
+| `ytmInnerTubeRepositoryProvider` | InnerTube client |
+| `ytdlpRepositoryProvider` | yt-dlp operations |
+| `ytdlpAvailableProvider` | Binary availability |
+| `ytdlpVersionProvider` | yt-dlp version |
 
-## Ограничения (MVP)
+## Limitations (MVP)
 
-- Только поиск треков; альбомы и плейлисты YouTube Music не реализованы.
-- Рекомендации: 5 последних импортов из Explore → `getUpNexts` → round-robin merge (до 30 треков); без Charts/Moods.
-- Нет обогащения MusicBrainz при импорте.
-- Нет codesign yt-dlp на macOS — при блокировке Gatekeeper использовать Homebrew или разрешить вручную.
-- Превью требует сеть; локальная библиотека работает офлайн.
+- Track search only; YouTube Music albums and playlists not implemented.
+- Recommendations: 5 latest Explore imports → `getUpNexts` → round-robin merge (up to 30 tracks); no Charts/Moods.
+- No MusicBrainz enrichment on import.
+- No yt-dlp codesign on macOS — if Gatekeeper blocks, use Homebrew or allow manually.
+- Preview requires network; local library works offline.
 
-## Связанные документы
+## Related documents
 
-- [player.md](player.md) — очередь, `PlayableItem`, превью-поток
-- [library-scanning.md](library-scanning.md) — `scanSingleFile`, схема БД
-- [library-search.md](library-search.md) — локальный поиск (отдельно от Explore)
+- [player.md](player.md) — queue, `PlayableItem`, preview stream
+- [library-scanning.md](library-scanning.md) — `scanSingleFile`, DB schema
+- [library-search.md](library-search.md) — local search (separate from Explore)

@@ -1,28 +1,28 @@
-# Глобальный поиск по библиотеке
+# Global library search
 
-Поиск одновременно по исполнителям, альбомам и трекам **локальной библиотеки**. Результаты отображаются в контентной области при вводе запроса в поле в сайдбаре.
+Search artists, albums, and tracks in the **local library** at once. Results appear in the content area when typing in the sidebar search field.
 
-> Поиск YouTube Music — отдельно, в разделе **«Исследование»** ([explore.md](explore.md)). Глобальное поле в сайдбаре к сети не обращается.
+> YouTube Music search is separate, in **Explore** ([explore.md](explore.md)). The global sidebar field does not use the network.
 
 ## UX
 
-- Поле **«Поиск»** — в сайдбаре под заголовком «Wave Catch», всегда доступно.
-- При непустом запросе (`trim`) контентная область показывает `SearchScreen` вместо текущего экрана или детального маршрута.
-- Результаты сгруппированы в три секции: **Исполнители**, **Альбомы**, **Треки**. Пустые секции скрываются.
-- Debounce запроса: **200 ms**. Пока debounce не сработал, показывается «Поиск…».
-- Лимит: **20 результатов** на категорию.
+- **Search** field — in the sidebar below the "Wave Catch" title, always available.
+- With a non-empty query (`trim`), the content area shows `SearchScreen` instead of the current screen or detail route.
+- Results grouped in three sections: **Artists**, **Albums**, **Tracks**. Empty sections are hidden.
+- Query debounce: **200 ms**. While debounce is pending, "Searching…" is shown.
+- Limit: **20 results** per category.
 
-### Действия при выборе
+### Actions on selection
 
-| Тип | Действие |
-|-----|----------|
-| Исполнитель | Сброс маршрута → экран исполнителя |
-| Альбом | Сброс маршрута → экран альбома |
-| Трек | Сброс поиска → `playTrackInAlbum(track)` (очередь = альбом) |
+| Type | Action |
+|------|--------|
+| Artist | Clear route → artist screen |
+| Album | Clear route → album screen |
+| Track | Clear search → `playTrackInAlbum(track)` (queue = album) |
 
-После выбора запрос очищается.
+Query is cleared after selection.
 
-## Слои
+## Layers
 
 ```
 GlobalSearchField / SearchScreen (UI)
@@ -33,43 +33,43 @@ LibraryService.search()
     ↓
 LibraryRepository.searchArtists / searchAlbums / searchTracks
     ↓
-Фильтрация в памяти через Dart toLowerCase() (Unicode)
+In-memory filtering via Dart toLowerCase() (Unicode)
 ```
 
-## Поисковые запросы
+## Search fields
 
-| Категория | Поля |
-|-----------|------|
-| Исполнители | `artists.name` |
-| Альбомы | `albums.title`, `artists.name` |
-| Треки | `tracks.title`, `artists.name`, `albums.title` |
+| Category | Fields |
+|----------|--------|
+| Artists | `artists.name` |
+| Albums | `albums.title`, `artists.name` |
+| Tracks | `tracks.title`, `artists.name`, `albums.title` |
 
-Спецсимволы `%` и `_` в пользовательском вводе удаляются. Сравнение регистронезависимое: `toLowerCase()` в Dart (поддерживает кириллицу и Latin).
+Special characters `%` and `_` are stripped from user input. Case-insensitive comparison: `toLowerCase()` in Dart (supports Cyrillic and Latin).
 
-## Файлы
+## Files
 
-| Файл | Назначение |
-|------|------------|
-| `lib/repositories/library_repository.dart` | SQL-поиск |
-| `lib/services/library_service.dart` | `search()`, маппинг в UI-модели |
-| `lib/ui/models/library_search_results.dart` | Модель результатов |
-| `lib/ui/widgets/search/global_search_field.dart` | Поле ввода в сайдбаре |
-| `lib/ui/widgets/search/search_result_tile.dart` | Строка результата |
-| `lib/ui/screens/search_screen.dart` | Экран результатов и навигация |
+| File | Purpose |
+|------|---------|
+| `lib/repositories/library_repository.dart` | SQL search |
+| `lib/services/library_service.dart` | `search()`, mapping to UI models |
+| `lib/ui/models/library_search_results.dart` | Results model |
+| `lib/ui/widgets/search/global_search_field.dart` | Sidebar input field |
+| `lib/ui/widgets/search/search_result_tile.dart` | Result row |
+| `lib/ui/screens/search_screen.dart` | Results screen and navigation |
 | `lib/di/providers.dart` | `searchQueryProvider`, `debouncedSearchQueryProvider`, `librarySearchResultsProvider` |
 
-## Провайдеры
+## Providers
 
-| Provider | Назначение |
-|----------|------------|
-| `searchQueryProvider` | Текущий текст запроса (мгновенно) |
-| `debouncedSearchQueryProvider` | Запрос после debounce 200 ms |
-| `librarySearchResultsProvider` | Результаты по debounced-запросу |
+| Provider | Purpose |
+|----------|---------|
+| `searchQueryProvider` | Current query text (immediate) |
+| `debouncedSearchQueryProvider` | Query after 200 ms debounce |
+| `librarySearchResultsProvider` | Results for debounced query |
 
-После rescan библиотеки результаты обновляются через `libraryRefreshProvider`.
+After library rescan, results refresh via `libraryRefreshProvider`.
 
-## Ограничения
+## Limitations
 
-- FTS5 и ранжирование не реализованы — фильтрация в памяти достаточна для локальной библиотеки.
-- Горячая клавиша поиска не добавлена.
-- Отдельного пункта «Поиск» в навигации нет.
+- FTS5 and ranking not implemented — in-memory filtering is sufficient for a local library.
+- Search hotkey not added.
+- No separate "Search" nav item.

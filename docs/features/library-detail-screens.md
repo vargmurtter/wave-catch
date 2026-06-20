@@ -1,88 +1,88 @@
-# Детальные экраны библиотеки
+# Library detail screens
 
-Экраны исполнителя, альбома и плавающая панель информации о треке. Данные из `LibraryService` через Riverpod-провайдеры.
+Artist screen, album screen, and floating track info panel. Data from `LibraryService` via Riverpod providers.
 
-Подробности оболочки: [ui-shell.md](ui-shell.md). Дизайн-требования: [design-requirements.md](../design-requirements.md). Информация об исполнителе: [artist-info.md](artist-info.md).
+Shell details: [ui-shell.md](ui-shell.md). Design requirements: [design-requirements.md](../design-requirements.md). Artist information: [artist-info.md](artist-info.md).
 
-## Экраны
+## Screens
 
-### Исполнитель (`ArtistDetailScreen`)
+### Artist (`ArtistDetailScreen`)
 
-Файл: `lib/ui/screens/artist_detail_screen.dart`
+File: `lib/ui/screens/artist_detail_screen.dart`
 
-- Hero-баннер на всю ширину (если есть фото из Wikipedia/Wikidata)
-- Кнопка «Назад» + круглая обложка (200 px) + имя исполнителя
-- Описание исполнителя (до 6 строк)
-- Секция «Альбомы» — горизонтальный список `AlbumCard`
-- Секция «Популярные треки» — до 5 треков (`TrackListTile`) + ссылка «Показать все»
+- Full-width hero banner (when Wikipedia/Wikidata photo is available)
+- Back button + round cover (200 px) + artist name
+- Artist description (up to 6 lines)
+- Albums section — horizontal `AlbumCard` list
+- Popular tracks section — up to 5 tracks (`TrackListTile`) + "Show all" link
 
-### Все треки исполнителя (`ArtistTracksScreen`)
+### All artist tracks (`ArtistTracksScreen`)
 
-Файл: `lib/ui/screens/artist_tracks_screen.dart`
+File: `lib/ui/screens/artist_tracks_screen.dart`
 
-- Полный список треков исполнителя без группировки по альбомам
-- В подписи строки отображается альбом
+- Full artist track list without album grouping
+- Album name shown in row subtitle
 
-### Альбом (`AlbumDetailScreen`)
+### Album (`AlbumDetailScreen`)
 
-Файл: `lib/ui/screens/album_detail_screen.dart`
+File: `lib/ui/screens/album_detail_screen.dart`
 
-- Кнопка «Назад» + квадратная обложка (200 px) + название альбома
-- Кликабельный исполнитель → экран исполнителя
-- Год выхода
-- Пронумерованный список треков
-- Секция «Другие альбомы» — горизонтальный список альбомов того же исполнителя
+- Back button + square cover (200 px) + album title
+- Clickable artist → artist screen
+- Release year
+- Numbered track list
+- Other albums section — horizontal list of albums by the same artist
 
-## Навигация
+## Navigation
 
-Детальные экраны не добавляются в сайдбар. Используется стек маршрутов `libraryRouteProvider` (`List<LibraryRoute>`):
+Detail screens are not added to the sidebar. Route stack via `libraryRouteProvider` (`List<LibraryRoute>`):
 
-| Маршрут | Открытие |
-|---------|----------|
-| `LibraryMainRoute` | По умолчанию; сброс при смене пункта сайдбара |
-| `ArtistDetailRoute` | Клик по `ArtistCard` |
-| `ArtistTracksRoute` | «Показать все» на экране исполнителя |
-| `AlbumDetailRoute` | Клик по `AlbumCard` или ссылке в панели трека |
+| Route | Opened by |
+|-------|-----------|
+| `LibraryMainRoute` | Default; reset when sidebar item changes |
+| `ArtistDetailRoute` | Click on `ArtistCard` |
+| `ArtistTracksRoute` | "Show all" on artist screen |
+| `AlbumDetailRoute` | Click on `AlbumCard` or link in track panel |
 
-Методы `LibraryRouteNotifier`: `openArtist`, `openArtistTracks`, `openAlbum`, `goBack`, `reset`.
+`LibraryRouteNotifier` methods: `openArtist`, `openArtistTracks`, `openAlbum`, `goBack`, `reset`.
 
-`_ContentArea` в `app_shell.dart` рендерит экран по вершине стека.
+`_ContentArea` in `app_shell.dart` renders the screen at the top of the stack.
 
-## Панель информации о треке
+## Track info panel
 
-Файл: `lib/ui/widgets/track/track_info_panel.dart`
+File: `lib/ui/widgets/track/track_info_panel.dart`
 
-Плавающее окно поверх контента, прижато к правому краю (над `PlayerBar`, 350 px). Не заменяет панель очереди — обе могут быть видны одновременно.
+Floating window over content, aligned to the right edge (above `PlayerBar`, 350 px). Does not replace the queue panel — both can be visible at once.
 
-Состояние: `trackInfoPanelProvider` (`Track?`).
+State: `trackInfoPanelProvider` (`Track?`).
 
-Открытие: клик по строке трека (`TrackListTile`, `RecentTrackTile`), не по кнопке play.
+Opened by: click on track row (`TrackListTile`, `RecentTrackTile`), not the play button.
 
-Содержимое:
-- Обложка, название
-- Альбом и исполнитель (кликабельные → детальные экраны)
-- Год
-- Метаданные: длительность, номер трека, жанр, формат, битрейт
+Content:
+- Cover, title
+- Album and artist (clickable → detail screens)
+- Year
+- Metadata: duration, track number, genre, format, bitrate
 
-## Виджет строки трека
+## Track row widget
 
-Файл: `lib/ui/widgets/track/track_list_tile.dart`
+File: `lib/ui/widgets/track/track_list_tile.dart`
 
-- Клик по строке → `trackInfoPanelProvider.open(track)`
-- Кнопка play при hover → `playTrackInAlbum(track)` — очередь = альбом, старт с выбранного трека
-- Кнопка Play на заголовке альбома / исполнителя → `playAlbum` / `playArtist`
-- Параметры: `showTrackNumber`, `showArtist`, `showAlbum`
+- Row click → `trackInfoPanelProvider.open(track)`
+- Hover play button → `playTrackInAlbum(track)` — queue = album, start at selected track
+- Play button on album / artist header → `playAlbum` / `playArtist`
+- Parameters: `showTrackNumber`, `showArtist`, `showAlbum`
 
-## Mock-данные
+## Mock data
 
-Файл: `lib/ui/mock/mock_data.dart` — использовался на ранних этапах; экраны работают с реальной библиотекой.
+File: `lib/ui/mock/mock_data.dart` — used in early stages; screens now use the real library.
 
-## Провайдеры
+## Providers
 
-| Provider | Назначение |
-|----------|------------|
-| `libraryRouteProvider` | Стек детальных маршрутов |
-| `trackInfoPanelProvider` | Открытый трек в плавающей панели |
-| `artistInfoProvider` | Загрузка данных исполнителя (lazy, только detail screen) |
-| `artistDisplayImagePathProvider` | Путь к обложке: кэш MB/Wiki → локальная обложка альбома |
-| `artistCachedImagePathProvider` | Только кэшированное фото (без fallback) |
+| Provider | Purpose |
+|----------|---------|
+| `libraryRouteProvider` | Detail route stack |
+| `trackInfoPanelProvider` | Open track in floating panel |
+| `artistInfoProvider` | Load artist data (lazy, detail screen only) |
+| `artistDisplayImagePathProvider` | Cover path: MB/Wiki cache → local album cover |
+| `artistCachedImagePathProvider` | Cached photo only (no fallback) |

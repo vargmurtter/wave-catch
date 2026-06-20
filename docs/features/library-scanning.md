@@ -1,185 +1,185 @@
-# Сканирование музыкальной библиотеки
+# Music library scanning
 
-Рекурсивное сканирование папки с музыкой, извлечение метаданных и обложек, сохранение индекса в SQLite.
+Recursive scan of the music folder, metadata and cover extraction, index stored in SQLite.
 
-## Хранилища
+## Storage
 
-| Данные | Расположение |
-|--------|--------------|
-| Путь к папке с музыкой | `{ApplicationSupport}/.wave_catcher/app_config.json` |
-| Стратегия группировки альбомов | `{ApplicationSupport}/.wave_catcher/app_config.json` |
-| Индекс библиотеки | `{musicRoot}/.wave_catcher/library.db` |
-| Связь YouTube → файл | таблица `import_sources` в `library.db` (схема v3) |
-| Импорт из Explore | `{musicRoot}/Imports/{Artist}/{Title}.mp3` |
-| Override-конфиг | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
-| Embedded-обложки | `{musicRoot}/.wave_catcher/covers/` |
+| Data | Location |
+|------|----------|
+| Music folder path | `{ApplicationSupport}/.wave_catcher/app_config.json` |
+| Album grouping strategy | `{ApplicationSupport}/.wave_catcher/app_config.json` |
+| Library index | `{musicRoot}/.wave_catcher/library.db` |
+| YouTube → file mapping | `import_sources` table in `library.db` (schema v3) |
+| Explore imports | `{musicRoot}/Imports/{Artist}/{Title}.mp3` |
+| Override config | `{musicRoot}/.wave_catcher/metadata_overrides.json` |
+| Embedded covers | `{musicRoot}/.wave_catcher/covers/` |
 
-## Первый запуск и настройки
+## First launch and settings
 
-- При первом запуске, если путь не сохранён, показывается `OnboardingScreen` с выбором папки через системный диалог (`file_picker`).
-- Пункт **Настройки** в сайдбаре: текущий путь, смена папки, пересканирование, **группировка альбомов**.
+- On first launch, if no path is saved, `OnboardingScreen` is shown with folder selection via the system dialog (`file_picker`).
+- **Settings** in the sidebar: current path, change folder, rescan, **album grouping**.
 
-## Группировка альбомов
+## Album grouping
 
-Стратегия выбирается в **Настройки → Группировка альбомов** и сохраняется в `app_config.json` (`albumGroupingStrategy`). Смена стратегии требует **пересканирования** — состав альбомов в `library.db` пересчитывается заново.
+Strategy is chosen in **Settings → Album grouping** and saved in `app_config.json` (`albumGroupingStrategy`). Changing strategy requires a **rescan** — album composition in `library.db` is recalculated from scratch.
 
-| Стратегия | Ключ `albumId` | Когда использовать |
-|-----------|----------------|-------------------|
-| **По тегам (Album Artist)** — по умолчанию | `hash(groupingArtist \| albumTitle)` | Большинство библиотек с тегами. `groupingArtist` = `albumArtist` → исполнитель без `feat.` → исполнитель трека |
-| **По папке на диске** | `hash(parentDir \| albumTitle)` | Музыка разложена по папкам `Artist/Album/` |
-| **По названию альбома** | `hash(albumTitle)` или `hash(albumTitle \| year)` | Сборники, неоднородные теги. Может объединить разные релизы с одинаковым названием |
+| Strategy | `albumId` key | When to use |
+|----------|---------------|-------------|
+| **By tags (Album Artist)** — default | `hash(groupingArtist \| albumTitle)` | Most libraries with tags. `groupingArtist` = `albumArtist` → artist without `feat.` → track artist |
+| **By folder on disk** | `hash(parentDir \| albumTitle)` | Music organized as `Artist/Album/` folders |
+| **By album title** | `hash(albumTitle)` or `hash(albumTitle \| year)` | Compilations, inconsistent tags. May merge different releases with the same title |
 
-**Исполнитель альбома** (`albums.artist_id`) определяется при сборке альбома:
-1. Наиболее частый тег `albumArtist` среди треков
-2. Если все треки одного исполнителя — он
-3. Иначе — «Разные исполнители»
+**Album artist** (`albums.artist_id`) is determined when building the album:
+1. Most common `albumArtist` tag among tracks
+2. If all tracks share one artist — that artist
+3. Otherwise — "Various Artists"
 
-**Исполнитель трека** (`tracks.artist_id`) всегда берётся из тега `artist` (с fallback на `albumArtist`, если `artist` пуст).
+**Track artist** (`tracks.artist_id`) always comes from the `artist` tag (with fallback to `albumArtist` when `artist` is empty).
 
-Модули: `album_grouping_strategy.dart`, `album_grouping.dart`, `entity_resolver.dart`, `cover_art_resolver.dart`.
+Modules: `album_grouping_strategy.dart`, `album_grouping.dart`, `entity_resolver.dart`, `cover_art_resolver.dart`.
 
-## Правила сканирования
+## Scan rules
 
-### Обход файлов
+### File traversal
 
-- Рекурсивный обход всех подпапок выбранной директории.
-- Аудио: `mp3`, `flac`, `m4a`, `aac`, `ogg`, `opus`, `wav`, `wma`.
-- Пропускаются каталог `.wave_catcher` и устаревшие `.covers`, `.music_player`, а также файл `library.db` в корне библиотеки.
+- Recursive traversal of all subfolders in the selected directory.
+- Audio: `mp3`, `flac`, `m4a`, `aac`, `ogg`, `opus`, `wav`, `wma`.
+- Skipped: `.wave_catcher` directory and legacy `.covers`, `.music_player`, plus `library.db` at the library root.
 
-### Метаданные
+### Metadata
 
-| Поле | Источник | Fallback |
-|------|----------|----------|
-| Название трека | теги файла | имя файла без расширения |
-| Исполнитель трека | тег `artist` | тег `albumArtist`, затем «Неизвестный исполнитель» |
-| Исполнитель альбома (тег) | тег `albumArtist` | — |
-| Альбом | тег `album` | имя родительской папки, затем «Неизвестный альбом» |
+| Field | Source | Fallback |
+|-------|--------|----------|
+| Track title | file tags | filename without extension |
+| Track artist | `artist` tag | `albumArtist` tag, then "Unknown Artist" |
+| Album artist (tag) | `albumArtist` tag | — |
+| Album | `album` tag | parent folder name, then "Unknown Album" |
 
-### Обложки
+### Cover art
 
-Расширения изображений в файловой системе: `jpg`, `jpeg`, `png`, `webp`.
+Image extensions on disk: `jpg`, `jpeg`, `png`, `webp`.
 
-**Трек:**
-1. Embedded cover из метаданных → кэш в `.wave_catcher/covers/{trackId}.ext`
-2. Первое изображение в папке трека
+**Track:**
+1. Embedded cover from metadata → cache in `.wave_catcher/covers/{trackId}.ext`
+2. First image in the track folder
 
-**Альбом:**
-1. Обложка любого трека альбома (embedded или из папки)
-2. Первое изображение в папке любого трека альбома
+**Album:**
+1. Cover from any album track (embedded or from folder)
+2. First image in any album track folder
 
-### Кодировка тегов
+### Tag encoding
 
-Часть MP3-файлов (особенно старых русскоязычных) хранит теги в **Windows-1251**, но ID3 помечает их как **Latin-1**. В результате `metadata_god` отдаёт mojibake вида `Ôèëüòðóþùèé` вместо `Фильтрующий`.
+Some MP3 files (especially older Russian-language ones) store tags in **Windows-1251**, but ID3 marks them as **Latin-1**. As a result, `metadata_god` returns mojibake like `Ôèëüòðóþùèé` instead of properly decoded Cyrillic text.
 
-При сканировании `TagTextFixer` пытается исправить такие строки: `latin1.encode` → `windows1251.decode`. Исправление применяется только к индексу в `library.db`; файлы на диске не изменяются.
+During scanning, `TagTextFixer` attempts to fix such strings: `latin1.encode` → `windows1251.decode`. The fix applies only to the index in `library.db`; files on disk are not modified.
 
-Эвристика принимает результат, если в нём ≥ 2 кириллических буквы и доля кириллицы среди букв ≥ 30%. ASCII- и уже корректные кириллические строки не трогаются.
+The heuristic accepts the result if it contains ≥ 2 Cyrillic letters and Cyrillic letters account for ≥ 30% of all letters. ASCII and already-correct Cyrillic strings are left unchanged.
 
-Чтобы применить исправление к уже проиндексированной библиотеке, выполните **Настройки → Пересканировать**.
+To apply the fix to an already indexed library, use **Settings → Rescan**.
 
-### Идентификаторы
+### Identifiers
 
-Детерминированные SHA-256 хеши:
+Deterministic SHA-256 hashes:
 
-- `artistId` — от нормализованного имени исполнителя **трека**
-- `albumId` — зависит от выбранной стратегии группировки (см. раздел «Группировка альбомов»)
-- `trackId` — от абсолютного пути файла
+- `artistId` — from normalized **track** artist name
+- `albumId` — depends on the selected grouping strategy (see "Album grouping")
+- `trackId` — from absolute file path
 
-## Pipeline сканера
+## Scanner pipeline
 
 ```
 ScanJob → FileDiscovery → MetadataExtractor → TagTextFixer → EntityResolver
         → CoverArtResolver → LibraryPersister → .wave_catcher/library.db
 ```
 
-Каталог: `lib/services/scanner/`
+Directory: `lib/services/scanner/`
 
-| Модуль | Ответственность |
-|--------|-----------------|
-| `file_discovery.dart` | рекурсивный обход, фильтр аудио |
-| `metadata_extractor.dart` | чтение тегов через `metadata_god` |
-| `tag_text_fixer.dart` | исправление CP1251-mojibake в текстовых полях |
-| `entity_resolver.dart` | fallback-значения, stable ID, применение стратегии группировки |
-| `album_grouping.dart` | расчёт `albumId` и исполнителя альбома |
-| `album_grouping_strategy.dart` | enum стратегий, тексты для UI |
-| `cover_art_resolver.dart` | обложки треков и альбомов |
-| `library_persister.dart` | sync индекса в SQLite (`syncLibrary`) |
-| `library_scanner_service.dart` | оркестратор, прогресс, `scanSingleFile` |
+| Module | Responsibility |
+|--------|----------------|
+| `file_discovery.dart` | recursive traversal, audio filter |
+| `metadata_extractor.dart` | read tags via `metadata_god` |
+| `tag_text_fixer.dart` | fix CP1251 mojibake in text fields |
+| `entity_resolver.dart` | fallback values, stable IDs, grouping strategy |
+| `album_grouping.dart` | compute `albumId` and album artist |
+| `album_grouping_strategy.dart` | strategy enum, UI labels |
+| `cover_art_resolver.dart` | track and album covers |
+| `library_persister.dart` | sync index to SQLite (`syncLibrary`) |
+| `library_scanner_service.dart` | orchestrator, progress, `scanSingleFile` |
 
-## Инкрементальная индексация одного файла
+## Single-file incremental indexing
 
-`LibraryScannerService.scanSingleFile` — полный pipeline сканера для одного пути (без полного rescan библиотеки). Используется при сохранении трека из **Исследования** (`TrackImportService`):
+`LibraryScannerService.scanSingleFile` — full scanner pipeline for one path (without a full library rescan). Used when saving a track from **Explore** (`TrackImportService`):
 
-1. `open(musicRoot)` на `LibraryRepository`
-2. извлечение метаданных, override, группировка альбома
-3. `upsertTrack` в SQLite
-4. после записи в `import_sources` — `LibraryService.refreshOverrides()`
+1. `open(musicRoot)` on `LibraryRepository`
+2. metadata extraction, override, album grouping
+3. `upsertTrack` in SQLite
+4. after writing to `import_sources` — `LibraryService.refreshOverrides()`
 
-Подробности импорта: [explore.md](explore.md).
+Import details: [explore.md](explore.md).
 
-## Пересканирование (rescan)
+## Rescan
 
-Полный rescan (**Настройки → Пересканировать**) синхронизирует индекс с диском, а не пересоздаёт базу с нуля.
+A full rescan (**Settings → Rescan**) syncs the index with disk; it does not recreate the database from scratch.
 
-`LibraryPersister` вызывает `LibraryRepository.syncLibrary`:
+`LibraryPersister` calls `LibraryRepository.syncLibrary`:
 
-1. **Upsert** всех найденных `artists`, `albums`, `tracks` (как `scanSingleFile`).
-2. **Удаление** из индекса треков, чьих `file_path` нет среди результатов сканирования.
-3. **`deleteOrphanedArtistsAndAlbums()`** — очистка альбомов/исполнителей без треков (например, после смены стратегии группировки).
-4. Очистка orphan-записей в `playlist_tracks` и `import_sources` для удалённых треков.
+1. **Upsert** all found `artists`, `albums`, `tracks` (same as `scanSingleFile`).
+2. **Delete** from the index tracks whose `file_path` is not among scan results.
+3. **`deleteOrphanedArtistsAndAlbums()`** — remove albums/artists with no tracks (e.g. after changing grouping strategy).
+4. Clean orphan rows in `playlist_tracks` and `import_sources` for deleted tracks.
 
-| Данные | Поведение при rescan |
-|--------|----------------------|
-| Файлы на диске | Перечитываются; метаданные и обложки обновляются |
-| `trackId` | Стабилен, пока путь файла не менялся (`hash(filePath)`) |
-| Плейлисты, «Избранное», «Сохранённые» | **Сохраняются** для треков, файлы которых на месте |
-| Треки с удалёнными файлами | Убираются из индекса и из плейлистов |
-| `import_sources` (Explore) | Orphan-записи для отсутствующих файлов удаляются |
-| `indexed_at_ms` | Обновляется для всех просканированных треков |
+| Data | Behavior on rescan |
+|------|-------------------|
+| Files on disk | Re-read; metadata and covers updated |
+| `trackId` | Stable while file path unchanged (`hash(filePath)`) |
+| Playlists, Favorites, Saved | **Preserved** for tracks whose files still exist |
+| Tracks with deleted files | Removed from index and playlists |
+| `import_sources` (Explore) | Orphan rows for missing files removed |
+| `indexed_at_ms` | Updated for all scanned tracks |
 
-При открытии `library.db` включён `PRAGMA foreign_keys = ON` — каскадное удаление связей плейлиста при удалении трека работает предсказуемо.
+When opening `library.db`, `PRAGMA foreign_keys = ON` is enabled — cascade deletion of playlist links when a track is removed behaves predictably.
 
-Папка `Imports/` (треки из Explore) сканируется наравне с остальной библиотекой.
+The `Imports/` folder (tracks from Explore) is scanned like the rest of the library.
 
-## Слои
+## Layers
 
 ```
 UI → LibraryService / LibraryScannerService / SettingsService
    → LibraryRepository / AppSettingsRepository
-   → SQLite / файловая система
+   → SQLite / filesystem
 ```
 
-## Зависимости
+## Dependencies
 
-- `file_picker` — выбор папки (macOS / Windows / Linux)
-- `metadata_god` — чтение аудио-тегов
-- `windows1251` — декодирование CP1251 при исправлении mojibake
-- `sqlite3` + `sqlite3_flutter_libs` — SQLite на desktop
+- `file_picker` — folder selection (macOS / Windows / Linux)
+- `metadata_god` — read audio tags
+- `windows1251` — CP1251 decoding when fixing mojibake
+- `sqlite3` + `sqlite3_flutter_libs` — SQLite on desktop
 - `path_provider` — Application Support
 
-## Настройка окружения (macOS)
+## Environment setup (macOS)
 
-`metadata_god` использует нативный Rust/XCFramework. После `flutter pub get` обязательно:
+`metadata_god` uses a native Rust/XCFramework. After `flutter pub get`, run:
 
 ```bash
 cd macos && pod install && cd ..
 flutter run -d macos
 ```
 
-Без `pod install` приложение падает с ошибкой `store_dart_post_cobject: symbol not found`.
+Without `pod install`, the app crashes with `store_dart_post_cobject: symbol not found`.
 
-Минимальная версия macOS: **12.0** (требование XCFramework metadata_god).
+Minimum macOS version: **12.0** (metadata_god XCFramework requirement).
 
-Для release-сборок в `macos/Runner/Configs/Release.xcconfig` отключена агрессивная strip-оптимизация, чтобы FFI-символы не удалялись линкером.
+For release builds, aggressive strip optimization is disabled in `macos/Runner/Configs/Release.xcconfig` so the linker does not remove FFI symbols.
 
 ### App Sandbox
 
-Приложение **не использует App Sandbox** — это desktop-плеер, которому нужен рекурсивный доступ к выбранной папке с музыкой и запись `.wave_catcher/library.db` в неё. Sandbox без security-scoped bookmarks блокирует диалог выбора папки и доступ к файлам после перезапуска.
+The app **does not use App Sandbox** — it is a desktop player that needs recursive access to the chosen music folder and write access to `.wave_catcher/library.db` inside it. Sandbox without security-scoped bookmarks blocks the folder picker and file access after restart.
 
-## Вне scope
+## Out of scope
 
-- Полный инкрементальный rescan по `file_modified_ms` (только точечный `scanSingleFile`)
-- «Недавно проигранные»
+- Full incremental rescan by `file_modified_ms` (only targeted `scanSingleFile`)
+- "Recently played"
 
-Воспроизведение реализовано отдельно: [player.md](player.md).  
-Импорт из YouTube Music: [explore.md](explore.md).
+Playback is documented separately: [player.md](player.md).  
+YouTube Music import: [explore.md](explore.md).

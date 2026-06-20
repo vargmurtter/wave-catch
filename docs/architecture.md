@@ -1,75 +1,75 @@
-# Архитектура
+# Architecture
 
-Десктопное приложение Wave Catch строится на простой и предсказуемой архитектуре.
+The Wave Catch desktop app is built on a simple, predictable architecture.
 
-## Принципы
+## Principles
 
-| Принцип | Описание |
-|---------|----------|
-| **Repository** | Единственная точка входа/выхода для данных |
-| **Service** | Вся бизнес-логика живёт в сервисах |
-| **DI** | Все зависимости внедряются явно, без скрытого создания объектов |
-| **KISS** | Простота важнее «умных» абстракций |
+| Principle | Description |
+|-----------|-------------|
+| **Repository** | Single entry/exit point for data |
+| **Service** | All business logic lives in services |
+| **DI** | All dependencies are injected explicitly, with no hidden object creation |
+| **KISS** | Simplicity beats "clever" abstractions |
 
-## Слои
+## Layers
 
 ```
-UI (виджеты, экраны)
+UI (widgets, screens)
     ↓
-Services (бизнес-логика)
+Services (business logic)
     ↓
-Repositories (данные)
+Repositories (data)
     ↓
-Источники (файловая система, БД, …)
+Sources (filesystem, DB, …)
 ```
 
-### Репозитории
+### Repositories
 
-- Отвечают только за чтение и запись данных.
-- Скрывают детали хранения от остального приложения.
-- Не содержат бизнес-правил.
+- Responsible only for reading and writing data.
+- Hide storage details from the rest of the app.
+- Do not contain business rules.
 
-### Сервисы
+### Services
 
-- Реализуют сценарии использования: воспроизведение, поиск, управление плейлистами и т.д.
-- Могут вызывать несколько репозиториев и других сервисов.
-- Не знают о виджетах и навигации.
+- Implement use cases: playback, search, playlist management, etc.
+- May call multiple repositories and other services.
+- Know nothing about widgets or navigation.
 
 ### UI
 
-- Отображает состояние и передаёт действия пользователя в сервисы.
-- Не обращается к репозиториям и файловой системе напрямую.
+- Displays state and forwards user actions to services.
+- Does not access repositories or the filesystem directly.
 
 ## Dependency Injection
 
-Для DI используется [Riverpod](https://riverpod.dev/) (`flutter_riverpod`).
+[Riverpod](https://riverpod.dev/) (`flutter_riverpod`) is used for DI.
 
-- Точка входа: `ProviderScope` в `lib/main.dart`.
-- Регистрация провайдеров: `lib/di/providers.dart`.
-- Зависимости в сервисах и репозиториях передаются через конструкторы.
+- Entry point: `ProviderScope` in `lib/main.dart`.
+- Provider registration: `lib/di/providers.dart`.
+- Dependencies in services and repositories are passed through constructors.
 
-Связывать через DI нужно:
+Wire through DI:
 
-- сервис с репозиторием;
-- сервис с сервисом;
-- UI с сервисом.
+- service → repository;
+- service → service;
+- UI → service.
 
-Прямое создание зависимостей внутри классов (`Repository()` в теле сервиса) запрещено.
+Direct dependency creation inside classes (`Repository()` in a service body) is not allowed.
 
 ## KISS
 
-- Не вводите лишние интерфейсы, если есть одна реализация и нет планов на подмену.
-- Не усложняйте код ради «правильной» архитектуры — достаточно трёх слоёв выше.
-- Рефакторинг — когда появилась реальная потребность, а не заранее.
+- Do not introduce extra interfaces when there is one implementation and no plan to swap it.
+- Do not overcomplicate code for "correct" architecture — the three layers above are enough.
+- Refactor when a real need appears, not ahead of time.
 
-## Структура каталогов
+## Directory structure
 
 ```
 lib/
-  main.dart       # точка входа, ProviderScope
-  app.dart        # корневой виджет приложения
+  main.dart       # entry point, ProviderScope
+  app.dart        # root app widget
   di/
-    providers.dart  # Riverpod-провайдеры
+    providers.dart  # Riverpod providers
   repositories/   # MusicRepository, PlaylistRepository, …
     app_settings_repository.dart
     artist_info_cache_repository.dart
@@ -95,47 +95,47 @@ lib/
     track_import_service.dart
     metadata/
       metadata_edit_service.dart
-    scanner/        # фазы pipeline сканера
-  l10n/           # локализация (ARB, AppLocalizations)
+    scanner/        # scanner pipeline phases
+  l10n/           # localization (ARB, AppLocalizations)
   ui/
-    screens/      # экраны
-    widgets/      # переиспользуемые виджеты
-docs/             # документация (этот файл и др.)
+    screens/      # screens
+    widgets/      # reusable widgets
+docs/             # documentation (this file and others)
 ```
 
-## Модули данных (реализовано)
+## Data modules (implemented)
 
-| Модуль | Слой | Назначение |
-|--------|------|------------|
-| `AppSettingsRepository` | Repository | путь к папке с музыкой, язык интерфейса (Application Support) |
-| `LibraryRepository` | Repository | CRUD индекса в `.wave_catcher/library.db` |
-| `SettingsService` | Service | выбор папки, проверка конфигурации |
-| `LibraryScannerService` | Service | оркестрация сканирования |
-| `LibraryService` | Service | чтение библиотеки для UI, глобальный поиск |
-| `PlayerService` | Service | воспроизведение, очередь, repeat/shuffle |
-| `MetadataOverrideRepository` | Repository | override-конфиг метаданных в `.wave_catcher/` |
-| `MetadataFileWriter` | Repository | запись тегов в аудиофайлы через `metadata_god` |
-| `MetadataEditService` | Service | редактирование метаданных треков |
-| `MusicBrainzApiRepository` | Repository | поиск исполнителя, ссылки Wikipedia/Wikidata |
-| `WikipediaApiRepository` | Repository | описание и изображение из Wikipedia/Wikidata |
-| `ArtistInfoCacheRepository` | Repository | кэш данных исполнителей на диске |
-| `ArtistInfoService` | Service | загрузка и кэширование информации об исполнителе |
-| `LastFmApiRepository` | Repository | *(неактивно)* HTTP-запросы к Last.fm API |
-| `YtmInnerTubeRepository` | Repository | YouTube Music: поиск, подсказки, Up Next, топ артиста (InnerTube) |
-| `YtdlpRepository` | Repository | stream URL и скачивание аудио через yt-dlp |
-| `YtdlpBinaryResolver` | Repository | поиск бинарника: bundle (in-place) → Linux fallback → PATH |
-| `ImportSourceRepository` | Repository | связь `video_id` ↔ локальный файл (`import_sources`) |
-| `ExploreService` | Service | поиск и рекомендации в разделе «Исследование» |
-| `TrackImportService` | Service | сохранение трека из Explore в `{musicRoot}/Imports/` |
+| Module | Layer | Purpose |
+|--------|-------|---------|
+| `AppSettingsRepository` | Repository | music folder path, UI language (Application Support) |
+| `LibraryRepository` | Repository | CRUD for index in `.wave_catcher/library.db` |
+| `SettingsService` | Service | folder selection, configuration checks |
+| `LibraryScannerService` | Service | scan orchestration |
+| `LibraryService` | Service | library reads for UI, global search |
+| `PlayerService` | Service | playback, queue, repeat/shuffle |
+| `MetadataOverrideRepository` | Repository | metadata override config in `.wave_catcher/` |
+| `MetadataFileWriter` | Repository | write tags to audio files via `metadata_god` |
+| `MetadataEditService` | Service | track metadata editing |
+| `MusicBrainzApiRepository` | Repository | artist lookup, Wikipedia/Wikidata links |
+| `WikipediaApiRepository` | Repository | description and image from Wikipedia/Wikidata |
+| `ArtistInfoCacheRepository` | Repository | on-disk artist data cache |
+| `ArtistInfoService` | Service | fetch and cache artist information |
+| `LastFmApiRepository` | Repository | *(inactive)* HTTP requests to Last.fm API |
+| `YtmInnerTubeRepository` | Repository | YouTube Music: search, suggestions, Up Next, artist top tracks (InnerTube) |
+| `YtdlpRepository` | Repository | stream URL and audio download via yt-dlp |
+| `YtdlpBinaryResolver` | Repository | binary lookup: bundle (in-place) → Linux fallback → PATH |
+| `ImportSourceRepository` | Repository | `video_id` ↔ local file mapping (`import_sources`) |
+| `ExploreService` | Service | search and recommendations in Explore |
+| `TrackImportService` | Service | save a track from Explore to `{musicRoot}/Imports/` |
 
-Подробности сканирования: [features/library-scanning.md](features/library-scanning.md).  
-Подробности поиска: [features/library-search.md](features/library-search.md).  
-Раздел «Исследование»: [features/explore.md](features/explore.md).  
-Подробности плеера: [features/player.md](features/player.md).  
-Редактирование метаданных: [features/metadata-editing.md](features/metadata-editing.md).  
-Информация об исполнителе: [features/artist-info.md](features/artist-info.md).  
-Локализация: [features/localization.md](features/localization.md).
+Library scanning details: [features/library-scanning.md](features/library-scanning.md).  
+Search details: [features/library-search.md](features/library-search.md).  
+Explore: [features/explore.md](features/explore.md).  
+Player details: [features/player.md](features/player.md).  
+Metadata editing: [features/metadata-editing.md](features/metadata-editing.md).  
+Artist information: [features/artist-info.md](features/artist-info.md).  
+Localization: [features/localization.md](features/localization.md).
 
-## Документация
+## Documentation
 
-Любое изменение архитектуры, добавление модуля или фичи сопровождается обновлением файлов в `docs/`.
+Any architecture change, new module, or feature must be accompanied by updates to files in `docs/`.

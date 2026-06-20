@@ -1,68 +1,68 @@
-# Информация об исполнителе (MusicBrainz + Wikipedia)
+# Artist information (MusicBrainz + Wikipedia)
 
-Lazy-загрузка описания и фото исполнителя при открытии экрана деталей. Источники — MusicBrainz (поиск и ссылки) и Wikipedia/Wikidata (bio и изображение). Данные кэшируются на диск; при ошибке UI не меняется.
+Lazy-loads artist description and photo when opening the detail screen. Sources are MusicBrainz (lookup and links) and Wikipedia/Wikidata (bio and image). Data is cached on disk; on error the UI is unchanged.
 
-API keys не требуются.
+No API keys required.
 
-## Поведение UI
+## UI behavior
 
-Экран `ArtistDetailScreen` при наличии данных показывает:
+`ArtistDetailScreen` when data is available shows:
 
-- **Hero-баннер** на всю ширину (220 px) — фото с Wikipedia/Wikidata, `BoxFit.cover` + gradient
-- **Круглую обложку** (200 px) — внешнее фото заменяет обложку, унаследованную от альбома
-- **Описание** — до 6 строк (ru Wikipedia → en Wikipedia → Wikidata description)
+- **Hero banner** full width (220 px) — photo from Wikipedia/Wikidata, `BoxFit.cover` + gradient
+- **Round cover** (200 px) — external photo replaces cover inherited from album
+- **Description** — up to 6 lines (ru Wikipedia → en Wikipedia → Wikidata description)
 
-Загрузка запускается только на экране деталей (`artistInfoProvider`). После кэширования изображение показывается везде через `artistDisplayImagePathProvider` (карточки, поиск, экран деталей) — без повторных сетевых запросов.
+Loading runs only on the detail screen (`artistInfoProvider`). After caching, the image appears everywhere via `artistDisplayImagePathProvider` (cards, search, detail screen) — no repeated network requests.
 
-Пока данные загружаются или при ошибке — текущий layout без изменений.
+While loading or on error — current layout unchanged.
 
-## Архитектура
+## Architecture
 
 ```
 ArtistDetailScreen
     → artistInfoProvider (FutureProvider.family)
     → ArtistInfoService
-        → ArtistInfoCacheRepository (диск)
+        → ArtistInfoCacheRepository (disk)
         → MusicBrainzApiRepository (search + url-rels)
         → WikipediaApiRepository (summary + Wikidata)
 ```
 
-| Модуль | Слой | Назначение |
-|--------|------|------------|
-| `MusicBrainzApiRepository` | Repository | Поиск MBID, извлечение Wikipedia/Wikidata URL |
+| Module | Layer | Purpose |
+|--------|-------|---------|
+| `MusicBrainzApiRepository` | Repository | MBID search, Wikipedia/Wikidata URL extraction |
 | `WikipediaApiRepository` | Repository | REST summary, Wikidata EntityData |
-| `ArtistInfoCacheRepository` | Repository | JSON-кэш + скачивание изображений |
-| `ArtistInfoService` | Service | cache-first логика, in-memory кэш |
-| `artistInfoProvider` | DI | lazy-загрузка по `artistId` |
+| `ArtistInfoCacheRepository` | Repository | JSON cache + image download |
+| `ArtistInfoService` | Service | cache-first logic, in-memory cache |
+| `artistInfoProvider` | DI | lazy load by `artistId` |
 
-## Поток данных
+## Data flow
 
 1. MusicBrainz search: `GET /ws/2/artist?query=artist:"{name}"&fmt=json&limit=5`
-2. Выбор MBID: exact name match или highest score
+2. MBID selection: exact name match or highest score
 3. MusicBrainz lookup: `GET /ws/2/artist/{mbid}?inc=url-rels&fmt=json`
 4. Wikipedia: `GET https://ru.wikipedia.org/api/rest_v1/page/summary/{title}` (fallback: en)
-5. Wikidata (если нужно): `GET .../Special:EntityData/{id}.json` — sitelinks, description, P18 → Commons
-6. Скачивание изображения на диск, запись в кэш
+5. Wikidata (if needed): `GET .../Special:EntityData/{id}.json` — sitelinks, description, P18 → Commons
+6. Download image to disk, write to cache
 
 ## MusicBrainz
 
-- User-Agent обязателен: `Wave Catch/0.1.0 (desktop music player)`
-- Rate limit: **1 запрос в секунду** — throttle в `MusicBrainzApiRepository`
+- User-Agent required: `Wave Catch/0.1.0 (desktop music player)`
+- Rate limit: **1 request per second** — throttle in `MusicBrainzApiRepository`
 
-## Кэш
+## Cache
 
-Файлы в `{ApplicationSupport}/.wave_catcher/`:
+Files in `{ApplicationSupport}/.wave_catcher/`:
 
-| Файл | Содержимое |
-|------|------------|
+| File | Contents |
+|------|----------|
 | `artist_info_cache.json` | `{ artistId: { description?, imagePath?, cachedAt } }` |
-| `artist_images/{artistId}.{ext}` | Локальная копия фото |
+| `artist_images/{artistId}.{ext}` | Local photo copy |
 
-Ключ — `artist.id` (hash нормализованного имени из библиотеки).
+Key is `artist.id` (hash of normalized name from library).
 
-Успешные ответы кэшируются навсегда. Неудачные запросы не кэшируются.
+Successful responses cached indefinitely. Failed requests are not cached.
 
-## Связанные файлы
+## Related files
 
 - `lib/repositories/musicbrainz_api_repository.dart`
 - `lib/repositories/wikipedia_api_repository.dart`
@@ -71,6 +71,6 @@ ArtistDetailScreen
 - `lib/ui/screens/artist_detail_screen.dart`
 - `lib/ui/widgets/artist/artist_hero_banner.dart`
 
-## Last.fm (неактивно)
+## Last.fm (inactive)
 
-Код Last.fm сохранён, но не подключён: [lastfm-artist-info.md](lastfm-artist-info.md).
+Last.fm code is preserved but not wired up: [lastfm-artist-info.md](lastfm-artist-info.md).
